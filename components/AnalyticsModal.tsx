@@ -97,19 +97,36 @@ const YearHeatmap: React.FC<{ weeks: YearWeek[] }> = ({ weeks }) => {
             <span>Fri</span>
             <span></span>
           </div>
-          <div className="k-year-grid">
+          <div className="k-year-grid" role="grid" aria-label="Focus activity over the past year">
             {weeks.map((week, wi) => (
-              <div key={wi} className="k-year-col">
-                {week.days.map((day, di) => (
-                  <div
-                    key={di}
-                    className={`k-year-cell l${day ? intensityLevel(day.mins) : 0} ${day?.inFuture ? 'future' : ''}`}
-                    onMouseEnter={() => setHovered(day)}
-                    onMouseLeave={() => setHovered(null)}
-                    role={day ? 'img' : undefined}
-                    aria-label={day ? `${day.date.toDateString()}: ${day.mins} minutes` : undefined}
-                  />
-                ))}
+              <div key={wi} className="k-year-col" role="row">
+                {week.days.map((day, di) => {
+                  if (!day || day.inFuture) {
+                    return (
+                      <div
+                        key={di}
+                        className={`k-year-cell l0 ${day?.inFuture ? 'future' : ''}`}
+                        role="gridcell"
+                        aria-hidden="true"
+                      />
+                    );
+                  }
+                  const label = `${day.date.toDateString()}: ${day.mins} minute${day.mins === 1 ? '' : 's'} focused`;
+                  return (
+                    <button
+                      key={di}
+                      type="button"
+                      className={`k-year-cell l${intensityLevel(day.mins)}`}
+                      onMouseEnter={() => setHovered(day)}
+                      onMouseLeave={() => setHovered(null)}
+                      onFocus={() => setHovered(day)}
+                      onBlur={() => setHovered(null)}
+                      role="gridcell"
+                      aria-label={label}
+                      title={label}
+                    />
+                  );
+                })}
               </div>
             ))}
           </div>

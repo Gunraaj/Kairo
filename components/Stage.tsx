@@ -423,8 +423,38 @@ const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isAct
 
   const ticks = Array.from({ length: 60 }, (_, i) => i);
 
+  // Keyboard alternative to dragging: the whole dial acts as a slider from
+  // 1..60 minutes when idle. Arrow keys nudge by 1 (fine) or 5 (coarse),
+  // Home/End jump to the extremes. Ignored while a session is running.
+  const currentMinutes = Math.max(1, Math.round(timeLeft / 60));
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return;
+    const map: Record<string, number> = {
+      ArrowRight: 1, ArrowUp: 5,
+      ArrowLeft: -1, ArrowDown: -5,
+    };
+    if (e.key in map) {
+      e.preventDefault();
+      onSet(Math.max(1, Math.min(60, currentMinutes + map[e.key])));
+    } else if (e.key === 'Home') { e.preventDefault(); onSet(1); }
+    else if (e.key === 'End') { e.preventDefault(); onSet(60); }
+    else if (e.key === 'PageUp') { e.preventDefault(); onSet(Math.min(60, currentMinutes + 10)); }
+    else if (e.key === 'PageDown') { e.preventDefault(); onSet(Math.max(1, currentMinutes - 10)); }
+  };
+
   return (
-    <div className="k-dial" role="group" aria-label={`Focus timer, ${formatted} remaining. ${disabled ? '' : 'Drag the dial to set duration.'}`}>
+    <div
+      className="k-dial"
+      role="slider"
+      tabIndex={disabled ? -1 : 0}
+      aria-label="Focus duration"
+      aria-valuemin={1}
+      aria-valuemax={60}
+      aria-valuenow={currentMinutes}
+      aria-valuetext={`${currentMinutes} minutes`}
+      aria-disabled={disabled}
+      onKeyDown={onKeyDown}
+    >
       <svg ref={svgRef} viewBox="0 0 320 320" style={{ touchAction: 'none' }}>
         {/* Invisible hitbox first so it sits UNDER the visible track/arc
             but ABOVE the SVG background; pointer events land on it because

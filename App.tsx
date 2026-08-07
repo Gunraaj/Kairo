@@ -3,6 +3,7 @@ import { Stage } from './components/Stage';
 import { ControlPanel } from './components/ControlPanel';
 import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
+import { Modal } from './components/Modal';
 import type { Project, KairoSession, UserSettings, AudioSettings, FocusTarget } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
@@ -484,6 +485,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
         <NavIcon name={themeIcon} />
         <span className="k-nav-label">{themeLabel}</span>
       </button>
+      <span role="status" aria-live="polite" className="sr-only">Theme set to {themeLabel}</span>
       <button className="k-nav-item" onClick={onSettings}>
         <NavIcon name="settings" />
         <span className="k-nav-label">Settings</span>
@@ -495,12 +497,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
 /* First-run welcome. Explains the four moves that unlock the app:
    add a project, pick a task, start focus, tune sound. Shows once. */
 const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
-  <div
-    className="modal-backdrop"
-    onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
-    role="presentation"
-  >
-    <div className="modal-card welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+  <Modal titleId="welcome-title" onClose={onClose} className="welcome-dialog">
+    <>
       <header className="k-modal-header">
         <div>
           <h2 id="welcome-title">Welcome to Kairo</h2>
@@ -538,8 +536,8 @@ const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
       <footer className="k-modal-footer">
         <button className="k-btn k-btn-primary" onClick={onClose}>Start focusing</button>
       </footer>
-    </div>
-  </div>
+    </>
+  </Modal>
 );
 
 /* Calm flowing ribbons. One vermilion thread is the active focus. Each
