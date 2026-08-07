@@ -50,6 +50,28 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark' | 'system'>(
+    'kairo_theme',
+    'system',
+    { version: 1, normalize: v => (v === 'light' || v === 'dark' ? v : 'system') },
+  );
+
+  // Reflect the theme choice onto <html data-theme> so every CSS token flips.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  // First-visit welcome. Uses its own storage key so it never repeats.
+  useEffect(() => {
+    if (!localStorage.getItem('kairo_seen_welcome')) setShowWelcome(true);
+  }, []);
+  const dismissWelcome = () => {
+    localStorage.setItem('kairo_seen_welcome', '1');
+    setShowWelcome(false);
+  };
   const [isSessionActive, setIsSessionActive] = useState(false);
 
   const audioEngine = useAudioEngine(audioSettings);
@@ -169,6 +191,8 @@ const App: React.FC = () => {
           setProjects={setProjects}
           activeTaskId={activeTaskId}
           setActiveTaskId={setActiveTaskId}
+          theme={theme}
+          setTheme={setTheme}
           onProgress={() => setShowAnalytics(true)}
           onSettings={() => setShowSettings(true)}
         />
@@ -213,6 +237,8 @@ const App: React.FC = () => {
         </section>
       </main>
 
+      {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
+
       {showSettings && (
         <SettingsModal
           settings={userSettings}
@@ -231,7 +257,7 @@ const App: React.FC = () => {
 };
 
 /* Small SVG icon set for the sidebar -- Sumi-thin strokes, no library. */
-const NavIcon: React.FC<{ name: 'folder' | 'folder-open' | 'doc' | 'plus' | 'chart' | 'settings' | 'archive' | 'chevron' | 'chevron-down' | 'trash' | 'check' }> = ({ name }) => {
+const NavIcon: React.FC<{ name: 'folder' | 'folder-open' | 'doc' | 'plus' | 'chart' | 'settings' | 'archive' | 'chevron' | 'chevron-down' | 'trash' | 'check' | 'sun' | 'moon' | 'system' }> = ({ name }) => {
   const shared = { className: 'k-nav-icon', width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   switch (name) {
     case 'folder':      return <svg {...shared}><path d="M2 4a1 1 0 011-1h3l1.5 1.5H13a1 1 0 011 1V12a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" /></svg>;
@@ -245,6 +271,9 @@ const NavIcon: React.FC<{ name: 'folder' | 'folder-open' | 'doc' | 'plus' | 'cha
     case 'chevron-down':return <svg {...shared}><path d="M4 6l4 4 4-4" /></svg>;
     case 'trash':       return <svg {...shared}><path d="M3 4h10M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M4.5 4l.6 8.5a1 1 0 001 .9h3.8a1 1 0 001-.9L11.5 4" /></svg>;
     case 'check':       return <svg {...shared}><path d="M3 8l3 3 7-7" /></svg>;
+    case 'sun':         return <svg {...shared}><circle cx="8" cy="8" r="3" /><path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.5 3.5l1 1M11.5 11.5l1 1M3.5 12.5l1-1M11.5 4.5l1-1" /></svg>;
+    case 'moon':        return <svg {...shared}><path d="M13 9.5A5.5 5.5 0 116.5 3a4.5 4.5 0 006.5 6.5z" /></svg>;
+    case 'system':      return <svg {...shared}><rect x="2" y="3" width="12" height="8" rx="1" /><path d="M6 13h4M8 11v2" /></svg>;
   }
 };
 
@@ -255,11 +284,18 @@ type SidebarNavProps = {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   activeTaskId: string | null;
   setActiveTaskId: (id: string | null) => void;
+  theme: 'light' | 'dark' | 'system';
+  setTheme: React.Dispatch<React.SetStateAction<'light' | 'dark' | 'system'>>;
   onProgress: () => void;
   onSettings: () => void;
 };
 
-const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTaskId, setActiveTaskId, onProgress, onSettings }) => {
+const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTaskId, setActiveTaskId, theme, setTheme, onProgress, onSettings }) => {
+  const cycleTheme = () => {
+    setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'));
+  };
+  const themeIcon = theme === 'dark' ? 'moon' : theme === 'light' ? 'sun' : 'system';
+  const themeLabel = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(projects.map(p => p.id)));
   const [newProjectName, setNewProjectName] = useState('');
   const [addingTaskFor, setAddingTaskFor] = useState<string | null>(null);
@@ -439,6 +475,15 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
         <NavIcon name="chart" />
         <span className="k-nav-label">Progress</span>
       </button>
+      <button
+        className="k-nav-item"
+        onClick={cycleTheme}
+        title={`Theme: ${themeLabel} (click to cycle)`}
+        aria-label={`Theme: ${themeLabel}. Click to change.`}
+      >
+        <NavIcon name={themeIcon} />
+        <span className="k-nav-label">{themeLabel}</span>
+      </button>
       <button className="k-nav-item" onClick={onSettings}>
         <NavIcon name="settings" />
         <span className="k-nav-label">Settings</span>
@@ -446,6 +491,56 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
     </nav>
   );
 };
+
+/* First-run welcome. Explains the four moves that unlock the app:
+   add a project, pick a task, start focus, tune sound. Shows once. */
+const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div
+    className="modal-backdrop"
+    onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
+    role="presentation"
+  >
+    <div className="modal-card welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <header className="k-modal-header">
+        <div>
+          <h2 id="welcome-title">Welcome to Kairo</h2>
+          <p className="k-modal-sub">Make space for one thing.</p>
+        </div>
+        <button className="k-modal-close" onClick={onClose} aria-label="Dismiss welcome">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
+        </button>
+      </header>
+      <div className="k-modal-body">
+        <ol className="k-welcome-list">
+          <li>
+            <b>Add a project</b>
+            <span>Type its name in the sidebar and press Enter. Everything you focus on lives inside a project.</span>
+          </li>
+          <li>
+            <b>Pick one task</b>
+            <span>Expand a project and click a task. That is the one thing your next session belongs to.</span>
+          </li>
+          <li>
+            <b>Start focus</b>
+            <span>Drag the dial for any duration up to 60 minutes, then press Space or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</span>
+          </li>
+          <li>
+            <b>Choose an atmosphere</b>
+            <span>The Sound Library on the right layers ambient sounds, binaural beats, or a lofi stream. Master volume governs everything.</span>
+          </li>
+        </ol>
+        <p className="k-welcome-note">
+          Every completed session banks minutes to its task and fills a square in your yearly focus map (in Progress). Nothing leaves your browser — Kairo is fully local.
+        </p>
+      </div>
+      <footer className="k-modal-footer">
+        <button className="k-btn k-btn-primary" onClick={onClose}>Start focusing</button>
+      </footer>
+    </div>
+  </div>
+);
 
 /* Calm flowing ribbons. One vermilion thread is the active focus. Each
    completed pomodoro nudges its curve slightly so the canvas breathes

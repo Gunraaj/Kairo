@@ -346,6 +346,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         <div id="panel-sounds" className="k-sl-list custom-scrollbar" role="tabpanel" aria-labelledby="tab-sounds" tabIndex={0} data-testid="sounds-list">
           {ambientError && <p style={{ color: 'var(--shu)', fontSize: 12 }} role="alert">{ambientError}</p>}
 
+          <div className="k-sl-cats" role="tablist" aria-label="Sound categories">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                role="tab"
+                aria-selected={category === cat}
+                className={`k-sl-cat ${category === cat ? 'active' : ''}`}
+                onClick={() => setCategory(cat)}
+              >{cat}</button>
+            ))}
+          </div>
+
+
           {activeEntries.length > 0 && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
               <button className="k-btn" style={{ minHeight: 32, fontSize: 12, padding: '0 10px' }} onClick={toggleAmbientPlayback}>
