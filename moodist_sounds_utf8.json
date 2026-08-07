@@ -1,0 +1,330 @@
+﻿[
+    {
+        "name":  "alarm",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/alarm.mp3"
+    },
+    {
+        "name":  "beehive",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/beehive.mp3"
+    },
+    {
+        "name":  "birds",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/birds.mp3"
+    },
+    {
+        "name":  "cat-purring",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/cat-purring.mp3"
+    },
+    {
+        "name":  "chickens",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/chickens.mp3"
+    },
+    {
+        "name":  "cows",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/cows.mp3"
+    },
+    {
+        "name":  "crickets",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/crickets.mp3"
+    },
+    {
+        "name":  "crows",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/crows.mp3"
+    },
+    {
+        "name":  "dog-barking",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/dog-barking.mp3"
+    },
+    {
+        "name":  "frog",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/frog.mp3"
+    },
+    {
+        "name":  "horse-gallop",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/horse-gallop.mp3"
+    },
+    {
+        "name":  "owl",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/owl.mp3"
+    },
+    {
+        "name":  "seagulls",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/seagulls.mp3"
+    },
+    {
+        "name":  "sheep",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/sheep.mp3"
+    },
+    {
+        "name":  "whale",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/whale.mp3"
+    },
+    {
+        "name":  "wolf",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/wolf.mp3"
+    },
+    {
+        "name":  "woodpecker",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/animals/woodpecker.mp3"
+    },
+    {
+        "name":  "campfire",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/campfire.mp3"
+    },
+    {
+        "name":  "droplets",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/droplets.mp3"
+    },
+    {
+        "name":  "howling-wind",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/howling-wind.mp3"
+    },
+    {
+        "name":  "jungle",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/jungle.mp3"
+    },
+    {
+        "name":  "river",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/river.mp3"
+    },
+    {
+        "name":  "walk-in-snow",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/walk-in-snow.mp3"
+    },
+    {
+        "name":  "walk-on-gravel",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/walk-on-gravel.mp3"
+    },
+    {
+        "name":  "walk-on-leaves",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/walk-on-leaves.mp3"
+    },
+    {
+        "name":  "waterfall",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/waterfall.mp3"
+    },
+    {
+        "name":  "waves",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/waves.mp3"
+    },
+    {
+        "name":  "wind-in-trees",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/wind-in-trees.mp3"
+    },
+    {
+        "name":  "wind",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/nature/wind.mp3"
+    },
+    {
+        "name":  "airport",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/airport.mp3"
+    },
+    {
+        "name":  "cafe",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/cafe.mp3"
+    },
+    {
+        "name":  "carousel",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/carousel.mp3"
+    },
+    {
+        "name":  "church",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/church.mp3"
+    },
+    {
+        "name":  "construction-site",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/construction-site.mp3"
+    },
+    {
+        "name":  "crowded-bar",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/crowded-bar.mp3"
+    },
+    {
+        "name":  "laboratory",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/laboratory.mp3"
+    },
+    {
+        "name":  "laundry-room",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/laundry-room.mp3"
+    },
+    {
+        "name":  "library",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/library.mp3"
+    },
+    {
+        "name":  "night-village",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/night-village.mp3"
+    },
+    {
+        "name":  "office",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/office.mp3"
+    },
+    {
+        "name":  "restaurant",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/restaurant.mp3"
+    },
+    {
+        "name":  "subway-station",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/subway-station.mp3"
+    },
+    {
+        "name":  "supermarket",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/supermarket.mp3"
+    },
+    {
+        "name":  "temple",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/temple.mp3"
+    },
+    {
+        "name":  "underwater",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/places/underwater.mp3"
+    },
+    {
+        "name":  "heavy-rain",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/heavy-rain.mp3"
+    },
+    {
+        "name":  "light-rain",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/light-rain.mp3"
+    },
+    {
+        "name":  "rain-on-car-roof",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/rain-on-car-roof.mp3"
+    },
+    {
+        "name":  "rain-on-leaves",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/rain-on-leaves.mp3"
+    },
+    {
+        "name":  "rain-on-tent",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/rain-on-tent.mp3"
+    },
+    {
+        "name":  "rain-on-umbrella",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/rain-on-umbrella.mp3"
+    },
+    {
+        "name":  "rain-on-window",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/rain-on-window.mp3"
+    },
+    {
+        "name":  "thunder",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/rain/thunder.mp3"
+    },
+    {
+        "name":  "boiling-water",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/boiling-water.mp3"
+    },
+    {
+        "name":  "bubbles",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/bubbles.mp3"
+    },
+    {
+        "name":  "ceiling-fan",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/ceiling-fan.mp3"
+    },
+    {
+        "name":  "clock",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/clock.mp3"
+    },
+    {
+        "name":  "dryer",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/dryer.mp3"
+    },
+    {
+        "name":  "keyboard",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/keyboard.mp3"
+    },
+    {
+        "name":  "morse-code",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/morse-code.mp3"
+    },
+    {
+        "name":  "paper",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/paper.mp3"
+    },
+    {
+        "name":  "singing-bowl",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/singing-bowl.mp3"
+    },
+    {
+        "name":  "slide-projector",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/slide-projector.mp3"
+    },
+    {
+        "name":  "tuning-radio",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/tuning-radio.mp3"
+    },
+    {
+        "name":  "typewriter",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/typewriter.mp3"
+    },
+    {
+        "name":  "vinyl-effect",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/vinyl-effect.mp3"
+    },
+    {
+        "name":  "washing-machine",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/washing-machine.mp3"
+    },
+    {
+        "name":  "wind-chimes",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/wind-chimes.mp3"
+    },
+    {
+        "name":  "windshield-wipers",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/things/windshield-wipers.mp3"
+    },
+    {
+        "name":  "airplane",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/airplane.mp3"
+    },
+    {
+        "name":  "inside-a-train",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/inside-a-train.mp3"
+    },
+    {
+        "name":  "rowing-boat",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/rowing-boat.mp3"
+    },
+    {
+        "name":  "sailboat",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/sailboat.mp3"
+    },
+    {
+        "name":  "submarine",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/submarine.mp3"
+    },
+    {
+        "name":  "train",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/transport/train.mp3"
+    },
+    {
+        "name":  "ambulance-siren",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/ambulance-siren.mp3"
+    },
+    {
+        "name":  "busy-street",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/busy-street.mp3"
+    },
+    {
+        "name":  "crowd",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/crowd.mp3"
+    },
+    {
+        "name":  "fireworks",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/fireworks.mp3"
+    },
+    {
+        "name":  "highway",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/highway.mp3"
+    },
+    {
+        "name":  "road",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/road.mp3"
+    },
+    {
+        "name":  "traffic",
+        "url":  "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/urban/traffic.mp3"
+    }
+]

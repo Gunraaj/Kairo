@@ -1,0 +1,1534 @@
+﻿/* Usability pass: readable type, discoverable navigation, and predictable scrolling. */
+
+:root {
+  --muted: #a7a8b8;
+  --line: #252532;
+  --line-strong: #3a3448;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 82px;
+}
+
+body {
+  color: #f7f7fb;
+  font-size: 15px;
+  font-family: "Manrope", system-ui, -apple-system, sans-serif;
+}
+
+.timer-value,
+.category-filter select {
+  font-family: "Manrope", system-ui, sans-serif;
+}
+
+/* Kairo mark: a single, legible K-shaped focus aperture. */
+.brand-mark {
+  position: relative;
+  isolation: isolate;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #28223b;
+  border-radius: 10px;
+  background: #07070d;
+  box-shadow: inset 0 0 0 1px rgba(138, 158, 126, .06);
+  transform: none;
+}
+
+.brand-k {
+  width: 31px;
+  height: 31px;
+  display: block;
+  filter:
+    drop-shadow(0 0 3px rgba(201, 161, 90, 0.55))
+    drop-shadow(0 0 7px rgba(138, 158, 126, 0.35));
+}
+
+.brand-mark::before,
+.brand-mark::after,
+.brand-orbit,
+.brand-core {
+  display: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #8A9E7E;
+  outline-offset: 3px;
+}
+
+.workspace-grid {
+  grid-template-columns: 300px minmax(560px, 1fr) 380px;
+  gap: 14px;
+}
+
+.focus-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.timer-zone {
+  width: min(100%, 560px);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  color: #a3a4b5;
+  /* Keep metadata readable on small screens (WCAG-friendly minimum). */
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.system-status {
+  color: #a3a4b4;
+  font-size: 12px;
+}
+
+.workspace-panel-header {
+  align-items: center;
+}
+
+.project-add {
+  width: 138px;
+}
+
+.quick-add input,
+.project-empty {
+  color: #c3c4d0;
+  font-size: 13px;
+}
+
+.project-empty {
+  color: #9394a5;
+}
+
+.project-count,
+.progress-chip {
+  color: #a1a2b1;
+  font-size: 12px;
+}
+
+.row-action {
+  color: #9394a6;
+}
+
+@media (hover: none) {
+  .row-action {
+    opacity: 1;
+  }
+}
+
+.focus-tabs button {
+  min-height: 36px;
+  padding-inline: 13px;
+  color: #a6a7b7;
+  font-size: 12px;
+}
+
+.focus-totals {
+  color: #a0a1b1;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.focus-totals b {
+  color: #f0f0f5;
+  font-size: 13px;
+}
+
+.focus-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.focus-duration-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #2d2c39;
+  border-radius: 9px;
+  background: #0a0a10;
+  padding: 7px 10px;
+  color: #c6c7d3;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.focus-duration-button:hover,
+.focus-duration-button[aria-expanded="true"] {
+  border-color: #51405f;
+  background: #12101a;
+  color: #fff;
+}
+
+.focus-card > .duration-editor {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 34px;
+  align-items: end;
+  gap: 10px;
+  margin: 10px 14px 0;
+  border: 1px solid #302b3c;
+  border-radius: 11px;
+  background: #09090f;
+  padding: 11px;
+  box-shadow: none;
+}
+
+.focus-card > .duration-editor label {
+  display: grid;
+  gap: 6px;
+  color: #9d9eaf;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.focus-card > .duration-editor input {
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
+  border: 1px solid #30303d;
+  border-radius: 8px;
+  background: #111119;
+  padding: 7px 9px;
+  color: #fff;
+  font-size: 13px;
+  text-align: left;
+}
+
+.focus-card > .duration-editor > button {
+  display: grid;
+  width: 34px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #30303d;
+  border-radius: 8px;
+  color: #a7a8b8;
+}
+
+.focus-target-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.focus-target-name {
+  font-size: 14px;
+}
+
+.focus-body {
+  grid-template-columns: minmax(320px, 1fr) 230px;
+  gap: 18px;
+}
+
+.focus-build {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #2a2936;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(138, 158, 126, .055), transparent 55%),
+    #07070c;
+  padding: 12px;
+}
+
+.focus-build-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.focus-build-header h3 {
+  margin-top: 4px;
+  color: #f2f2f6;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 550;
+}
+
+.focus-build-header > span {
+  border: 1px solid #34303f;
+  border-radius: 999px;
+  background: #0d0c13;
+  padding: 4px 7px;
+  color: oklch(0.86 0.155 80);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.focus-build-canvas {
+  position: relative;
+  display: grid;
+  min-height: 235px;
+  flex: 1;
+  place-items: center;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid #181821;
+  border-radius: 10px;
+  background:
+    linear-gradient(rgba(138, 158, 126, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 158, 126, .035) 1px, transparent 1px),
+    #050509;
+  background-size: 22px 22px;
+}
+
+.focus-build-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 132px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  transform: rotateX(56deg) rotateZ(-43deg);
+  transform-style: preserve-3d;
+}
+
+.focus-block {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border: 1px solid #242531;
+  background: #0c0d13;
+  box-shadow: 4px 5px 0 #07080d;
+  opacity: .58;
+  transition: 300ms ease;
+}
+
+.focus-block::after {
+  position: absolute;
+  top: 100%;
+  right: -5px;
+  left: 4px;
+  height: 5px;
+  background: #11131c;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+  content: "";
+}
+
+.focus-block-filled {
+  border-color: oklch(0.86 0.155 80 / 0.55);
+  background: linear-gradient(145deg, oklch(0.86 0.155 80), oklch(0.72 0.140 78) 60%, oklch(0.62 0.115 76));
+  box-shadow:
+    4px 5px 0 oklch(0.26 0.045 78),
+    0 0 16px oklch(0.80 0.15 78 / 0.38);
+  opacity: 1;
+  animation: block-place 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The face of the extruded block: a darker step of the same accent. */
+.focus-block-filled::after {
+  background: linear-gradient(90deg, oklch(0.42 0.075 78), oklch(0.32 0.055 76));
+}
+
+.focus-block-1,
+.focus-block-3 {
+  transform: translateZ(7px);
+}
+
+.focus-build-ground {
+  position: absolute;
+  width: 150px;
+  height: 36px;
+  border: 1px solid rgba(138, 158, 126, .12);
+  transform: translateY(67px) rotate(-5deg);
+  clip-path: polygon(14% 0, 100% 17%, 84% 100%, 0 82%);
+}
+
+.focus-build-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+  color: #9697a6;
+  font-size: 10px;
+}
+
+.focus-build-stats b {
+  color: #f3f3f7;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+
+.focus-build > p {
+  margin-top: 7px;
+  color: #9697a6;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@keyframes block-place {
+  from { filter: brightness(1.8); opacity: 0; transform: translateZ(22px) scale(.5); }
+}
+
+.sound-header h2 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.sound-tabs button {
+  min-height: 36px;
+  color: #a8a9b9;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.sound-library,
+.beats-panel,
+.lofi-panel {
+  scrollbar-gutter: stable;
+}
+
+.sound-tools {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.category-filter {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  border: 1px solid #2a2a37;
+  border-radius: 9px;
+  background: #0e0f15;
+  color: #a9aaba;
+}
+
+.category-filter select {
+  width: 100%;
+  min-height: 36px;
+  appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 7px 32px 7px 10px;
+  color: #e2e2e9;
+  font: 650 11px "Space Grotesk", sans-serif;
+}
+
+.category-filter svg {
+  position: absolute;
+  right: 9px;
+  pointer-events: none;
+}
+
+.sound-search {
+  width: 100%;
+  min-width: 0;
+}
+
+.sound-search input {
+  font-size: 13px;
+}
+
+.ambient-grid {
+  min-height: 280px;
+  max-height: none;
+  flex: 1 1 320px;
+  gap: 7px;
+  margin-top: 0;
+  padding-right: 8px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.ambient-card {
+  min-height: 48px;
+  color: #e1e1e8;
+}
+
+.sound-glyph {
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+
+.sound-credit,
+.sound-note {
+  color: #9394a5;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.beat-mode-selector small,
+.range-control span,
+.beat-signal-readout,
+.audio-explainer span,
+.control-heading span,
+.carrier-control > p,
+.rhythm-control > p,
+.carrier-presets small,
+.brainwave-scale span {
+  font-size: 11px;
+}
+
+.audio-explainer b,
+.control-heading b,
+.carrier-presets span {
+  font-size: 12px;
+}
+
+.audio-explainer p {
+  color: #a7a8b7;
+  font-size: 12px;
+}
+
+.beat-card {
+  min-height: 58px;
+}
+
+.beats-panel,
+.lofi-panel {
+  overscroll-behavior: contain;
+}
+
+.ambient-grid,
+.sound-library,
+.beats-panel,
+.lofi-panel {
+  scrollbar-width: none;
+}
+
+.ambient-grid::-webkit-scrollbar,
+.sound-library::-webkit-scrollbar,
+.beats-panel::-webkit-scrollbar,
+.lofi-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.skip-break-action {
+  display: block;
+  margin: 14px auto 0;
+  border: 0;
+  background: transparent;
+  color: #a7a8b8;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.skip-break-action:hover {
+  color: #f7f7fb;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #51465f;
+  background-clip: padding-box;
+}
+
+@media (max-width: 1320px) {
+  .workspace-grid {
+    grid-template-columns: 280px minmax(520px, 1fr) 360px;
+  }
+
+  .system-status {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .workspace-grid {
+    grid-template-columns: minmax(300px, .9fr) minmax(380px, 1.1fr);
+  }
+
+  .focus-body {
+    grid-template-columns: minmax(340px, 1fr) 250px;
+  }
+
+  .focus-build {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  html {
+    scroll-padding-top: 76px;
+  }
+
+  .topbar {
+    min-height: 66px;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr;
+    gap: 12px;
+    padding-block: 0;
+  }
+
+  .workspace-grid {
+    /* Override the desktop/tablet minmax columns above. Without this,
+       the 300px/380px minimums create a dead right gutter on phones. */
+    /* Desktop also pins height to the viewport so three side-by-side
+       columns fill the screen evenly; stacked on mobile that forces every
+       section to stretch and fill exact viewport height, ballooning empty
+       states. Let the stack grow with its content instead. */
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    grid-template-areas:
+      "tasks"
+      "focus"
+      "sound";
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .focus-card > .duration-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 34px;
+  }
+
+  .focus-card {
+    min-height: auto;
+  }
+
+  .focus-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .focus-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .focus-totals {
+    justify-content: space-between;
+  }
+
+  .focus-main {
+    padding: 16px 14px 20px;
+  }
+
+  .focus-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .timer-ring {
+    width: min(330px, 100%);
+  }
+
+  .focus-build {
+    width: 100%;
+  }
+
+  .focus-build-canvas {
+    min-height: 190px;
+  }
+
+  .task-workspace,
+  .sound-panel {
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+  }
+
+  .workspace-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .project-add {
+    width: 100%;
+  }
+
+  .project-stack {
+    max-height: none;
+  }
+
+  .task-list-panel {
+    min-height: 360px;
+  }
+
+  .sound-library,
+  .beats-panel,
+  .lofi-panel,
+  .ambient-grid {
+    overflow: visible;
+  }
+
+  .ambient-grid {
+    min-height: 0;
+    flex-basis: auto;
+    max-height: none;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .topbar {
+    padding-inline: 12px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workspace-grid {
+    padding-inline: 7px;
+  }
+
+  .focus-tabs button {
+    padding-inline: 6px;
+    font-size: 11px;
+  }
+
+  .timer-value {
+    font-size: clamp(52px, 18vw, 68px);
+  }
+
+  .sound-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-card > .duration-editor {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .focus-card > .duration-editor > button {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.receipt-miniature {
+  width: 64px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Premium pass: a display face with real character, and a timer face that    */
+/* reads as an instrument (kairos: the calibrated moment) rather than a       */
+/* generic progress ring.                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Display voice: reserved for headings with the size to carry a display
+   serif. Small labels keep the mono role they already had. */
+h1,
+h2,
+.workspace-panel-header h2,
+.task-panel-heading h2,
+.sound-header h2,
+.artifact-vault-header h3,
+.modal-header h2,
+[id$="-title"] {
+  font-family: "Spectral", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.workspace-panel-header h2,
+.task-panel-heading h2,
+.sound-header h2,
+.modal-header h2 {
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.topbar h1 {
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.timer-ring {
+  position: relative;
+}
+
+.timer-ring::before,
+.timer-ring::after {
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+/* Sixty fine minute ticks. */
+.timer-ring::before {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(237, 234, 226, 0.32) 0deg 0.6deg,
+    transparent 0.6deg 6deg
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent calc(50% - 5px),
+    #000 calc(50% - 4px),
+    #000 calc(50% - 1.6px),
+    transparent calc(50% - 1.5px)
+  );
+  mask: radial-gradient(
+    circle,
+    transparent calc(50% - 5px),
+    #000 calc(50% - 4px),
+    #000 calc(50% - 1.6px),
+    transparent calc(50% - 1.5px)
+  );
+}
+
+/* Twelve brass hour ticks. */
+.timer-ring::after {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(201, 161, 90, 0.6) 0deg 1.2deg,
+    transparent 1.2deg 30deg
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent calc(50% - 6px),
+    #000 calc(50% - 5px),
+    #000 calc(50% - 1.6px),
+    transparent calc(50% - 1.5px)
+  );
+  mask: radial-gradient(
+    circle,
+    transparent calc(50% - 6px),
+    #000 calc(50% - 5px),
+    #000 calc(50% - 1.6px),
+    transparent calc(50% - 1.5px)
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Motion pass: hover feedback, staggered entrance, one deliberate moment     */
+/* when a session goes active. Everything below is void under                */
+/* prefers-reduced-motion — Kairo is a single-viewport tool, not a scrolling  */
+/* page, so there is no scroll narrative to animate against; the "big"       */
+/* moment lives in the timer transitioning into an active session instead.   */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon-button,
+  .primary-action,
+  .secondary-action,
+  .quick-add button,
+  .row-action,
+  .project-item,
+  .task-row,
+  .ambient-card,
+  .beat-card,
+  .beat-mode-selector button,
+  .carrier-presets button,
+  .focus-tabs button,
+  .sound-tabs button,
+  .mini-control,
+  .focus-duration-button {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 180ms ease, border-color 180ms ease,
+      box-shadow 220ms ease, color 180ms ease;
+  }
+
+  .icon-button:hover,
+  .ambient-card:hover,
+  .beat-card:hover,
+  .project-item:hover {
+    transform: translateY(-1px);
+  }
+
+  .primary-action:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.01);
+  }
+
+  .primary-action:active:not(:disabled),
+  .secondary-action:active,
+  .icon-button:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  .task-check,
+  .quick-add button {
+    transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .task-check:active {
+    transform: scale(0.88);
+  }
+
+  @keyframes kairo-rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .project-item,
+  .task-row,
+  .ambient-card,
+  .beat-card {
+    animation: kairo-rise-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .project-stack .project-item:nth-child(1) { animation-delay: 0ms; }
+  .project-stack .project-item:nth-child(2) { animation-delay: 30ms; }
+  .project-stack .project-item:nth-child(3) { animation-delay: 60ms; }
+  .project-stack .project-item:nth-child(4) { animation-delay: 90ms; }
+  .project-stack .project-item:nth-child(n+5) { animation-delay: 120ms; }
+
+  .space-y-2 > .task-row:nth-child(1) { animation-delay: 0ms; }
+  .space-y-2 > .task-row:nth-child(2) { animation-delay: 25ms; }
+  .space-y-2 > .task-row:nth-child(3) { animation-delay: 50ms; }
+  .space-y-2 > .task-row:nth-child(4) { animation-delay: 75ms; }
+  .space-y-2 > .task-row:nth-child(n+5) { animation-delay: 100ms; }
+
+  .ambient-grid .ambient-card:nth-child(1) { animation-delay: 0ms; }
+  .ambient-grid .ambient-card:nth-child(2) { animation-delay: 20ms; }
+  .ambient-grid .ambient-card:nth-child(3) { animation-delay: 40ms; }
+  .ambient-grid .ambient-card:nth-child(4) { animation-delay: 60ms; }
+  .ambient-grid .ambient-card:nth-child(n+5) { animation-delay: 80ms; }
+
+  /* The one deliberate moment: the ring settling into an active session. */
+  .timer-ring {
+    transition: box-shadow 420ms ease;
+  }
+
+  .timer-ring-active {
+    animation: kairo-ring-settle 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes kairo-ring-settle {
+    0% {
+      transform: scale(0.985);
+      filter: brightness(1);
+    }
+    55% {
+      transform: scale(1.012);
+      filter: brightness(1.06);
+    }
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+  }
+
+  .modal-card,
+  .settings-dialog,
+  .analytics-dialog {
+    animation: kairo-rise-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* ========================================================================== */
+/* COLOR SYSTEM v2                                                            */
+/*                                                                            */
+/* Operate-mode palette. Three competing accents (brass/moss/clay) collapse   */
+/* to one luminous amber that owns action and selection; the other two demote */
+/* to semantic-only roles. Selection states were previously drawn at 5-14%    */
+/* alpha over near-black, below the perceptual floor -- they are now explicit */
+/* surface steps with a chromatic border, so "which one is selected" is       */
+/* answerable at a glance.                                                    */
+/* ========================================================================== */
+
+:root {
+  /* Primitives: warm-neutral dark ramp. Chroma stays low at the dark end so
+     surfaces read as considered neutrals rather than muddy brown. */
+  --k-canvas:      oklch(0.155 0.008 85);
+  --k-surface-1:   oklch(0.200 0.010 85);
+  --k-surface-2:   oklch(0.248 0.012 85);
+  --k-surface-3:   oklch(0.300 0.014 85);
+
+  --k-line:        oklch(0.300 0.014 85);
+  --k-line-strong: oklch(0.420 0.022 85);
+
+  --k-text:        oklch(0.965 0.006 85);
+  --k-text-2:      oklch(0.760 0.014 85);
+  --k-text-3:      oklch(0.648 0.014 85);
+
+  /* The one accent. Rarity gives it force: spent on action and selection
+     only, never on decoration. */
+  --k-accent:      oklch(0.800 0.150 78);
+  --k-accent-hi:   oklch(0.870 0.155 80);
+  --k-accent-ink:  oklch(0.200 0.040 78);
+
+  /* Selection: a real elevation step plus a chromatic edge. */
+  --k-sel-bg:      oklch(0.330 0.068 78);
+  --k-sel-bg-soft: oklch(0.250 0.038 78);
+  --k-sel-line:    oklch(0.640 0.135 78);
+
+  --k-success:     oklch(0.760 0.130 155);
+  --k-danger:      oklch(0.700 0.160 25);
+
+  /* Remap legacy names so every existing rule inherits the new system.
+     (--cyan and --pink were misnamed after the earlier palette swap.) */
+  --paper: var(--k-canvas);
+  --card: var(--k-surface-1);
+  --focus: var(--k-canvas);
+  --ink: var(--k-text);
+  --muted: var(--k-text-2);
+  --line: var(--k-line);
+  --line-strong: var(--k-line-strong);
+  --accent: var(--k-accent);
+  --accent-strong: var(--k-accent-hi);
+  --accent-soft: var(--k-sel-bg-soft);
+  --cyan: var(--k-accent);
+  --purple: var(--k-accent);
+  --pink: var(--k-success);
+}
+
+html,
+body,
+#root {
+  background: var(--k-canvas);
+}
+
+/* Atmosphere, not decoration: one soft warm bloom replaces two competing
+   radial washes in different hues. */
+.app-shell {
+  background:
+    radial-gradient(120% 80% at 50% -10%, oklch(0.30 0.045 78 / 0.30), transparent 60%),
+    var(--k-canvas);
+}
+
+.task-workspace,
+.focus-card,
+.sound-panel {
+  border: 1px solid var(--k-line);
+  background: var(--k-surface-1);
+  box-shadow: 0 18px 48px oklch(0 0 0 / 0.45);
+}
+
+.focus-card {
+  background:
+    radial-gradient(90% 60% at 50% 34%, oklch(0.32 0.050 78 / 0.28), transparent 62%),
+    var(--k-surface-1);
+}
+
+/* The focus card is the hero surface, so it carries the single flourish. */
+.focus-card::before {
+  background: linear-gradient(90deg, transparent, var(--k-accent), transparent);
+  box-shadow: 0 0 18px oklch(0.80 0.15 78 / 0.45);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Selection and active states                                                */
+/* Every selected thing reads the same way: lifted surface, chromatic border, */
+/* full-strength text. Never color alone -- the surface step and the border   */
+/* both carry the signal.                                                     */
+/* -------------------------------------------------------------------------- */
+
+.project-item-active,
+.task-row-active,
+.ambient-card-active,
+.beat-card-active {
+  border-color: var(--k-sel-line);
+  background: var(--k-sel-bg);
+  color: var(--k-text);
+}
+
+/* Selection is carried by the surface step, a full chromatic border, and
+   text weight -- deliberately not a side accent bar. */
+.project-item-active,
+.task-row-active {
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.35);
+}
+
+.project-item-active > button:first-of-type,
+.task-row-active .task-row-label {
+  font-weight: 600;
+}
+
+.ambient-card-active .sound-glyph {
+  background: var(--k-accent);
+  color: var(--k-accent-ink);
+}
+
+/* Segmented controls: the selected segment is a raised chip, not a 3% tint. */
+.focus-tabs,
+.sound-tabs {
+  border-color: var(--k-line);
+  background: var(--k-canvas);
+}
+
+.focus-tabs .focus-tab-active,
+.sound-tabs .sound-tab-active {
+  background: var(--k-surface-3);
+  color: var(--k-text);
+  box-shadow:
+    inset 0 0 0 1px var(--k-sel-line),
+    0 1px 3px oklch(0 0 0 / 0.4);
+}
+
+.focus-tabs button,
+.sound-tabs button {
+  color: var(--k-text-2);
+}
+
+.focus-tabs button:hover:not(:disabled),
+.sound-tabs button:hover {
+  color: var(--k-text);
+}
+
+.beat-mode-selector .beat-mode-active,
+.carrier-presets .carrier-preset-active,
+.category-scroll .category-active {
+  border-color: var(--k-sel-line);
+  background: var(--k-sel-bg);
+  color: var(--k-text);
+  box-shadow: inset 0 0 0 1px oklch(0.56 0.11 78 / 0.35);
+}
+
+.beat-mode-selector .beat-mode-active span,
+.carrier-presets .carrier-preset-active span {
+  color: var(--k-accent-hi);
+}
+
+/* Completion and toggles read as filled, unambiguous marks. */
+.task-check-done,
+.settings-toggle-on {
+  border-color: var(--k-accent);
+  background: var(--k-accent);
+}
+
+.task-check-done {
+  color: var(--k-accent-ink);
+}
+
+.settings-toggle-on span {
+  background: var(--k-accent-ink);
+}
+
+.session-dot-done {
+  background: var(--k-accent);
+  box-shadow: 0 0 8px oklch(0.80 0.15 78 / 0.55);
+}
+
+/* Primary action carries the accent; reset stays quiet beside it. */
+.primary-action {
+  background: var(--k-accent);
+  color: var(--k-accent-ink);
+}
+
+.primary-action:hover:not(:disabled) {
+  background: var(--k-accent-hi);
+  box-shadow: 0 6px 20px oklch(0.80 0.15 78 / 0.30);
+}
+
+.primary-action:disabled {
+  background: var(--k-surface-2);
+  color: var(--k-text-3);
+}
+
+.secondary-action {
+  border: 1px solid var(--k-line-strong);
+  background: transparent;
+  color: var(--k-text-2);
+}
+
+.secondary-action:hover {
+  border-color: var(--k-accent);
+  background: var(--k-surface-2);
+  color: var(--k-text);
+}
+
+.quick-add button,
+.sound-main-control,
+.lofi-input button {
+  background: var(--k-accent);
+  color: var(--k-accent-ink);
+}
+
+.quick-add button:hover,
+.sound-main-control:hover,
+.lofi-input button:hover {
+  background: var(--k-accent-hi);
+}
+
+.quick-add:focus-within {
+  border-color: var(--k-sel-line);
+  box-shadow: 0 0 0 3px oklch(0.80 0.15 78 / 0.14);
+}
+
+/* Progress reads as one continuous accent, not a two-hue gradient. */
+.progress-track {
+  background: var(--k-surface-3);
+}
+
+.progress-track span {
+  background: var(--k-accent);
+  box-shadow: 0 0 10px oklch(0.80 0.15 78 / 0.40);
+}
+
+.progress-chip {
+  border-color: var(--k-line-strong);
+  background: var(--k-surface-2);
+  color: var(--k-text-2);
+}
+
+/* Destructive action is the one place another hue is allowed. */
+.row-action:hover {
+  background: oklch(0.70 0.16 25 / 0.14);
+  color: var(--k-danger);
+}
+
+/* Text roles */
+.eyebrow,
+.project-count,
+.sound-credit,
+.sound-note {
+  color: var(--k-text-3);
+}
+
+.focus-totals,
+.system-status {
+  color: var(--k-text-2);
+}
+
+.focus-totals b,
+.system-status b,
+.workspace-panel-header h2,
+.task-panel-heading h2,
+.sound-header h2,
+.timer-value {
+  color: var(--k-text);
+}
+
+.system-pulse {
+  background: var(--k-accent);
+  box-shadow: 0 0 10px var(--k-accent);
+}
+
+.focus-target {
+  border-color: var(--k-line);
+  background: var(--k-surface-2);
+  color: var(--k-text-2);
+}
+
+.focus-target:hover {
+  border-color: var(--k-sel-line);
+  color: var(--k-text);
+}
+
+.focus-target-label {
+  color: var(--k-accent);
+}
+
+.focus-target:not(.focus-target-empty) {
+  border-color: var(--k-sel-line);
+  background: var(--k-sel-bg-soft);
+  color: var(--k-text);
+}
+
+/* Inputs and cards */
+.quick-add,
+.sound-search,
+.lofi-input input,
+.category-filter,
+.carrier-control,
+.rhythm-control,
+.beat-signal-readout {
+  border-color: var(--k-line);
+  background: var(--k-canvas);
+}
+
+.ambient-card,
+.beat-card,
+.beat-mode-selector button,
+.carrier-presets button {
+  border: 1px solid var(--k-line);
+  background: var(--k-surface-2);
+  color: var(--k-text-2);
+}
+
+.ambient-card:hover,
+.beat-card:hover,
+.beat-mode-selector button:hover,
+.carrier-presets button:hover {
+  border-color: var(--k-line-strong);
+  background: var(--k-surface-3);
+  color: var(--k-text);
+}
+
+.sound-glyph {
+  background: var(--k-surface-3);
+  color: var(--k-text-2);
+}
+
+.icon-button {
+  border-color: var(--k-line);
+  background: var(--k-surface-2);
+  color: var(--k-text-2);
+}
+
+.icon-button:hover {
+  border-color: var(--k-accent);
+  background: var(--k-surface-3);
+  color: var(--k-text);
+}
+
+.beat-frequency {
+  background: var(--k-surface-3);
+  color: var(--k-accent);
+}
+
+.mini-control {
+  border-color: var(--k-line-strong);
+  background: var(--k-surface-2);
+  color: var(--k-text-2);
+}
+
+.active-mix {
+  border-color: var(--k-sel-line);
+  background: var(--k-sel-bg-soft);
+}
+
+.active-indicator {
+  background: var(--k-accent);
+  box-shadow: 0 0 0 4px oklch(0.80 0.15 78 / 0.16);
+}
+
+.panel,
+.modal-card {
+  border-color: var(--k-line);
+  background: var(--k-surface-2);
+}
+
+input[type="range"] {
+  accent-color: var(--k-accent);
+}
+
+/* Focus ring: accent-tinted so it belongs to the system, still above 3:1. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--k-accent-hi);
+  outline-offset: 3px;
+}
+
+/* Instrument ticks follow the accent. */
+.timer-ring::after {
+  background: repeating-conic-gradient(
+    from 0deg,
+    var(--k-mode-tick) 0deg 1.2deg,
+    transparent 1.2deg 30deg
+  );
+}
+
+/* ========================================================================== */
+/* SHELL v2 — Linear-style workspace                                          */
+/*                                                                            */
+/* The task and sound columns were flat near-zero-chroma slabs; at panel      */
+/* scale that reads as dead gray. They now sit on the canvas with hairline    */
+/* separation and carry no fill of their own. Only the focus stage keeps a    */
+/* surface, because it is the one thing that should look like an object.      */
+/* ========================================================================== */
+
+.task-workspace,
+.sound-panel {
+  border: 1px solid var(--k-line);
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-panel-header,
+.sound-header {
+  border-bottom: 1px solid var(--k-line);
+  background: transparent;
+}
+
+.project-stack {
+  border-bottom: 1px solid var(--k-line);
+}
+
+/* Rows carry no fill until they mean something. */
+.project-item,
+.task-row,
+.ambient-card {
+  background: transparent;
+  border-color: transparent;
+}
+
+.project-item:hover,
+.task-row:hover,
+.ambient-card:hover {
+  background: var(--k-surface-2);
+  border-color: transparent;
+}
+
+/* Sonos-style master: one obvious control, always reachable, above the
+   per-source sliders it governs. */
+.master-volume {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  border: 1px solid var(--k-line);
+  border-radius: 10px;
+  background: var(--k-surface-2);
+  padding: 8px 11px;
+  color: var(--k-text-2);
+}
+
+.master-volume input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--k-accent);
+}
+
+/* Shortcuts are revealed where the action is, and fade back once you are
+   working -- discoverable without becoming a permanent legend. */
+.shortcut-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+  color: var(--k-text-3);
+  font-size: 11px;
+  opacity: 0.75;
+  transition: opacity 300ms ease;
+}
+
+.focus-card[data-running="true"] .shortcut-hint {
+  opacity: 0.25;
+}
+
+.shortcut-hint kbd {
+  display: inline-block;
+  min-width: 20px;
+  border: 1px solid var(--k-line-strong);
+  border-radius: 5px;
+  background: var(--k-surface-2);
+  padding: 2px 6px;
+  color: var(--k-text-2);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.master-volume b {
+  min-width: 38px;
+  color: var(--k-text);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Session state                                                              */
+/* Focus and break are the app's most important state, and previously looked  */
+/* identical. Focus keeps the warm amber; breaks shift to a cool green so the */
+/* mode is legible from across the room -- and never by hue alone: the tab    */
+/* label and the button copy already name it.                                 */
+/* -------------------------------------------------------------------------- */
+
+.focus-card {
+  --k-mode:      var(--k-accent);
+  --k-mode-hi:   var(--k-accent-hi);
+  --k-mode-ink:  var(--k-accent-ink);
+  --k-mode-line: var(--k-sel-line);
+  --k-mode-tick: oklch(0.80 0.15 78 / 0.60);
+  --k-mode-glow: oklch(0.80 0.15 78 / 0.30);
+  --k-mode-wash: oklch(0.32 0.050 78 / 0.28);
+  transition: background 700ms ease;
+}
+
+.focus-card[data-session="shortBreak"],
+.focus-card[data-session="longBreak"] {
+  --k-mode:      oklch(0.790 0.125 160);
+  --k-mode-hi:   oklch(0.860 0.130 162);
+  --k-mode-ink:  oklch(0.200 0.040 160);
+  --k-mode-line: oklch(0.620 0.110 160);
+  --k-mode-tick: oklch(0.79 0.125 160 / 0.60);
+  --k-mode-glow: oklch(0.79 0.125 160 / 0.28);
+  --k-mode-wash: oklch(0.32 0.045 160 / 0.26);
+}
+
+.focus-card {
+  background:
+    radial-gradient(90% 60% at 50% 34%, var(--k-mode-wash), transparent 62%),
+    var(--k-surface-1);
+}
+
+.focus-card::before {
+  background: linear-gradient(90deg, transparent, var(--k-mode), transparent);
+  box-shadow: 0 0 18px var(--k-mode-glow);
+}
+
+.focus-card .timer-ring {
+  background:
+    radial-gradient(circle at 50% 50%, transparent 66%, var(--k-mode-glow) 67%, transparent 69%),
+    conic-gradient(var(--k-mode) var(--progress-deg), var(--k-surface-3) 0);
+}
+
+.focus-card .primary-action {
+  background: var(--k-mode);
+  color: var(--k-mode-ink);
+}
+
+.focus-card .primary-action:hover:not(:disabled) {
+  background: var(--k-mode-hi);
+  box-shadow: 0 6px 20px var(--k-mode-glow);
+}
+
+.focus-card .focus-tabs .focus-tab-active {
+  box-shadow:
+    inset 0 0 0 1px var(--k-mode-line),
+    0 1px 3px oklch(0 0 0 / 0.4);
+}
+
+.focus-card .session-dot-done {
+  background: var(--k-mode);
+  box-shadow: 0 0 8px var(--k-mode-glow);
+}
+
+.focus-card .focus-target-label {
+  color: var(--k-mode);
+}
+
+.focus-card .secondary-action:hover {
+  border-color: var(--k-mode);
+}
+
+/* A running session dims its own chrome so the dial is the only bright thing. */
+@media (prefers-reduced-motion: no-preference) {
+  .focus-card[data-running="true"] .focus-header,
+  .focus-card[data-running="true"] .focus-build {
+    opacity: 0.62;
+    transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .focus-card[data-running="true"] .focus-header:hover,
+  .focus-card[data-running="true"] .focus-header:focus-within,
+  .focus-card[data-running="true"] .focus-build:hover {
+    opacity: 1;
+  }
+}
