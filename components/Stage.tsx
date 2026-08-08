@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import type { FocusTarget, KairoSession, SessionType, UserSettings } from '../types';
 import { Icon } from './Icon';
 import {
@@ -376,6 +377,23 @@ const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isAct
   const CIRC = 2 * Math.PI * R;
   const [dragging, setDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const dialRootRef = useRef<HTMLDivElement | null>(null);
+
+  // A brief "settle" beat when the timer flips to active, so the commitment
+  // moment is felt not just observed. Reduced-motion is honored by GSAP's
+  // matchMedia; without it, we fall back to no animation.
+  const wasActiveRef = useRef(isActive);
+  useEffect(() => {
+    if (isActive && !wasActiveRef.current && dialRootRef.current) {
+      const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (!prefersReduced) {
+        gsap.fromTo(dialRootRef.current,
+          { scale: 1 },
+          { scale: 1.02, duration: 0.18, ease: 'power2.out', yoyo: true, repeat: 1 });
+      }
+    }
+    wasActiveRef.current = isActive;
+  }, [isActive]);
 
   // Arc is scaled to the DIAL FACE (60 min), not the session length. So
   // setting 30 minutes always gives a half-circle -- like a kitchen timer.
@@ -444,6 +462,7 @@ const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isAct
 
   return (
     <div
+      ref={dialRootRef}
       className="k-dial"
       role="slider"
       tabIndex={disabled ? -1 : 0}

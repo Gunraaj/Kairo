@@ -1623,6 +1623,31 @@ a { color: inherit; }
   font-size: 10.5px;
   color: var(--sumi-2);
 }
+/* Theme button demoted below Settings, showing current mode as secondary
+   text so it never competes with primary nav for the eye. */
+.k-theme-quiet {
+  opacity: 0.65;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sumi-2);
+  border-radius: 0;
+}
+.k-theme-quiet:hover { opacity: 1; }
+.k-theme-quiet .k-nav-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.k-theme-quiet .k-nav-label em {
+  font-style: normal;
+  color: var(--stone);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .k-welcome-note {
   margin-top: 16px;
   padding: 12px 14px;

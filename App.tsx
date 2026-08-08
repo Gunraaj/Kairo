@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { motion } from 'motion/react';
 import { Stage } from './components/Stage';
 import { ControlPanel } from './components/ControlPanel';
 import { SettingsModal } from './components/SettingsModal';
@@ -476,20 +477,23 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
         <NavIcon name="chart" />
         <span className="k-nav-label">Progress</span>
       </button>
-      <button
-        className="k-nav-item"
-        onClick={cycleTheme}
-        title={`Theme: ${themeLabel} (click to cycle)`}
-        aria-label={`Theme: ${themeLabel}. Click to change.`}
-      >
-        <NavIcon name={themeIcon} />
-        <span className="k-nav-label">{themeLabel}</span>
-      </button>
-      <span role="status" aria-live="polite" className="sr-only">Theme set to {themeLabel}</span>
       <button className="k-nav-item" onClick={onSettings}>
         <NavIcon name="settings" />
         <span className="k-nav-label">Settings</span>
       </button>
+      <button
+        className="k-nav-item k-theme-quiet"
+        onClick={cycleTheme}
+        title={`Theme: ${themeLabel} — click to change`}
+        aria-label={`Theme: ${themeLabel}. Click to cycle.`}
+      >
+        <NavIcon name={themeIcon} />
+        <span className="k-nav-label">
+          <span>Theme</span>
+          <em>{themeLabel}</em>
+        </span>
+      </button>
+      <span role="status" aria-live="polite" className="sr-only">Theme set to {themeLabel}</span>
     </nav>
   );
 };
@@ -511,24 +515,29 @@ const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
         </button>
       </header>
       <div className="k-modal-body">
-        <ol className="k-welcome-list">
-          <li>
-            <b>Add a project</b>
-            <span>Type its name in the sidebar and press Enter. Everything you focus on lives inside a project.</span>
-          </li>
-          <li>
-            <b>Pick one task</b>
-            <span>Expand a project and click a task. That is the one thing your next session belongs to.</span>
-          </li>
-          <li>
-            <b>Start focus</b>
-            <span>Drag the dial for any duration up to 60 minutes, then press Space or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</span>
-          </li>
-          <li>
-            <b>Choose an atmosphere</b>
-            <span>The Sound Library on the right layers ambient sounds, binaural beats, or a lofi stream. Master volume governs everything.</span>
-          </li>
-        </ol>
+        {(() => {
+          const steps: Array<[string, React.ReactNode]> = [
+            ['Add a project', 'Type its name in the sidebar and press Enter. Everything you focus on lives inside a project.'],
+            ['Pick one task', 'Expand a project and click a task. That is the one thing your next session belongs to.'],
+            ['Start focus', <>Drag the dial for any duration up to 60 minutes, then press Space or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</>],
+            ['Choose an atmosphere', 'The Sound Library on the right layers ambient sounds, binaural beats, or a lofi stream. Master volume governs everything.'],
+          ];
+          return (
+            <ol className="k-welcome-list">
+              {steps.map(([title, body], i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.08 * i + 0.15, duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
+                >
+                  <b>{title}</b>
+                  <span>{body}</span>
+                </motion.li>
+              ))}
+            </ol>
+          );
+        })()}
         <p className="k-welcome-note">
           Every completed session banks minutes to its task and fills a square in your yearly focus map (in Progress). Nothing leaves your browser — Kairo is fully local.
         </p>
