@@ -275,11 +275,35 @@ export const Stage: React.FC<StageProps> = ({
   }, []);
 
   const targetLabel = activeTarget?.kind === 'task' ? activeTarget.name : 'Choose a task to focus on';
+  const showEmptyHero = !activeTarget && (todaySummary?.sessions ?? 0) === 0 && totalPomodoros === 0;
   const breakChoices: Array<{ min: number; label: string }> = [
     { min: 5, label: '5 min' },
     { min: 10, label: '10 min' },
     { min: 15, label: '15 min' },
   ];
+
+  if (showEmptyHero) {
+    return (
+      <div className="k-empty-hero">
+        <div className="k-empty-glyph" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="32" cy="32" r="26" strokeDasharray="140 24" transform="rotate(-54 32 32)" />
+            <circle cx="32" cy="32" r="4" fill="currentColor" stroke="none" />
+          </svg>
+        </div>
+        <h1 className="k-empty-title">Make space for one thing.</h1>
+        <p className="k-empty-copy">
+          Start by adding a project in the sidebar, then give it a task. That task
+          becomes the one thing your first focus session belongs to.
+        </p>
+        <p className="k-empty-hint">
+          <span>Type a name in <b>New project</b></span>
+          <span aria-hidden="true">·</span>
+          <span>Press <kbd>Enter</kbd></span>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

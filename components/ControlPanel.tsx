@@ -200,7 +200,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
     const player = new Audio(sound.url);
     player.loop = true;
-    player.volume = Math.min(1, Math.max(0, 0.5 * masterRef.current));
+    player.volume = Math.min(1, Math.max(0, 0.3 * masterRef.current));
     players.current.set(sound.url, player);
     setAmbientError('');
     player.onerror = () => {
@@ -213,7 +213,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       setAmbientError(`${labelFor(sound.name)} could not be loaded. Check your connection and try again.`);
     };
     setAmbientPaused(false);
-    setActiveSounds(previous => ({ ...previous, [sound.url]: 0.5 }));
+    setActiveSounds(previous => ({ ...previous, [sound.url]: 0.3 }));
 
     try {
       await player.play();
@@ -344,7 +344,20 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
       {tab === 'sounds' && (
         <div id="panel-sounds" className="k-sl-list custom-scrollbar" role="tabpanel" aria-labelledby="tab-sounds" tabIndex={0} data-testid="sounds-list">
-          {ambientError && <p style={{ color: 'var(--shu)', fontSize: 12 }} role="alert">{ambientError}</p>}
+          {ambientError && (
+            <div className="k-inline-error" role="alert">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="8" cy="8" r="6.5" />
+                <path d="M8 5v3.5M8 11h.01" />
+              </svg>
+              <span>{ambientError}</span>
+              <button type="button" onClick={() => setAmbientError('')} aria-label="Dismiss error">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                  <path d="M3 3l6 6M9 3l-6 6" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           <div className="k-sl-cats" role="group" aria-label="Filter sounds by category">
             {CATEGORIES.map(cat => (

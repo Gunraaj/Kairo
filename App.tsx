@@ -52,6 +52,13 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
+  const announceToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 2600);
+  }, []);
   const [showWelcome, setShowWelcome] = useState(false);
   const [theme, setTheme] = useLocalStorage<'light' | 'dark' | 'system'>(
     'kairo_theme',
@@ -246,7 +253,17 @@ const App: React.FC = () => {
           settings={userSettings}
           setSettings={setUserSettings}
           onClose={() => setShowSettings(false)}
+          onToast={announceToast}
         />
+      )}
+
+      {toast && (
+        <div className="k-toast" role="status" aria-live="polite">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 8l3.5 3.5L13 5" />
+          </svg>
+          <span>{toast}</span>
+        </div>
       )}
       {showAnalytics && (
         <AnalyticsModal
@@ -407,9 +424,16 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
                       <button
                         className="k-tree-task-name"
                         onClick={() => setActiveTaskId(task.id)}
-                        title={task.name}
+                        title={task.timeSpent > 0 ? `${task.name} — ${task.timeSpent} min focused` : task.name}
                       >
-                        {task.name}
+                        <span>{task.name}</span>
+                        {task.timeSpent > 0 && (
+                          <em>
+                            {task.timeSpent >= 60
+                              ? `${Math.floor(task.timeSpent / 60)}h`
+                              : `${task.timeSpent}m`}
+                          </em>
+                        )}
                       </button>
                       <button
                         className="k-tree-icon-btn"

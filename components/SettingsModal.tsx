@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { Settings } from '../types';
 import { Modal } from './Modal';
 import { normalizeSettings } from '../data/validation';
@@ -7,7 +7,39 @@ interface SettingsModalProps {
   settings: Settings;
   setSettings: (settings: Settings) => void;
   onClose: () => void;
+  onToast?: (message: string) => void;
 }
+
+/* Kairo is local-first: everything lives in this browser's localStorage.
+   Export lets you carry it to another browser or back it up before clearing
+   data; import restores it. Only Kairo-owned keys are touched. */
+const KAIRO_KEYS = ['kairo_projects', 'kairo_sessions', 'kairo_active_task', 'kairo_settings', 'kairo_active_timer', 'kairo_theme', 'kairo_seen_welcome'];
+
+const exportSnapshot = (): string => {
+  const payload: Record<string, unknown> = { version: 1, exportedAt: new Date().toISOString(), data: {} as Record<string, unknown> };
+  const data = payload.data as Record<string, unknown>;
+  KAIRO_KEYS.forEach(k => {
+    const raw = localStorage.getItem(k);
+    if (raw !== null) {
+      try { data[k] = JSON.parse(raw); } catch { data[k] = raw; }
+    }
+  });
+  return JSON.stringify(payload, null, 2);
+};
+
+const importSnapshot = (text: string): number => {
+  const parsed = JSON.parse(text) as { data?: Record<string, unknown> };
+  const data = parsed.data;
+  if (!data || typeof data !== 'object') throw new Error('Not a Kairo snapshot');
+  let count = 0;
+  KAIRO_KEYS.forEach(k => {
+    if (k in data) {
+      localStorage.setItem(k, JSON.stringify(data[k]));
+      count += 1;
+    }
+  });
+  return count;
+};
 
 const Toggle: React.FC<{
   labelId: string;
@@ -27,8 +59,35 @@ const Toggle: React.FC<{
   </button>
 );
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings, onClose, onToast }) => {
   const [local, setLocal] = useState(settings);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleExport = () => {
+    const blob = new Blob([exportSnapshot()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `kairo-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    onToast?.('Snapshot exported');
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      const count = importSnapshot(text);
+      onToast?.(`Imported ${count} record${count === 1 ? '' : 's'} — reloading`);
+      window.setTimeout(() => window.location.reload(), 600);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Import failed';
+      onToast?.(`Import failed: ${msg}`);
+    }
+  };
 
   const updateNumber = (
     key: 'focusDuration' | 'shortBreakDuration' | 'longBreakDuration' | 'sessionsPerRound',
@@ -40,6 +99,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSetti
 
   const handleSave = () => {
     setSettings(normalizeSettings(local));
+    onToast?.('Settings saved');
     onClose();
   };
 
@@ -126,6 +186,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSetti
               enabled={local.autoStartBreaks}
               onChange={enabled => setLocal(prev => ({ ...prev, autoStartBreaks: enabled }))}
             />
+          </div>
+        </section>
+
+        <section className="k-settings-section">
+          <div className="k-settings-section-title">Your data</div>
+          <p className="k-settings-section-help">
+            Everything stays in this browser. Export a snapshot to move Kairo to another device or browser, or as a personal backup before clearing site data.
+          </p>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Export snapshot</b>
+              <small>Downloads a JSON of every project, task, session, setting, and preference.</small>
+            </div>
+            <button className="k-btn" onClick={handleExport} type="button">Download JSON</button>
+          </div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Import snapshot</b>
+              <small>Replaces your current data with the contents of a Kairo JSON file. The app reloads afterward.</small>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              style={{ display: 'none' }}
+              onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) void handleImportFile(file);
+                e.target.value = '';
+              }}
+            />
+            <button className="k-btn" onClick={() => fileInputRef.current?.click()} type="button">Choose file</button>
           </div>
         </section>
       </div>
