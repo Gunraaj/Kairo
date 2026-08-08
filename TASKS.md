@@ -24,10 +24,7 @@ Ranked by impact-to-effort. Everything above the line is **shipping**; everythin
 - CI green, GitHub repo live, Netlify auto-deploys on push to `main`
 - Motion (Framer) welcome step stagger
 - GSAP dial settle-pulse on session start
-
-## 🎯 Next up (highest impact)
-
-- [ ] **Ribbon that means something** — currently decorative. Each completed session should add a real inflection point along its length so it grows with actual work.
+- **Living ribbon**: vermilion thread encodes real session history of the current task — each session a peak whose height maps to duration. Active session pulses at the far right. Empty state invites the first session.
 
 ## 🩹 Polish
 

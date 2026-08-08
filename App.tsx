@@ -239,10 +239,21 @@ const App: React.FC = () => {
               {activeTarget?.kind === 'task' ? activeTarget.name : 'Project canvas'}
             </div>
             <div className="k-canvas-sub">
-              {activeTarget?.kind === 'task' ? 'Current focus thread' : 'Select a task to begin'}
+              {(() => {
+                if (!activeTarget || activeTarget.kind !== 'task') return 'Select a task to begin';
+                const taskSessions = sessions.filter(s => s.type === 'focus' && s.completed && s.taskId === activeTarget.id);
+                if (taskSessions.length === 0) return 'Ready for the first session';
+                const mins = taskSessions.reduce((a, s) => a + s.duration, 0);
+                const timeLabel = mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
+                return `${taskSessions.length} session${taskSessions.length === 1 ? '' : 's'} · ${timeLabel} focused`;
+              })()}
             </div>
           </div>
-          <ProjectRibbon completed={completedPomodoros} isActive={isSessionActive} />
+          <ProjectRibbon
+            sessions={sessions}
+            activeTaskId={activeTaskId}
+            isActive={isSessionActive}
+          />
         </section>
       </main>
 
@@ -573,52 +584,141 @@ const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   </Modal>
 );
 
-/* Calm flowing ribbons. One vermilion thread is the active focus. Each
-   completed pomodoro nudges its curve slightly so the canvas breathes
-   with real progress rather than being decorative. */
-const ProjectRibbon: React.FC<{ completed: number; isActive: boolean }> = ({ completed, isActive }) => {
-  // Two calm ribbons -- one broad grey band and one narrow vermilion thread
-  // riding through it. Filled shapes read as fabric, not scribble.
-  const drift = Math.min(20, completed * 1.5);
+/* Living ribbon: the vermilion thread is a real record of this task's
+   completed focus sessions. Each session becomes a peak whose height
+   encodes its duration; the fabric-grey band underneath softens the whole
+   composition. If a session is running now, the rightmost peak breathes.
+
+   Empty state = the current task has no sessions yet: a calm straight
+   thread invites the first one. */
+type RibbonProps = {
+  sessions: KairoSession[];
+  activeTaskId: string | null;
+  isActive: boolean;
+};
+
+const ProjectRibbon: React.FC<RibbonProps> = ({ sessions, activeTaskId, isActive }) => {
+  const relevant = useMemo(() => {
+    const focus = sessions.filter(s => s.type === 'focus' && s.completed);
+    // Prefer the current task's history; fall back to all-time so the
+    // ribbon always feels populated once you've done any focus at all.
+    const scoped = activeTaskId ? focus.filter(s => s.taskId === activeTaskId) : focus;
+    const last = (scoped.length ? scoped : focus).slice(0, 24).reverse();
+    return last;
+  }, [sessions, activeTaskId]);
+
+  const W = 800;
+  const H = 120;
+  const baseline = 78;
+
+  // Build a smooth polyline from N points across the canvas.
+  const points = (() => {
+    if (relevant.length === 0) {
+      return [
+        { x: 0, y: baseline },
+        { x: W * 0.35, y: baseline - 4 },
+        { x: W * 0.65, y: baseline + 2 },
+        { x: W, y: baseline },
+      ];
+    }
+    const step = W / Math.max(3, relevant.length + 1);
+    return relevant.map((s, i) => {
+      const x = step * (i + 1);
+      // Session amplitude: 5m -> tiny, 25m -> medium, 60m -> big peak.
+      const amp = Math.min(38, Math.max(3, s.duration * 0.9));
+      const y = baseline - amp * (i % 2 === 0 ? 1 : 0.55);
+      return { x, y };
+    });
+  })();
+
+  // Catmull-Rom -> cubic Bezier for a naturally flowing curve.
+  const toPath = (pts: Array<{ x: number; y: number }>) => {
+    if (pts.length < 2) return '';
+    const cmds = [`M0,${baseline} L${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`];
+    for (let i = 0; i < pts.length - 1; i += 1) {
+      const p0 = pts[i - 1] ?? pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? p2;
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      cmds.push(`C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
+    }
+    cmds.push(`L${W},${baseline}`);
+    return cmds.join(' ');
+  };
+
+  const threadPath = toPath(points);
+  const lastX = points[points.length - 1]?.x ?? W;
+  const lastY = points[points.length - 1]?.y ?? baseline;
+  const isEmpty = relevant.length === 0;
+
   return (
-    <svg className="k-canvas-svg" viewBox="0 0 800 120" preserveAspectRatio="none" aria-hidden="true">
+    <svg
+      className="k-canvas-svg"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label={isEmpty
+        ? 'Empty ribbon awaiting your first focus session'
+        : `Ribbon of ${relevant.length} recent focus session${relevant.length === 1 ? '' : 's'}`}
+    >
       <defs>
         <linearGradient id="k-ribbon-fabric" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#D7D4CD" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#D7D4CD" stopOpacity="0.15" />
+          <stop offset="0%" stopColor="var(--stone-2)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="var(--stone-2)" stopOpacity="0.15" />
         </linearGradient>
       </defs>
 
-      {/* Broad fabric band -- one shape, not four parallel lines */}
+      {/* Fabric band -- a broad calm shape behind the thread. */}
       <path
         fill="url(#k-ribbon-fabric)"
-        d={`M0,${60 - drift * 0.3}
-            C 200,${40 - drift * 0.6} 380,${90 + drift * 0.4} 560,${58 - drift * 0.3}
-            S 780,${48 - drift * 0.4} 800,${56 - drift * 0.2}
-            L 800,${86 + drift * 0.2}
-            C 620,${104 + drift * 0.3} 440,${70 - drift * 0.2} 260,${94 + drift * 0.3}
-            S 40,${106 + drift * 0.1} 0,${94 + drift * 0.2} Z`}
+        d={`M0,${baseline + 6}
+            C 200,${baseline - 2} 400,${baseline + 14} 600,${baseline + 2}
+            S 780,${baseline - 4} ${W},${baseline + 4}
+            L ${W},${baseline + 30}
+            C 620,${baseline + 38} 440,${baseline + 22} 260,${baseline + 34}
+            S 40,${baseline + 38} 0,${baseline + 30} Z`}
       />
 
-      {/* Contour hints -- two thin lines echoing the top edge */}
-      <path
-        fill="none"
-        stroke="var(--stone)"
-        strokeWidth="0.6"
-        opacity="0.4"
-        d={`M0,${66 - drift * 0.28} C 200,${46 - drift * 0.55} 380,${94 + drift * 0.36} 560,${62 - drift * 0.28} S 780,${52 - drift * 0.36} 800,${60 - drift * 0.18}`}
-      />
-
-      {/* Vermilion focus thread */}
+      {/* The living vermilion thread */}
       <path
         fill="none"
         stroke="var(--shu)"
-        strokeWidth={isActive ? '2.5' : '1.75'}
+        strokeWidth={isActive ? 2.5 : 1.75}
         strokeLinecap="round"
-        opacity={isActive ? 1 : 0.85}
+        strokeLinejoin="round"
+        opacity={isEmpty ? 0.35 : (isActive ? 1 : 0.85)}
         style={{ transition: 'opacity 400ms ease, stroke-width 400ms ease' }}
-        d={`M0,${74 - drift * 0.2} C 220,${52 - drift * 0.5} 380,${88 + drift * 0.32} 540,${62 - drift * 0.25} S 790,${54 - drift * 0.3} 800,${64 - drift * 0.15}`}
+        d={threadPath}
       />
+
+      {/* One small dot at each real session peak, so the encoding is
+          legible on close inspection without competing with the line. */}
+      {!isEmpty && points.map((p, i) => (
+        <circle
+          key={i}
+          cx={p.x}
+          cy={p.y}
+          r={i === points.length - 1 && isActive ? 4 : 2.5}
+          fill="var(--shu)"
+          opacity={i === points.length - 1 && isActive ? 1 : 0.7}
+        >
+          {i === points.length - 1 && isActive && (
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite" />
+          )}
+        </circle>
+      ))}
+
+      {/* Live pulse at the far right while a session runs. */}
+      {isActive && !isEmpty && (
+        <circle cx={lastX} cy={lastY} r="8" fill="none" stroke="var(--shu)" strokeWidth="1" opacity="0.4">
+          <animate attributeName="r" values="4;14" dur="1.8s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.55;0" dur="1.8s" repeatCount="indefinite" />
+        </circle>
+      )}
     </svg>
   );
 };
