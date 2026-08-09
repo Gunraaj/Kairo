@@ -181,18 +181,43 @@ const App: React.FC = () => {
             </span>
             <span className="k-brand-name">Kairo</span>
           </div>
-          <button
-            className="k-collapse"
-            onClick={() => setSidebarCollapsed(v => !v)}
-            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={sidebarCollapsed ? 'Expand' : 'Collapse'}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              {sidebarCollapsed
-                ? <path d="M5 3l4 4-4 4" />
-                : <path d="M9 3L5 7l4 4" />}
-            </svg>
-          </button>
+          <div className="k-head-actions">
+            <button
+              className="k-head-icon"
+              onClick={() => setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'))}
+              aria-label={`Theme: ${theme}. Click to cycle.`}
+              title={`Theme: ${theme}${sidebarCollapsed ? '' : ' — click to cycle'}`}
+            >
+              {theme === 'dark' ? (
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 9.5A5.5 5.5 0 116.5 3a4.5 4.5 0 006.5 6.5z" />
+                </svg>
+              ) : theme === 'light' ? (
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="8" cy="8" r="3" />
+                  <path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.5 3.5l1 1M11.5 11.5l1 1M3.5 12.5l1-1M11.5 4.5l1-1" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="3" width="12" height="8" rx="1" />
+                  <path d="M6 13h4M8 11v2" />
+                </svg>
+              )}
+            </button>
+            <button
+              className="k-head-icon k-collapse"
+              onClick={() => setSidebarCollapsed(v => !v)}
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={sidebarCollapsed ? 'Expand' : 'Collapse'}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                {sidebarCollapsed
+                  ? <path d="M5 3l4 4-4 4" />
+                  : <path d="M9 3L5 7l4 4" />}
+              </svg>
+            </button>
+          </div>
+          <span role="status" aria-live="polite" className="sr-only">Theme: {theme}</span>
         </div>
 
         <SidebarNav
@@ -200,8 +225,6 @@ const App: React.FC = () => {
           setProjects={setProjects}
           activeTaskId={activeTaskId}
           setActiveTaskId={setActiveTaskId}
-          theme={theme}
-          setTheme={setTheme}
           onProgress={() => setShowAnalytics(true)}
           onSettings={() => setShowSettings(true)}
         />
@@ -233,28 +256,6 @@ const App: React.FC = () => {
           />
         </aside>
 
-        <section className="k-canvas" aria-label="Project canvas">
-          <div className="k-canvas-head">
-            <div className="k-canvas-title">
-              {activeTarget?.kind === 'task' ? activeTarget.name : 'Project canvas'}
-            </div>
-            <div className="k-canvas-sub">
-              {(() => {
-                if (!activeTarget || activeTarget.kind !== 'task') return 'Select a task to begin';
-                const taskSessions = sessions.filter(s => s.type === 'focus' && s.completed && s.taskId === activeTarget.id);
-                if (taskSessions.length === 0) return 'Ready for the first session';
-                const mins = taskSessions.reduce((a, s) => a + s.duration, 0);
-                const timeLabel = mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
-                return `${taskSessions.length} session${taskSessions.length === 1 ? '' : 's'} · ${timeLabel} focused`;
-              })()}
-            </div>
-          </div>
-          <ProjectRibbon
-            sessions={sessions}
-            activeTaskId={activeTaskId}
-            isActive={isSessionActive}
-          />
-        </section>
       </main>
 
       {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
@@ -314,18 +315,11 @@ type SidebarNavProps = {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   activeTaskId: string | null;
   setActiveTaskId: (id: string | null) => void;
-  theme: 'light' | 'dark' | 'system';
-  setTheme: React.Dispatch<React.SetStateAction<'light' | 'dark' | 'system'>>;
   onProgress: () => void;
   onSettings: () => void;
 };
 
-const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTaskId, setActiveTaskId, theme, setTheme, onProgress, onSettings }) => {
-  const cycleTheme = () => {
-    setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'));
-  };
-  const themeIcon = theme === 'dark' ? 'moon' : theme === 'light' ? 'sun' : 'system';
-  const themeLabel = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
+const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTaskId, setActiveTaskId, onProgress, onSettings }) => {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(projects.map(p => p.id)));
   const [newProjectName, setNewProjectName] = useState('');
   const [addingTaskFor, setAddingTaskFor] = useState<string | null>(null);
@@ -516,19 +510,6 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTa
         <NavIcon name="settings" />
         <span className="k-nav-label">Settings</span>
       </button>
-      <button
-        className="k-nav-item k-theme-quiet"
-        onClick={cycleTheme}
-        title={`Theme: ${themeLabel} — click to change`}
-        aria-label={`Theme: ${themeLabel}. Click to cycle.`}
-      >
-        <NavIcon name={themeIcon} />
-        <span className="k-nav-label">
-          <span>Theme</span>
-          <em>{themeLabel}</em>
-        </span>
-      </button>
-      <span role="status" aria-live="polite" className="sr-only">Theme set to {themeLabel}</span>
     </nav>
   );
 };
@@ -583,144 +564,5 @@ const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     </>
   </Modal>
 );
-
-/* Living ribbon: the vermilion thread is a real record of this task's
-   completed focus sessions. Each session becomes a peak whose height
-   encodes its duration; the fabric-grey band underneath softens the whole
-   composition. If a session is running now, the rightmost peak breathes.
-
-   Empty state = the current task has no sessions yet: a calm straight
-   thread invites the first one. */
-type RibbonProps = {
-  sessions: KairoSession[];
-  activeTaskId: string | null;
-  isActive: boolean;
-};
-
-const ProjectRibbon: React.FC<RibbonProps> = ({ sessions, activeTaskId, isActive }) => {
-  const relevant = useMemo(() => {
-    const focus = sessions.filter(s => s.type === 'focus' && s.completed);
-    // Prefer the current task's history; fall back to all-time so the
-    // ribbon always feels populated once you've done any focus at all.
-    const scoped = activeTaskId ? focus.filter(s => s.taskId === activeTaskId) : focus;
-    const last = (scoped.length ? scoped : focus).slice(0, 24).reverse();
-    return last;
-  }, [sessions, activeTaskId]);
-
-  const W = 800;
-  const H = 120;
-  const baseline = 78;
-
-  // Build a smooth polyline from N points across the canvas.
-  const points = (() => {
-    if (relevant.length === 0) {
-      return [
-        { x: 0, y: baseline },
-        { x: W * 0.35, y: baseline - 4 },
-        { x: W * 0.65, y: baseline + 2 },
-        { x: W, y: baseline },
-      ];
-    }
-    const step = W / Math.max(3, relevant.length + 1);
-    return relevant.map((s, i) => {
-      const x = step * (i + 1);
-      // Session amplitude: 5m -> tiny, 25m -> medium, 60m -> big peak.
-      const amp = Math.min(38, Math.max(3, s.duration * 0.9));
-      const y = baseline - amp * (i % 2 === 0 ? 1 : 0.55);
-      return { x, y };
-    });
-  })();
-
-  // Catmull-Rom -> cubic Bezier for a naturally flowing curve.
-  const toPath = (pts: Array<{ x: number; y: number }>) => {
-    if (pts.length < 2) return '';
-    const cmds = [`M0,${baseline} L${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`];
-    for (let i = 0; i < pts.length - 1; i += 1) {
-      const p0 = pts[i - 1] ?? pts[i];
-      const p1 = pts[i];
-      const p2 = pts[i + 1];
-      const p3 = pts[i + 2] ?? p2;
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-      cmds.push(`C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
-    }
-    cmds.push(`L${W},${baseline}`);
-    return cmds.join(' ');
-  };
-
-  const threadPath = toPath(points);
-  const lastX = points[points.length - 1]?.x ?? W;
-  const lastY = points[points.length - 1]?.y ?? baseline;
-  const isEmpty = relevant.length === 0;
-
-  return (
-    <svg
-      className="k-canvas-svg"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      role="img"
-      aria-label={isEmpty
-        ? 'Empty ribbon awaiting your first focus session'
-        : `Ribbon of ${relevant.length} recent focus session${relevant.length === 1 ? '' : 's'}`}
-    >
-      <defs>
-        <linearGradient id="k-ribbon-fabric" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--stone-2)" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="var(--stone-2)" stopOpacity="0.15" />
-        </linearGradient>
-      </defs>
-
-      {/* Fabric band -- a broad calm shape behind the thread. */}
-      <path
-        fill="url(#k-ribbon-fabric)"
-        d={`M0,${baseline + 6}
-            C 200,${baseline - 2} 400,${baseline + 14} 600,${baseline + 2}
-            S 780,${baseline - 4} ${W},${baseline + 4}
-            L ${W},${baseline + 30}
-            C 620,${baseline + 38} 440,${baseline + 22} 260,${baseline + 34}
-            S 40,${baseline + 38} 0,${baseline + 30} Z`}
-      />
-
-      {/* The living vermilion thread */}
-      <path
-        fill="none"
-        stroke="var(--shu)"
-        strokeWidth={isActive ? 2.5 : 1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={isEmpty ? 0.35 : (isActive ? 1 : 0.85)}
-        style={{ transition: 'opacity 400ms ease, stroke-width 400ms ease' }}
-        d={threadPath}
-      />
-
-      {/* One small dot at each real session peak, so the encoding is
-          legible on close inspection without competing with the line. */}
-      {!isEmpty && points.map((p, i) => (
-        <circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r={i === points.length - 1 && isActive ? 4 : 2.5}
-          fill="var(--shu)"
-          opacity={i === points.length - 1 && isActive ? 1 : 0.7}
-        >
-          {i === points.length - 1 && isActive && (
-            <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite" />
-          )}
-        </circle>
-      ))}
-
-      {/* Live pulse at the far right while a session runs. */}
-      {isActive && !isEmpty && (
-        <circle cx={lastX} cy={lastY} r="8" fill="none" stroke="var(--shu)" strokeWidth="1" opacity="0.4">
-          <animate attributeName="r" values="4;14" dur="1.8s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.55;0" dur="1.8s" repeatCount="indefinite" />
-        </circle>
-      )}
-    </svg>
-  );
-};
 
 export default App;

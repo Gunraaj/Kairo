@@ -35,6 +35,10 @@ export interface KairoSession {
   taskName?: string;
   taskId?: string;
   distractions?: number;
+  // Implementation intention captured before the session started. One
+  // sentence describing what the user is trying to accomplish. Evidence-
+  // backed (Gollwitzer 1999): naming the intention increases follow-through.
+  intention?: string;
 }
 
 export interface AudioSettings {

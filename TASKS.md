@@ -25,6 +25,12 @@ Ranked by impact-to-effort. Everything above the line is **shipping**; everythin
 - Motion (Framer) welcome step stagger
 - GSAP dial settle-pulse on session start
 - **Living ribbon**: vermilion thread encodes real session history of the current task — each session a peak whose height maps to duration. Active session pulses at the far right. Empty state invites the first session.
+- **Project canvas removed** — decoration masquerading as content. Screen real estate reclaimed. Replaced with the evidence-backed session-intention field (Gollwitzer 1999 implementation intentions).
+- **Session intention field** ("I will…") on the timer stage. Captured before session start, frozen once running, saved on the session record.
+- **Recent intentions section** in Progress modal — see what you told yourself you were going to do across your last six sessions.
+- **Sound Library category order** follows Moodist's canonical curation (Rain, Nature, Animals, Things, Places, Urban, Transport) instead of alphabetical. New "All" chip surfaces the full 82-sound catalogue.
+- **Theme cycle button** moved to the sidebar header as a compact icon, out of the primary nav footer.
+- **Viewport cap** on `.app-shell` — no more scrolling into blank space past the hero.
 
 ## 🩹 Polish
 

@@ -110,7 +110,11 @@ const FEATURED_NAMES = new Set([
   'cafe', 'library', 'inside-a-train', 'keyboard', 'vinyl-effect', 'cat-purring',
 ]);
 
-const CATEGORIES = ['Featured', ...Array.from(new Set(SOUNDS.map(categoryFor))).sort()];
+// Moodist's own category order (from the source repo). "All" first, then
+// Featured, then the seven curated families in the order Moodist presents.
+const MOODIST_ORDER = ['Rain', 'Nature', 'Animals', 'Things', 'Places', 'Urban', 'Transport'];
+const _present = new Set(SOUNDS.map(categoryFor));
+const CATEGORIES = ['All', 'Featured', ...MOODIST_ORDER.filter(c => _present.has(c))];
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   audioSettings,
@@ -166,6 +170,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     const normalizedQuery = query.trim().toLowerCase();
     return SOUNDS.filter(sound => {
       const categoryMatch = normalizedQuery
+        ? true
+        : category === 'All'
         ? true
         : category === 'Featured'
         ? FEATURED_NAMES.has(sound.name)

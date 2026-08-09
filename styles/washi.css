@@ -139,11 +139,18 @@ a { color: inherit; }
 
 /* --- App shell ----------------------------------------------------------- */
 .app-shell {
+  /* Hard-cap at one viewport so the app never lets you scroll into a
+     white void below the canvas. .k-main is the internal scroll region
+     if anything overflows. Falls back to 100vh on browsers without dvh. */
+  height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
   background: var(--washi);
   display: grid;
   grid-template-columns: 224px minmax(0, 1fr);
-  grid-template-rows: 100vh;
+  grid-template-rows: 1fr;
 }
 
 /* When sidebar collapsed (App toggles this) */
@@ -210,6 +217,23 @@ a { color: inherit; }
 }
 
 .k-collapse:hover { background: var(--sumi-2); color: var(--washi); }
+
+.k-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.k-head-icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--stone);
+  transition: background 120ms ease, color 120ms ease;
+}
+.k-head-icon:hover { background: var(--sumi-2); color: var(--washi); }
+.app-shell[data-sidebar="collapsed"] .k-head-actions { flex-direction: column; }
 
 .app-shell[data-sidebar="collapsed"] .k-brand-name,
 .app-shell[data-sidebar="collapsed"] .k-nav-label,
@@ -791,6 +815,37 @@ a { color: inherit; }
   font-size: 13px;
 }
 
+/* Recent intentions list -- what you told yourself you were doing. */
+.k-intentions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.k-intentions li {
+  padding: 12px 14px;
+  border-left: 3px solid var(--shu);
+  background: var(--washi-2);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.k-intentions blockquote {
+  margin: 0 0 6px;
+  color: var(--sumi);
+  font-family: var(--jp);
+  font-size: 13.5px;
+  font-style: normal;
+  line-height: 1.55;
+}
+.k-intention-meta {
+  display: flex;
+  gap: 6px;
+  color: var(--sumi-3);
+  font-size: 11.5px;
+  font-family: var(--mono);
+}
+
 /* Settings dialog styling */
 .settings-dialog { max-width: 560px; }
 
@@ -1239,7 +1294,6 @@ a { color: inherit; }
 .k-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
-  grid-template-rows: minmax(0, 1fr) auto;
   gap: 20px;
   padding: 28px 28px 20px;
   min-width: 0;
@@ -1247,9 +1301,8 @@ a { color: inherit; }
   overflow: hidden;
 }
 
-.k-stage      { grid-column: 1; grid-row: 1; min-width: 0; min-height: 0; }
-.k-sound-lib  { grid-column: 2; grid-row: 1 / span 2; min-width: 0; min-height: 0; overflow-y: auto; }
-.k-canvas     { grid-column: 1; grid-row: 2; min-width: 0; }
+.k-stage     { min-width: 0; min-height: 0; overflow-y: auto; }
+.k-sound-lib { min-width: 0; min-height: 0; overflow-y: auto; }
 
 /* --- Focus stage --------------------------------------------------------- */
 .k-stage {
@@ -1272,6 +1325,46 @@ a { color: inherit; }
 }
 
 .k-task-title.empty { color: var(--sumi-3); font-weight: 400; }
+
+/* Implementation-intention field. Sits under the task title before the
+   session starts; frozen once the timer is running. */
+.k-intention {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 560px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-md);
+  background: var(--washi-2);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.k-intention:focus-within {
+  border-color: var(--shu);
+  background: var(--washi);
+  box-shadow: 0 0 0 3px var(--shu-soft);
+}
+.k-intention-cue {
+  font-family: var(--jp);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--shu);
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.k-intention input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--sumi);
+  font-size: 13.5px;
+  padding: 4px 0;
+}
+.k-intention input::placeholder { color: var(--sumi-3); font-style: italic; }
+.k-intention input:disabled { color: var(--sumi); opacity: 1; }
 
 .k-timer-frame {
   display: grid;
@@ -1584,7 +1677,9 @@ a { color: inherit; }
   counter-increment: welcome-step;
   display: grid;
   grid-template-columns: 28px 1fr;
-  gap: 12px;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 3px;
   padding: 12px 14px;
   background: var(--washi-2);
   border: 1px solid var(--stone-3);
@@ -1593,6 +1688,8 @@ a { color: inherit; }
 }
 .k-welcome-list li::before {
   content: counter(welcome-step);
+  grid-column: 1;
+  grid-row: 1 / span 2;
   display: grid;
   place-items: center;
   width: 26px; height: 26px;
@@ -1602,7 +1699,10 @@ a { color: inherit; }
   font-size: 12px;
   font-weight: 500;
   border-radius: 50%;
+  align-self: start;
 }
+.k-welcome-list li > b { grid-column: 2; grid-row: 1; }
+.k-welcome-list li > span { grid-column: 2; grid-row: 2; }
 .k-welcome-list b {
   display: block;
   color: var(--sumi);
@@ -2069,7 +2169,6 @@ input[type="range"]::-moz-range-thumb {
     padding: 20px 16px;
     height: auto; overflow: visible;
   }
-  .k-sound-lib { grid-column: 1; grid-row: 3; border-left: 0; border-top: 1px solid var(--stone-2); padding: 16px 4px; }
+  .k-sound-lib { grid-column: 1; grid-row: 2; border-left: 0; border-top: 1px solid var(--stone-2); padding: 16px 4px; }
   .k-stage { grid-row: 1; }
-  .k-canvas { grid-row: 2; }
 }

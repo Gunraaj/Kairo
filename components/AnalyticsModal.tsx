@@ -210,7 +210,16 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClos
 
     const activeDays = year.dayTotals.size;
 
-    return { days, maxDay, topTasks, totalMins, sessionCount, avg, year, currentStreak, longestStreak, activeDays };
+    // Recent intentions: last 6 completed focus sessions that had a
+    // named intention. Small on-going review of what you told yourself
+    // you were going to do -- the honest counterpart to the heatmap's
+    // "did you show up".
+    const recentIntentions = focus
+      .filter(s => s.intention && s.intention.trim().length > 0)
+      .slice(0, 6)
+      .map(s => ({ id: s.id, date: s.date, intention: s.intention as string, task: s.taskName ?? 'Unassigned', mins: s.duration }));
+
+    return { days, maxDay, topTasks, totalMins, sessionCount, avg, year, currentStreak, longestStreak, activeDays, recentIntentions };
   }, [sessions]);
 
   const totalH = Math.floor(stats.totalMins / 60);
@@ -286,6 +295,29 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClos
             })}
           </div>
         </section>
+
+        {stats.recentIntentions.length > 0 && (
+          <section className="k-progress-section">
+            <h3 className="k-progress-section-title">
+              Recent intentions
+              <span className="k-progress-section-note">What you promised yourself</span>
+            </h3>
+            <ul className="k-intentions">
+              {stats.recentIntentions.map(row => (
+                <li key={row.id}>
+                  <blockquote>&ldquo;{row.intention}&rdquo;</blockquote>
+                  <div className="k-intention-meta">
+                    <span>{row.task}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{row.mins} min</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{new Date(row.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="k-progress-section">
           <h3 className="k-progress-section-title">

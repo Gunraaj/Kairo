@@ -56,6 +56,13 @@ export const Stage: React.FC<StageProps> = ({
   const sessionDurationRef = useRef<number | null>(restored?.sessionDuration ?? null);
   const sessionTargetRef = useRef<FocusTarget | null>(restored?.target ?? null);
 
+  // Implementation-intention field. Captured before the session starts,
+  // frozen into the session record at start, then cleared when the timer
+  // completes. Evidence base: Gollwitzer 1999 -- naming a specific
+  // intention significantly raises follow-through.
+  const [intention, setIntention] = useState('');
+  const sessionIntentionRef = useRef<string>('');
+
   const durationFor = useCallback((type: SessionType) => {
     if (type === 'focus') return settings.focusDuration * 60;
     if (type === 'longBreak') return settings.longBreakDuration * 60;
@@ -94,6 +101,7 @@ export const Stage: React.FC<StageProps> = ({
       type: sessionType,
       taskId: completedTarget?.kind === 'task' ? completedTarget.id : undefined,
       taskName: completedTarget?.name,
+      intention: sessionIntentionRef.current || undefined,
     });
 
     const nextFocusCount = sessionType === 'focus'
@@ -113,6 +121,8 @@ export const Stage: React.FC<StageProps> = ({
     startedAtRef.current = nextStartedAt;
     sessionDurationRef.current = autoStart ? nextDuration : null;
     sessionTargetRef.current = null;
+    sessionIntentionRef.current = '';
+    setIntention('');
     sessionIdRef.current = crypto.randomUUID();
     void playCompletionCue().catch(() => undefined);
     toggleAudio(false);
@@ -194,6 +204,7 @@ export const Stage: React.FC<StageProps> = ({
       startedAtRef.current = now;
       sessionDurationRef.current = timeLeft;
       sessionTargetRef.current = activeTarget;
+      sessionIntentionRef.current = intention.trim().slice(0, 200);
     }
     deadlineRef.current = now + timeLeft * 1000;
     setIsActive(true);
@@ -308,6 +319,21 @@ export const Stage: React.FC<StageProps> = ({
   return (
     <>
       <h1 className={`k-task-title ${activeTarget?.kind === 'task' ? '' : 'empty'}`}>{targetLabel}</h1>
+
+      {sessionType === 'focus' && activeTarget?.kind === 'task' && (
+        <label className="k-intention">
+          <span className="k-intention-cue">I will</span>
+          <input
+            type="text"
+            value={isActive ? sessionIntentionRef.current : intention}
+            onChange={e => setIntention(e.target.value)}
+            disabled={isActive}
+            placeholder="write one sentence about what this session is for"
+            maxLength={200}
+            aria-label="Session intention"
+          />
+        </label>
+      )}
 
       <div className="k-timer-frame">
         <div className="k-timer-actions">

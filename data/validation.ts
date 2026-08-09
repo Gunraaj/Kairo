@@ -84,6 +84,9 @@ export const normalizeSessions = (value: unknown): KairoSession[] => {
       distractions: source.distractions === undefined
         ? undefined
         : Math.round(boundedNumber(source.distractions, 0, 0, 10_000)),
+      intention: typeof source.intention === 'string' && source.intention.trim()
+        ? text(source.intention, '', 200)
+        : undefined,
     }];
   });
 };
