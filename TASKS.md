@@ -24,7 +24,12 @@ Ranked by impact-to-effort. Everything above the line is **shipping**; everythin
 - CI green, GitHub repo live, Netlify auto-deploys on push to `main`
 - Motion (Framer) welcome step stagger
 - GSAP dial settle-pulse on session start
-- **Living ribbon**: vermilion thread encodes real session history of the current task — each session a peak whose height maps to duration. Active session pulses at the far right. Empty state invites the first session.
+- **Session intentions** (Gollwitzer 1999 evidence base): quiet "I will…" field under the task title, captured at session start, saved on the session record, surfaced in Progress as a "Recent intentions" list.
+- **Project canvas removed**: the decorative bottom ribbon deleted after research pushback. Screen real estate returned to the timer stage; the intention field replaces it functionally.
+- **Real Tabler icons** in the Sound Library (same family Moodist uses), swapped in for the hand-drawn glyphs.
+- **App shell viewport-capped** so you can't scroll past the hero into empty white space.
+- **Theme cycle button** moved into the sidebar header alongside the collapse chevron.
+- **Welcome-modal grid fix**: numbered list items no longer wrap word-per-line.
 - **Project canvas removed** — decoration masquerading as content. Screen real estate reclaimed. Replaced with the evidence-backed session-intention field (Gollwitzer 1999 implementation intentions).
 - **Session intention field** ("I will…") on the timer stage. Captured before session start, frozen once running, saved on the session record.
 - **Recent intentions section** in Progress modal — see what you told yourself you were going to do across your last six sessions.

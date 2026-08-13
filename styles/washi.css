@@ -1326,6 +1326,95 @@ a { color: inherit; }
 
 .k-task-title.empty { color: var(--sumi-3); font-weight: 400; }
 
+/* Implementation intention: a single line under the task title, before
+   the dial. Evidence-backed (Gollwitzer 1999) -- writing the specific
+   thing you'll do increases follow-through. Kept quiet by design so it
+   never gets in the way of just starting. */
+.k-intention {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  max-width: 640px;
+  margin: -12px auto 0;
+  padding: 8px 14px;
+  background: transparent;
+  border-bottom: 1px solid var(--stone-2);
+  transition: border-color 160ms ease;
+}
+.k-intention:focus-within { border-bottom-color: var(--shu); }
+
+.k-intention-cue {
+  font-family: var(--jp);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--sumi-3);
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+
+.k-intention input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--sumi);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.k-intention input::placeholder {
+  color: var(--sumi-3);
+  font-style: italic;
+  opacity: 0.7;
+}
+.k-intention input:disabled {
+  color: var(--sumi);
+  opacity: 0.85;
+  cursor: default;
+}
+
+/* Recent intentions list in the Progress modal. Each row is a small
+   quote card -- an italic serif fragment above a compact meta line. */
+.k-intentions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.k-intentions > li {
+  padding: 12px 14px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-left: 3px solid var(--shu);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.k-intentions blockquote {
+  margin: 0 0 6px;
+  font-family: var(--jp);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sumi);
+}
+.k-intention-meta {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--sumi-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.k-intention-meta > span:first-child { color: var(--sumi-2); font-family: var(--sans); font-weight: 500; letter-spacing: 0; }
+
 /* Implementation-intention field. Sits under the task title before the
    session starts; frozen once the timer is running. */
 .k-intention {

@@ -3,6 +3,13 @@ import type { AudioSettings } from '../types';
 import { Icon } from './Icon';
 import moodistSounds from '../moodist_sounds_utf8.json';
 import { isTrustedAmbientUrl, parseMediaEmbed } from '../utils/embed';
+import {
+  TbCloudRain, TbCloudStorm, TbDroplet, TbWaveSine, TbBeach, TbRipple,
+  TbWind, TbLeaf, TbTrees, TbFlame, TbCoffee, TbBooks, TbUsers, TbBuildingStore,
+  TbKeyboard, TbWriting, TbTrain, TbCar, TbPlaneInflight, TbCat, TbDog,
+  TbFeather, TbButterfly, TbFish, TbVinyl, TbDeviceSpeaker, TbSnowflake,
+  TbMoon, TbBell, TbHeartbeat, TbBubble, TbHammer, TbClock, TbFileMusic,
+} from 'react-icons/tb';
 
 interface ControlPanelProps {
   audioSettings: AudioSettings;
@@ -66,40 +73,138 @@ const labelFor = (name: string) => name
   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ');
 
-/* Sound category iconography -- one drawn glyph per family, matched to
-   whichever sound name is passed. All strokes ride on currentColor so the
-   active/inactive tint from the parent card carries through. */
-const SoundIcon: React.FC<{ name: string }> = ({ name }) => {
-  const shared = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  const family = /rain/.test(name) ? 'rain'
-    : /storm|thunder/.test(name) ? 'storm'
-    : /wave|ocean|water|river|stream|drip|underwater/.test(name) ? 'water'
-    : /wind|leaves|trees|forest|jungle|nature/.test(name) ? 'wind'
-    : /fire|camp|fireplace/.test(name) ? 'fire'
-    : /cafe|restaurant|crowd|library|office/.test(name) ? 'cafe'
-    : /keyboard|typewriter|typing|writing/.test(name) ? 'keyboard'
-    : /train|traffic|car|highway|road|city/.test(name) ? 'transit'
-    : /cat|dog|bird|animal|purr/.test(name) ? 'animal'
-    : /vinyl|tape|radio|static|noise/.test(name) ? 'vinyl'
-    : /snow|winter/.test(name) ? 'snow'
-    : /night|crickets|owl/.test(name) ? 'night'
-    : 'wave';
+/* Real Tabler icons -- the same family Moodist uses. Each sound resolves
+   to a specific Tabler glyph via exact-name lookup, with a regex family
+   fallback for unknowns. Drawn at 20px in currentColor so the active /
+   inactive tint from the parent card carries through. Only the named
+   imports listed at the top of the file ship in the bundle. */
+type IconCmp = React.ComponentType<{ size?: number; strokeWidth?: number }>;
 
-  switch (family) {
-    case 'rain':     return <svg {...shared}><path d="M6 11a4 4 0 018-1 3 3 0 011 5.8" /><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2" /></svg>;
-    case 'storm':    return <svg {...shared}><path d="M6 11a4 4 0 018-1 3 3 0 011 5.8" /><path d="M11 15l-2 4h3l-2 3" /></svg>;
-    case 'water':    return <svg {...shared}><path d="M3 10c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /><path d="M3 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /></svg>;
-    case 'wind':     return <svg {...shared}><path d="M4 9h11a3 3 0 100-6" /><path d="M3 14h14a3 3 0 110 6" /><path d="M4 19h4" /></svg>;
-    case 'fire':     return <svg {...shared}><path d="M12 3c-3 4 1 6 1 9a3 3 0 11-6 0c0-1 .3-2 1-3-1 4 4 4 4 0 0-3-1-3 0-6z" /></svg>;
-    case 'cafe':     return <svg {...shared}><path d="M4 8h13v6a4 4 0 01-4 4H8a4 4 0 01-4-4z" /><path d="M17 10h2a2 2 0 010 4h-2" /><path d="M8 4c-1 1-1 2 0 3M12 4c-1 1-1 2 0 3" /></svg>;
-    case 'keyboard': return <svg {...shared}><rect x="2" y="7" width="20" height="12" rx="2" /><path d="M6 11h.01M10 11h.01M14 11h.01M18 11h.01M6 15h12" /></svg>;
-    case 'transit':  return <svg {...shared}><rect x="5" y="3" width="14" height="15" rx="2" /><path d="M5 12h14M9 6h6" /><circle cx="9" cy="15" r=".8" fill="currentColor" /><circle cx="15" cy="15" r=".8" fill="currentColor" /><path d="M7 20l-1 2M17 20l1 2" /></svg>;
-    case 'animal':   return <svg {...shared}><path d="M5 12c0-3 2-6 5-6s5 3 5 6-2 5-5 5-5-2-5-5z" /><path d="M6 6l1 2M12 6l1 2M18 6l1 2" /><circle cx="9" cy="12" r=".8" fill="currentColor" /><circle cx="13" cy="12" r=".8" fill="currentColor" /></svg>;
-    case 'vinyl':    return <svg {...shared}><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2.5" /><circle cx="12" cy="12" r=".6" fill="currentColor" /></svg>;
-    case 'snow':     return <svg {...shared}><path d="M12 3v18M4 8l16 8M4 16l16-8" /><path d="M12 6l-1.5-1.5M12 6l1.5-1.5M12 18l-1.5 1.5M12 18l1.5 1.5" /></svg>;
-    case 'night':    return <svg {...shared}><path d="M20 14a8 8 0 11-10-10 6 6 0 0010 10z" /></svg>;
-    default:         return <svg {...shared}><path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" /></svg>;
-  }
+// Exact-name overrides first (60+ specific matches from Moodist), then
+// regex family fallback so unknown sounds still get something sensible.
+const SOUND_ICON_MAP: Record<string, IconCmp> = {
+  // Rain
+  'light-rain': TbCloudRain,
+  'heavy-rain': TbCloudStorm,
+  'rain-on-leaves': TbLeaf,
+  'rain-on-roof': TbCloudRain,
+  'rain-on-window': TbCloudRain,
+  'rain-on-tent': TbCloudRain,
+  'rain-on-umbrella': TbCloudRain,
+  'thunder': TbCloudStorm,
+  // Nature
+  'wind': TbWind,
+  'wind-in-trees': TbTrees,
+  'leaves': TbLeaf,
+  'walk-in-snow': TbSnowflake,
+  'walk-on-gravel': TbHammer,
+  'walk-on-leaves': TbLeaf,
+  'campfire': TbFlame,
+  'river': TbRipple,
+  'droplets': TbDroplet,
+  'jungle': TbTrees,
+  'howling-wind': TbWind,
+  'waterfall': TbBeach,
+  // Animals
+  'beehive': TbBubble,
+  'birds': TbFeather,
+  'cat-purring': TbCat,
+  'chickens': TbFeather,
+  'cows': TbDog,
+  'crickets': TbButterfly,
+  'crows': TbFeather,
+  'dog-barking': TbDog,
+  'frog': TbFish,
+  'horse-galopp': TbDog,
+  'owl': TbMoon,
+  'seagulls': TbFeather,
+  'sheep': TbDog,
+  'whale': TbFish,
+  'wolf': TbDog,
+  'woodpecker': TbFeather,
+  // Things
+  'boiling-water': TbDroplet,
+  'bubbles': TbBubble,
+  'clock': TbClock,
+  'dryer': TbWind,
+  'keyboard': TbKeyboard,
+  'morse-code': TbBell,
+  'muffled-airplane': TbPlaneInflight,
+  'paper': TbFileMusic,
+  'singing-bowl': TbBell,
+  'slide-projector': TbFileMusic,
+  'tuning-radio': TbDeviceSpeaker,
+  'typewriter': TbWriting,
+  'vinyl-effect': TbVinyl,
+  'washing-machine': TbWind,
+  'wind-chimes': TbBell,
+  'writing': TbWriting,
+  // Places
+  'cafe': TbCoffee,
+  'construction-site': TbHammer,
+  'inside-a-car': TbCar,
+  'inside-a-plane': TbPlaneInflight,
+  'inside-a-train': TbTrain,
+  'kids-playground': TbUsers,
+  'laboratory': TbFileMusic,
+  'library': TbBooks,
+  'night-village': TbMoon,
+  'office': TbBuildingStore,
+  'party-crowd': TbUsers,
+  'restaurant': TbCoffee,
+  'subway-station': TbTrain,
+  'supermarket': TbBuildingStore,
+  'temple': TbBell,
+  'underwater': TbFish,
+  // Urban
+  'ambulance-siren': TbHeartbeat,
+  'busy-street': TbCar,
+  'church-bells': TbBell,
+  'crowd': TbUsers,
+  'fireworks': TbFlame,
+  'highway': TbCar,
+  'road': TbCar,
+  // Transport
+  'airplane': TbPlaneInflight,
+  'inside-a-bus': TbCar,
+  'sailboat': TbBeach,
+  'submarine': TbFish,
+  'train': TbTrain,
+  'rowing-boat': TbBeach,
+};
+
+const familyIcon = (name: string): IconCmp => {
+  if (/storm|thunder/.test(name)) return TbCloudStorm;
+  if (/rain/.test(name)) return TbCloudRain;
+  if (/wave|ocean|beach|sea/.test(name)) return TbBeach;
+  if (/water|drip|river|stream/.test(name)) return TbRipple;
+  if (/wind|breeze/.test(name)) return TbWind;
+  if (/tree|forest|jungle|leaves/.test(name)) return TbTrees;
+  if (/fire|camp|flame/.test(name)) return TbFlame;
+  if (/cafe|restaurant|coffee/.test(name)) return TbCoffee;
+  if (/library|book/.test(name)) return TbBooks;
+  if (/keyboard|typewriter|writing/.test(name)) return TbKeyboard;
+  if (/train|subway/.test(name)) return TbTrain;
+  if (/car|traffic|highway|road|bus/.test(name)) return TbCar;
+  if (/plane|airplane|flight/.test(name)) return TbPlaneInflight;
+  if (/cat|purr/.test(name)) return TbCat;
+  if (/dog|wolf|sheep|cow|horse/.test(name)) return TbDog;
+  if (/bird|crow|owl|feather|chicken|seagull|woodpecker/.test(name)) return TbFeather;
+  if (/frog|whale|fish|underwater|submarine/.test(name)) return TbFish;
+  if (/bee|butterfly|cricket/.test(name)) return TbButterfly;
+  if (/vinyl|tape|radio/.test(name)) return TbVinyl;
+  if (/snow|winter/.test(name)) return TbSnowflake;
+  if (/night|moon|village/.test(name)) return TbMoon;
+  if (/bell|chime|siren/.test(name)) return TbBell;
+  if (/crowd|people|party|kids/.test(name)) return TbUsers;
+  if (/office|market|store|shop/.test(name)) return TbBuildingStore;
+  if (/bubble|boiling|washing|dryer/.test(name)) return TbBubble;
+  return TbWaveSine;
+};
+
+const SoundIcon: React.FC<{ name: string }> = ({ name }) => {
+  const Icon = SOUND_ICON_MAP[name] ?? familyIcon(name);
+  return <Icon size={20} strokeWidth={1.6} />;
 };
 
 const SOUNDS = (moodistSounds as Sound[])
