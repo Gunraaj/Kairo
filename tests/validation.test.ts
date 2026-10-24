@@ -26,11 +26,23 @@ test('removes nested project complexity and sanitizes stored text', () => {
   const projects = normalizeProjects([{
     id: 'p1',
     name: ' Project\u0000 name ',
-    tasks: [{ id: 't1', name: ' Task\u0007 name ', timeSpent: -4, completed: false }],
+    tasks: [{
+      id: 't1',
+      name: ' Task\u0007 name ',
+      timeSpent: -4,
+      completed: false,
+      subTasks: [
+        { id: 'st1', name: ' Subtask\u0000 1 ', completed: true },
+        null,
+      ],
+    }],
     subProjects: [{ id: 'nested' }],
   }]);
   assert.equal(projects[0]?.name, 'Project  name');
   assert.equal(projects[0]?.tasks[0]?.timeSpent, 0);
+  assert.equal(projects[0]?.tasks[0]?.subTasks?.length, 1);
+  assert.equal(projects[0]?.tasks[0]?.subTasks?.[0]?.name, 'Subtask  1');
+  assert.equal(projects[0]?.tasks[0]?.subTasks?.[0]?.completed, true);
   assert.deepEqual(projects[0]?.subProjects, []);
 });
 

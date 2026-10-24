@@ -12,12 +12,17 @@ export type TimerSnapshot = {
   startedAt: number | null;
   sessionDuration: number | null;
   target: FocusTarget | null;
+  intention?: string;
+  lastSavedAt?: number;
 };
 
-type StorageReader = Pick<Storage, 'getItem' | 'setItem'>;
+type StorageReader = Pick<Storage, 'getItem' | 'setItem'> & Partial<Pick<Storage, 'removeItem'>>;
 
-const optionalFiniteNumber = (value: unknown): value is number | null =>
-  value === null || (typeof value === 'number' && Number.isFinite(value));
+const optionalFiniteNumber = (value: unknown): value is number | null | undefined =>
+  value === undefined || value === null || (typeof value === 'number' && Number.isFinite(value));
+
+const optionalString = (value: unknown, maxLength = 250): value is string | undefined =>
+  value === undefined || (typeof value === 'string' && value.length <= maxLength);
 
 const isTarget = (value: unknown): value is FocusTarget | null => {
   if (value === null) return true;
@@ -48,6 +53,8 @@ export const parseTimerSnapshot = (raw: string | null): TimerSnapshot | null => 
       || !optionalFiniteNumber(snapshot.deadline)
       || !optionalFiniteNumber(snapshot.startedAt)
       || !optionalFiniteNumber(snapshot.sessionDuration)
+      || !optionalFiniteNumber(snapshot.lastSavedAt)
+      || !optionalString(snapshot.intention)
       || !isTarget(snapshot.target)
     ) return null;
     return snapshot as TimerSnapshot;
@@ -61,6 +68,24 @@ export const remainingSeconds = (snapshot: TimerSnapshot, now = Date.now()) =>
     ? Math.max(0, Math.ceil((snapshot.deadline - now) / 1000))
     : snapshot.timeLeft;
 
+export const calculateElapsedSeconds = (snapshot: TimerSnapshot, now = Date.now()): number => {
+  const total = snapshot.sessionDuration ?? snapshot.timeLeft;
+  if (snapshot.isActive && snapshot.deadline && snapshot.startedAt) {
+    const effectiveEnd = Math.min(now, snapshot.deadline);
+    const elapsed = Math.floor((effectiveEnd - snapshot.startedAt) / 1000);
+    return Math.max(0, Math.min(total, elapsed));
+  }
+  const elapsed = total - snapshot.timeLeft;
+  return Math.max(0, Math.min(total, elapsed));
+};
+
+export const isInterruptedSnapshot = (snapshot: TimerSnapshot, now = Date.now()): boolean => {
+  if (snapshot.sessionType !== 'focus') return false;
+  if (!snapshot.startedAt) return false;
+  const elapsed = calculateElapsedSeconds(snapshot, now);
+  return elapsed >= 60;
+};
+
 export const readTimerSnapshot = (storage: StorageReader = window.localStorage) =>
   parseTimerSnapshot(storage.getItem(TIMER_STORAGE_KEY));
 
@@ -73,5 +98,17 @@ export const writeTimerSnapshot = (
     return true;
   } catch {
     return false;
+  }
+};
+
+export const clearTimerSnapshot = (storage: StorageReader = window.localStorage) => {
+  try {
+    if (typeof storage.removeItem === 'function') {
+      storage.removeItem(TIMER_STORAGE_KEY);
+    } else {
+      storage.setItem(TIMER_STORAGE_KEY, '');
+    }
+  } catch {
+    // Ignore storage issues
   }
 };

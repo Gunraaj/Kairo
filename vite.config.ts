@@ -15,11 +15,23 @@ export default defineConfig(() => {
       build: {
         target: 'es2022',
         sourcemap: false,
+        rollupOptions: {
+          output: {
+            manualChunks(id: string) {
+              if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+                return 'vendor';
+              }
+              if (id.includes('node_modules/gsap') || id.includes('node_modules/motion')) {
+                return 'motion';
+              }
+            },
+          },
+        },
       },
       plugins: [react()],
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(import.meta.dirname, '.'),
         },
       },
     };

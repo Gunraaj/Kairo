@@ -40,3 +40,49 @@ test('restricts ambient files to the Moodist repository path', () => {
     false,
   );
 });
+
+test('validates and structures 1-click saved focus streams correctly', () => {
+  const youtubeUrl = 'https://www.youtube.com/watch?v=4xDzrJKXOOY';
+  const spotifyUrl = 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS';
+
+  const ytEmbed = parseMediaEmbed(youtubeUrl);
+  assert.ok(ytEmbed);
+  assert.equal(ytEmbed.provider, 'youtube');
+
+  const spEmbed = parseMediaEmbed(spotifyUrl);
+  assert.ok(spEmbed);
+  assert.equal(spEmbed.provider, 'spotify');
+
+  const streamList = [
+    {
+      id: 'stream-1',
+      name: 'Retro Synthwave Radio',
+      subtitle: 'YouTube focus stream',
+      provider: ytEmbed.provider,
+      originalUrl: youtubeUrl,
+      embedUrl: ytEmbed.url,
+      badge: 'SYNTH',
+      emoji: '⚡',
+      createdAt: Date.now(),
+    },
+    {
+      id: 'stream-2',
+      name: 'Deep Focus Spotify',
+      subtitle: 'Spotify playlist',
+      provider: spEmbed.provider,
+      originalUrl: spotifyUrl,
+      embedUrl: spEmbed.url,
+      badge: 'SPOTIFY',
+      emoji: '🎧',
+      createdAt: Date.now(),
+    },
+  ];
+
+  // Serializes & deserializes safely without data loss
+  const serialized = JSON.stringify(streamList);
+  const deserialized = JSON.parse(serialized);
+  assert.equal(deserialized.length, 2);
+  assert.equal(deserialized[0].name, 'Retro Synthwave Radio');
+  assert.equal(deserialized[1].badge, 'SPOTIFY');
+  assert.equal(deserialized[1].embedUrl, 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS');
+});

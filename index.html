@@ -3,20 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#030307" />
+    <meta name="theme-color" content="#12110E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta
       name="description"
-      content="A local-first project, Pomodoro, and focus sound workspace."
+      content="A calm, local-first focus workspace — one task, one moment at a time."
     />
-    <title>Kairo - Focus on one thing</title>
+    <title>Kairo — Make Space for One Thing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var paramTheme = params.get('theme');
+          var stored = localStorage.getItem('kairo_theme');
+          var theme = paramTheme || (stored ? JSON.parse(stored).value : null);
+          if (theme === 'light' || theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="app-body">
+    <!--
+      THESIS: Kairo makes one active moment visible inside a calm workspace; the interval mark refuses the generic stopwatch or decorative zen-circle logo.
+      OWN-WORLD: Washi paper, Sumi ink, and one Vermilion node; a K-shaped path held by a returning loop.
+      STORY: One task, one timer, one deliberate interval, expressed through a plain wordmark and memorable mark.
+      FIRST VIEWPORT: The 28px sidebar tile carries the mark while the focus dial remains the dominant stage element; the favicon repeats the same geometry.
+      FORM: Kairo Interval Mark, grounded direction candidate 7, seed key cc5d7cac.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

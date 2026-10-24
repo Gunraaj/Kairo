@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  clearTimerSnapshot,
+  calculateElapsedSeconds,
+  isInterruptedSnapshot,
   parseTimerSnapshot,
   remainingSeconds,
   TIMER_STORAGE_KEY,
@@ -43,4 +46,43 @@ test('writes a versioned timer snapshot without throwing', () => {
   };
   assert.equal(writeTimerSnapshot(snapshot, storage), true);
   assert.deepEqual(parseTimerSnapshot(values.get(TIMER_STORAGE_KEY) ?? null), snapshot);
+});
+
+test('calculates elapsed seconds and identifies interrupted focus sessions', () => {
+  // Paused focus session with 1500s total, 900s left => 600s elapsed (10 mins)
+  const paused: TimerSnapshot = {
+    ...snapshot,
+    isActive: false,
+    timeLeft: 900,
+  };
+  assert.equal(calculateElapsedSeconds(paused), 600);
+  assert.equal(isInterruptedSnapshot(paused), true);
+
+  // Focus session that just started (only 10 seconds elapsed)
+  const justStarted: TimerSnapshot = {
+    ...snapshot,
+    isActive: false,
+    timeLeft: 1490,
+  };
+  assert.equal(calculateElapsedSeconds(justStarted), 10);
+  assert.equal(isInterruptedSnapshot(justStarted), false); // Less than 60s is not counted as interrupted
+
+  // Break sessions should not be flagged as interrupted focus
+  const breakSession: TimerSnapshot = {
+    ...snapshot,
+    sessionType: 'shortBreak',
+    isActive: false,
+    timeLeft: 200,
+  };
+  assert.equal(isInterruptedSnapshot(breakSession), false);
+
+  // clearTimerSnapshot removes from storage
+  const storageMap = new Map<string, string>([[TIMER_STORAGE_KEY, 'data']]);
+  const storage = {
+    getItem: (k: string) => storageMap.get(k) ?? null,
+    setItem: (k: string, v: string) => storageMap.set(k, v),
+    removeItem: (k: string) => storageMap.delete(k),
+  };
+  clearTimerSnapshot(storage);
+  assert.equal(storageMap.has(TIMER_STORAGE_KEY), false);
 });

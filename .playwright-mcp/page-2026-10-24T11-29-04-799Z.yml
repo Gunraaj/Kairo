@@ -1,0 +1,218 @@
+- generic [ref=e3]:
+  - complementary "Primary navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - generic "Kairo interval mark" [ref=e6]: Kairo
+      - generic [ref=e13]:
+        - 'button "Theme: system. Click to cycle." [ref=e14] [cursor=pointer]'
+        - button "Collapse sidebar" [ref=e18] [cursor=pointer]
+    - navigation "Workspace" [ref=e21]:
+      - generic [ref=e22]: Projects & Tasks
+      - generic [ref=e23]:
+        - button "Quick Focus Untracked" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: Quick Focus
+          - generic [ref=e28]: Untracked
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: Quick Presets
+            - button "📄 Doc / Syllabus" [ref=e32] [cursor=pointer]
+          - generic [ref=e34]:
+            - button "🎓 Study" [ref=e35] [cursor=pointer]:
+              - generic [ref=e36]: 🎓
+              - generic [ref=e37]: Study
+            - button "📚 Learn" [ref=e38] [cursor=pointer]:
+              - generic [ref=e39]: 📚
+              - generic [ref=e40]: Learn
+            - button "💼 Work" [ref=e41] [cursor=pointer]:
+              - generic [ref=e42]: 💼
+              - generic [ref=e43]: Work
+            - button "✍️ Write" [ref=e44] [cursor=pointer]:
+              - generic [ref=e45]: ✍️
+              - generic [ref=e46]: Write
+            - button "📄 Doc / Syllabus" [ref=e47] [cursor=pointer]:
+              - generic [ref=e48]: 📄
+              - generic [ref=e49]: Doc / Syllabus
+        - paragraph [ref=e50]: No projects yet. Add one below to organize your work.
+      - generic [ref=e51]:
+        - textbox "New project name" [ref=e52]:
+          - /placeholder: New project...
+        - button "Add project" [disabled] [ref=e53]
+      - button "Sound Studio" [ref=e57] [cursor=pointer]
+      - button "Future Treat" [ref=e61] [cursor=pointer]
+      - button "Focus Guide" [ref=e66] [cursor=pointer]
+      - button "Progress" [ref=e70] [cursor=pointer]
+      - button "Settings" [ref=e74] [cursor=pointer]
+      - button "Shortcuts ?" [ref=e79] [cursor=pointer]:
+        - generic [ref=e83]: Shortcuts
+        - generic [ref=e84]: "?"
+    - separator "Resize sidebar" [ref=e85]
+  - main [ref=e86]:
+    - generic [ref=e87]:
+      - generic [ref=e88]:
+        - button "Enter Zen Mode (F)" [ref=e89] [cursor=pointer]:
+          - generic [ref=e92]: Zen
+          - generic [ref=e93]: F
+        - button "Sound Studio" [ref=e94] [cursor=pointer]
+        - button "Time Capsule & Future Treat" [ref=e100] [cursor=pointer]:
+          - generic [ref=e104]: Future Treat
+        - button "Focus Guide & Pomodoro Science" [ref=e105] [cursor=pointer]:
+          - generic [ref=e108]: Guide
+      - generic [ref=e109]:
+        - tablist "Session mode" [ref=e110]:
+          - tab "Focus" [selected] [ref=e111] [cursor=pointer]
+          - tab "Short break" [ref=e112] [cursor=pointer]
+          - tab "Long break" [ref=e113] [cursor=pointer]
+        - generic [ref=e114]:
+          - generic [ref=e115]:
+            - generic "Quick Focus" [ref=e120]
+            - generic [ref=e121]: Untracked
+          - generic [ref=e122]:
+            - generic [ref=e123]: Goal
+            - textbox "Session intention" [ref=e124]:
+              - /placeholder: What is your single focus for this session?
+            - button "Time Capsule treat" [ref=e125] [cursor=pointer]:
+              - generic [ref=e129]: Treat
+        - slider "Focus duration" [ref=e131]:
+          - img [ref=e132]:
+            - generic [ref=e134] [cursor=pointer]
+            - generic: "0"
+            - generic: "15"
+            - generic: "30"
+            - generic: "45"
+            - timer "25:00 remaining": 25:00
+        - generic [ref=e136]:
+          - button "Start timer" [ref=e138] [cursor=pointer]:
+            - generic [ref=e142]: Start Focus
+            - generic [ref=e143]: Space
+          - generic [ref=e144]:
+            - button "Reset timer" [ref=e145] [cursor=pointer]:
+              - generic [ref=e146]: Reset
+              - generic [ref=e147]: R
+            - button "Extend 5 minutes" [ref=e148] [cursor=pointer]:
+              - generic [ref=e149]: +5m
+              - generic [ref=e150]: E
+          - generic [ref=e151]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: "Break:"
+              - group "Break duration" [ref=e154]:
+                - button "5m" [pressed] [ref=e155] [cursor=pointer]
+                - button "10m" [ref=e156] [cursor=pointer]
+                - button "15m" [ref=e157] [cursor=pointer]
+                - generic "Custom break duration stepper" [ref=e158]:
+                  - button "Decrease break duration by 1 minute" [ref=e159] [cursor=pointer]: "-"
+                  - generic "Custom break duration" [ref=e160]: 5m
+                  - button "Increase break duration by 1 minute" [ref=e161] [cursor=pointer]: +
+            - button "Auto-start breaks" [ref=e163] [cursor=pointer]
+            - generic [ref=e167]: "Today: 0 sessions (0m)"
+        - status [ref=e170]
+    - complementary "Sound library":
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Sound Studio" [level=2]
+              - 'generic "Audio status: Idle"': Idle
+            - button "Close sound library"
+          - generic:
+            - generic:
+              - button "Mute (M)"
+              - generic "Master volume 70%":
+                - slider "Master volume 70 percent": "0.7"
+              - generic: 70%
+              - generic:
+                - generic "No active audio layers": Idle
+          - tablist "Sound modes":
+            - tab "Ambient" [selected]
+            - tab "Brainwaves"
+            - tab "Lofi"
+        - generic:
+          - tabpanel "Ambient":
+            - generic:
+              - textbox "Search sounds":
+                - /placeholder: Search rain, cafe, fire, birds...
+            - generic:
+              - generic: Atmosphere Mixes
+              - generic:
+                - generic:
+                  - button "☕ Rainy Cafe":
+                    - generic: ☕
+                    - generic: Rainy Cafe
+                - generic:
+                  - button "⛩️ Kyoto Temple":
+                    - generic: ⛩️
+                    - generic: Kyoto Temple
+                - generic:
+                  - button "🌲 Forest River":
+                    - generic: 🌲
+                    - generic: Forest River
+                - generic:
+                  - button "🔥 Midnight Fire":
+                    - generic: 🔥
+                    - generic: Midnight Fire
+                - generic:
+                  - button "🌊 Ocean Solitude":
+                    - generic: 🌊
+                    - generic: Ocean Solitude
+                - generic:
+                  - button "🚄 Tokyo Train":
+                    - generic: 🚄
+                    - generic: Tokyo Train
+                - generic:
+                  - button "📚 Quiet Library":
+                    - generic: 📚
+                    - generic: Quiet Library
+                - generic:
+                  - button "🫧 Deep Submarine":
+                    - generic: 🫧
+                    - generic: Deep Submarine
+            - group "Filter sounds by category":
+              - button "All"
+              - button "Featured" [pressed]
+              - button "Rain"
+              - button "Nature"
+              - button "Animals"
+              - button "Things"
+              - button "Places"
+              - button "Urban"
+              - button "Transport"
+            - generic:
+              - generic:
+                - button "Play Cat Purring":
+                  - generic: Cat Purring
+              - generic:
+                - button "Play Campfire":
+                  - generic: Campfire
+              - generic:
+                - button "Play River":
+                  - generic: River
+              - generic:
+                - button "Play Waves":
+                  - generic: Waves
+              - generic:
+                - button "Play Wind In Trees":
+                  - generic: Wind In Trees
+              - generic:
+                - button "Play Cafe":
+                  - generic: Cafe
+              - generic:
+                - button "Play Library":
+                  - generic: Library
+              - generic:
+                - button "Play Heavy Rain":
+                  - generic: Heavy Rain
+              - generic:
+                - button "Play Rain On Window":
+                  - generic: Rain On Window
+              - generic:
+                - button "Play Keyboard":
+                  - generic: Keyboard
+              - generic:
+                - button "Play Vinyl Effect":
+                  - generic: Vinyl Effect
+              - generic:
+                - button "Play Inside A Train":
+                  - generic: Inside A Train
+            - paragraph:
+              - text: 81 sounds curated from
+              - link "Moodist":
+                - /url: https://github.com/remvze/moodist
+              - text: .

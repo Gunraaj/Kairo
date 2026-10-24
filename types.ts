@@ -1,5 +1,14 @@
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
+export type TimeCalcMode = 'auto' | 'direct' | 'hybrid';
+
+export interface SubTask {
+  id: string;
+  name: string;
+  completed: boolean;
+  timeSpent?: number; // in minutes spent on this subtask
+  estimatedMinutes?: number; // estimated duration in minutes
+}
 
 export interface Task {
   id: string;
@@ -7,6 +16,10 @@ export interface Task {
   completed: boolean;
   timeSpent: number; // in minutes
   status?: TaskStatus;
+  targetRounds?: number;
+  subTasks?: SubTask[];
+  timeCalcMode?: TimeCalcMode; // 'auto' (sum of subtasks), 'direct' (standalone), 'hybrid' (direct + subtasks)
+  directTimeSpent?: number; // unassigned direct minutes spent on parent task (used in hybrid mode)
 }
 
 export interface Project {
@@ -65,3 +78,29 @@ export interface UserSettings {
 }
 
 export type Settings = UserSettings;
+
+export interface TimeCapsule {
+  id: string;
+  createdAt: string;
+  message: string;
+  treat: string;
+  triggerType: 'rounds' | 'time' | 'tomorrow';
+  targetRounds?: number;
+  completedRoundsAtCreation: number;
+  targetTime?: string;
+  targetDate?: string;
+  isUnlocked: boolean;
+  unlockedAt?: string;
+}
+
+export interface SavedFocusStream {
+  id: string;
+  name: string;
+  subtitle?: string;
+  provider: 'youtube' | 'spotify';
+  originalUrl: string;
+  embedUrl: string;
+  badge: string;
+  emoji?: string;
+  createdAt: number;
+}

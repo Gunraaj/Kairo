@@ -1,80 +1,28 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { KairoSession } from '../types';
 import { Modal } from './Modal';
+import { downloadIcsFile } from '../utils/calendarExport';
+import {
+  calculateFocusStats,
+  intensityLevel,
+  type YearCell,
+  type YearWeek,
+} from '../utils/analytics';
 
 interface AnalyticsModalProps {
   sessions: KairoSession[];
   onClose: () => void;
 }
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-
-/* GitHub-style contribution grid: 53 weeks x 7 days = 371 cells. Each cell
-   is a day, tinted by how many focus minutes landed there. The grid starts
-   on the Sunday of the week 52 weeks ago and ends on today. */
-const buildYearGrid = (focusSessions: KairoSession[]) => {
-  const dayTotals = new Map<string, number>();
-  focusSessions.forEach(s => {
-    const d = new Date(s.date);
-    d.setHours(0, 0, 0, 0);
-    const key = dayKey(d);
-    dayTotals.set(key, (dayTotals.get(key) ?? 0) + s.duration);
-  });
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  // End at the Saturday of the current week so the last column is complete
-  const end = new Date(today);
-  end.setDate(end.getDate() + (6 - end.getDay()));
-  // Start 52 weeks before end, snapped to Sunday
-  const start = new Date(end);
-  start.setDate(end.getDate() - 52 * 7 + 1);
-  start.setDate(start.getDate() - start.getDay());
-
-  const weeks: Array<{
-    days: Array<{ date: Date; mins: number; inFuture: boolean; key: string } | null>;
-    monthLabel: string | null;
-  }> = [];
-  const cursor = new Date(start);
-  let prevMonth = -1;
-  while (cursor <= end) {
-    const days: Array<{ date: Date; mins: number; inFuture: boolean; key: string } | null> = [];
-    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek += 1) {
-      const d = new Date(cursor);
-      const key = dayKey(d);
-      const mins = dayTotals.get(key) ?? 0;
-      days.push({ date: d, mins, inFuture: d > today, key });
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    // Month label appears on the first week where the month starts on a Sunday-or-later cell
-    const firstOfMonth = days[0] && days[0].date.getDate() <= 7 && days[0].date.getMonth() !== prevMonth;
-    const monthLabel = firstOfMonth ? MONTH_LABELS[days[0]!.date.getMonth()] : null;
-    if (firstOfMonth) prevMonth = days[0]!.date.getMonth();
-    weeks.push({ days, monthLabel });
-  }
-
-  return { weeks, dayTotals };
-};
-
-type YearCell = { date: Date; mins: number; inFuture: boolean; key: string } | null;
-type YearWeek = { days: YearCell[]; monthLabel: string | null };
-
-const intensityLevel = (mins: number): 0 | 1 | 2 | 3 | 4 => {
-  if (mins <= 0) return 0;
-  if (mins < 25) return 1;
-  if (mins < 60) return 2;
-  if (mins < 120) return 3;
-  return 4;
-};
-
-const YearHeatmap: React.FC<{ weeks: YearWeek[] }> = ({ weeks }) => {
+const YearHeatmap: React.FC<{
+  weeks: YearWeek[];
+  selectedDay?: YearCell | null;
+  onSelectDay?: (day: YearCell) => void;
+}> = ({ weeks, selectedDay, onSelectDay }) => {
   const [hovered, setHovered] = React.useState<YearCell | null>(null);
 
   const tip = hovered && !hovered.inFuture
-    ? `${hovered.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · ${hovered.mins} min`
+    ? `${hovered.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · ${hovered.mins} min (Click to inspect)`
     : hovered?.inFuture
       ? `${hovered.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · not yet`
       : '';
@@ -111,12 +59,14 @@ const YearHeatmap: React.FC<{ weeks: YearWeek[] }> = ({ weeks }) => {
                       />
                     );
                   }
-                  const label = `${day.date.toDateString()}: ${day.mins} minute${day.mins === 1 ? '' : 's'} focused`;
+                  const isSelected = selectedDay && selectedDay.key === day.key;
+                  const label = `${day.date.toDateString()}: ${day.mins} minute${day.mins === 1 ? '' : 's'} focused. Click to inspect.`;
                   return (
                     <button
                       key={di}
                       type="button"
-                      className={`k-year-cell l${intensityLevel(day.mins)}`}
+                      className={`k-year-cell l${intensityLevel(day.mins)} ${isSelected ? 'is-selected' : ''}`}
+                      onClick={() => onSelectDay?.(day)}
                       onMouseEnter={() => setHovered(day)}
                       onMouseLeave={() => setHovered(null)}
                       onFocus={() => setHovered(day)}
@@ -147,80 +97,22 @@ const YearHeatmap: React.FC<{ weeks: YearWeek[] }> = ({ weeks }) => {
 };
 
 export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClose }) => {
-  const stats = useMemo(() => {
-    const focus = sessions.filter(s => s.type === 'focus' && s.completed);
+  const [selectedDay, setSelectedDay] = useState<YearCell | null>(null);
 
-    // Last 7 days, ending today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(today);
-      d.setDate(today.getDate() - (6 - i));
-      const mins = focus
-        .filter(s => {
-          const sd = new Date(s.date);
-          sd.setHours(0, 0, 0, 0);
-          return sd.getTime() === d.getTime();
-        })
-        .reduce((acc, s) => acc + s.duration, 0);
-      return { label: DAY_LABELS[d.getDay()], mins, isToday: i === 6 };
+  const selectedDaySessions = useMemo(() => {
+    if (!selectedDay) return [];
+    return sessions.filter(s => {
+      if (s.type !== 'focus' || !s.completed) return false;
+      const sd = new Date(s.date);
+      return (
+        sd.getFullYear() === selectedDay.date.getFullYear() &&
+        sd.getMonth() === selectedDay.date.getMonth() &&
+        sd.getDate() === selectedDay.date.getDate()
+      );
     });
-    const maxDay = Math.max(...days.map(d => d.mins), 30);
+  }, [selectedDay, sessions]);
 
-    // Top tasks (all time)
-    const byTask: Record<string, number> = {};
-    focus.forEach(s => {
-      const key = s.taskName || 'Unassigned';
-      byTask[key] = (byTask[key] || 0) + s.duration;
-    });
-    const topTasks = Object.entries(byTask)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([name, mins]) => ({ name, mins }));
-
-    const totalMins = focus.reduce((acc, s) => acc + s.duration, 0);
-    const sessionCount = focus.length;
-    const avg = sessionCount ? Math.round(totalMins / sessionCount) : 0;
-
-    /* Year grid + streak. A streak breaks only after a full missed day so
-       an unstarted today never reads as failure. Longest streak is over
-       the same day-set. */
-    const year = buildYearGrid(focus);
-
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let runStreak = 0;
-    const todayKey = dayKey(today);
-    const cursor = new Date(today);
-    if (!year.dayTotals.has(todayKey)) cursor.setDate(cursor.getDate() - 1);
-    while (year.dayTotals.has(dayKey(cursor))) {
-      currentStreak += 1;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    // Longest streak: walk the last 371-day window in date order
-    const allDays = year.weeks.flatMap(w => w.days).filter((d): d is NonNullable<typeof d> => !!d);
-    allDays.forEach(d => {
-      if (year.dayTotals.has(d.key)) {
-        runStreak += 1;
-        if (runStreak > longestStreak) longestStreak = runStreak;
-      } else {
-        runStreak = 0;
-      }
-    });
-
-    const activeDays = year.dayTotals.size;
-
-    // Recent intentions: last 6 completed focus sessions that had a
-    // named intention. Small on-going review of what you told yourself
-    // you were going to do -- the honest counterpart to the heatmap's
-    // "did you show up".
-    const recentIntentions = focus
-      .filter(s => s.intention && s.intention.trim().length > 0)
-      .slice(0, 6)
-      .map(s => ({ id: s.id, date: s.date, intention: s.intention as string, task: s.taskName ?? 'Unassigned', mins: s.duration }));
-
-    return { days, maxDay, topTasks, totalMins, sessionCount, avg, year, currentStreak, longestStreak, activeDays, recentIntentions };
-  }, [sessions]);
+  const stats = useMemo(() => calculateFocusStats(sessions), [sessions]);
 
   const totalH = Math.floor(stats.totalMins / 60);
   const totalM = stats.totalMins % 60;
@@ -270,7 +162,44 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClos
             Focus activity
             <span className="k-progress-section-note">{stats.sessionCount} sessions · past year</span>
           </h3>
-          <YearHeatmap weeks={stats.year.weeks} />
+          <YearHeatmap
+            weeks={stats.year.weeks}
+            selectedDay={selectedDay}
+            onSelectDay={setSelectedDay}
+          />
+          {selectedDay && (
+            <div className="k-day-inspect-card">
+              <div className="k-day-inspect-head">
+                <div>
+                  <b>{selectedDay.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</b>
+                  <span className="k-day-inspect-badge">{selectedDay.mins} min focused</span>
+                </div>
+                <button
+                  type="button"
+                  className="k-day-inspect-close"
+                  onClick={() => setSelectedDay(null)}
+                  aria-label="Close day details"
+                >
+                  ✕
+                </button>
+              </div>
+              {selectedDaySessions.length > 0 ? (
+                <ul className="k-day-session-list">
+                  {selectedDaySessions.map(s => (
+                    <li key={s.id} className="k-day-session-item">
+                      <div className="k-day-session-info">
+                        <span className="k-day-session-name">{s.taskName || 'Quick Focus'}</span>
+                        {s.intention && <span className="k-day-session-intention">&ldquo;{s.intention}&rdquo;</span>}
+                      </div>
+                      <span className="k-day-session-time">{s.duration}m</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="k-day-session-empty">No completed focus sessions recorded on this day.</p>
+              )}
+            </div>
+          )}
         </section>
 
         <section className="k-progress-section">
@@ -345,6 +274,23 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClos
           )}
         </section>
       </div>
+      <footer className="k-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button
+          type="button"
+          className="k-btn"
+          onClick={() => downloadIcsFile(sessions)}
+          title="Export completed sessions to Apple Calendar, Google Calendar, or Outlook"
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <rect x="2" y="3" width="12" height="10" rx="2" />
+            <path d="M5 1v3M11 1v3M2 7h12" />
+          </svg>
+          <span>Export Calendar (.ics)</span>
+        </button>
+        <button type="button" className="k-btn k-btn-primary" onClick={onClose}>
+          Close
+        </button>
+      </footer>
     </Modal>
   );
 };

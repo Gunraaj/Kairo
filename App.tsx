@@ -4,10 +4,17 @@ import { Stage } from './components/Stage';
 import { ControlPanel } from './components/ControlPanel';
 import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
+import { ShortcutsModal } from './components/ShortcutsModal';
 import { Modal } from './components/Modal';
-import type { Project, KairoSession, UserSettings, AudioSettings, FocusTarget } from './types';
+import { SidebarNav } from './components/SidebarNav';
+import { TimeCapsuleModal } from './components/TimeCapsuleModal';
+import { PomodoroScienceModal } from './components/PomodoroScienceModal';
+import { BrandLogo, getLogoSvgDataUri, type LogoVariant } from './components/BrandLogo';
+import type { Project, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
+import { checkUnlockableCapsules } from './utils/timeCapsule';
+import { calculateEffectiveTaskTime, updateSubtaskMinutes } from './utils/subtaskTime';
 import {
   DEFAULT_SETTINGS,
   normalizeActiveTaskId,
@@ -15,6 +22,17 @@ import {
   normalizeSessions,
   normalizeSettings,
 } from './data/validation';
+
+const normalizeCapsules = (value: unknown): TimeCapsule[] => {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (item): item is TimeCapsule =>
+      Boolean(item) &&
+      typeof item === 'object' &&
+      typeof (item as TimeCapsule).id === 'string' &&
+      typeof (item as TimeCapsule).message === 'string',
+  );
+};
 
 const App: React.FC = () => {
   const [projects, setProjects] = useLocalStorage<Project[]>('kairo_projects', [], {
@@ -51,38 +69,224 @@ const App: React.FC = () => {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showScience, setShowScience] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('guide') === '1' || params.get('science') === '1';
+    }
+    return false;
+  });
+  const [showCapsuleModal, setShowCapsuleModal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('capsule') === '1';
+    }
+    return false;
+  });
+  const [activeUnsealedCapsule, setActiveUnsealedCapsule] = useState<TimeCapsule | null>(null);
+  const [capsules, setCapsules] = useLocalStorage<TimeCapsule[]>('kairo_time_capsules', [], {
+    version: 1,
+    normalize: normalizeCapsules,
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    if (typeof window === 'undefined') return 240;
+    try {
+      const saved = localStorage.getItem('kairo_sidebar_width');
+      if (!saved) return 240;
+      const num = Number(saved);
+      return Number.isFinite(num) ? Math.max(180, Math.min(480, num)) : 240;
+    } catch {
+      return 240;
+    }
+  });
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+
+  const startResizingSidebar = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingSidebar(true);
+    const startX = e.clientX;
+    const startW = sidebarWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const nextW = Math.max(180, Math.min(480, startW + (moveEvent.clientX - startX)));
+      setSidebarWidth(nextW);
+    };
+
+    const onMouseUp = () => {
+      setIsResizingSidebar(false);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, [sidebarWidth]);
+
+  const resetSidebarWidth = useCallback(() => {
+    setSidebarWidth(240);
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('kairo_sidebar_width', String(sidebarWidth));
+    } catch {
+      // Ignore quota
+    }
+  }, [sidebarWidth]);
+  const [soundStudioOpen, setSoundStudioOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('sound') === '1';
+    }
+    return false;
+  });
   const [toast, setToast] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
+
   const announceToast = useCallback((msg: string) => {
     setToast(msg);
     if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
     toastTimerRef.current = window.setTimeout(() => setToast(null), 2600);
   }, []);
+
   const [showWelcome, setShowWelcome] = useState(false);
+  const [zenMode, setZenMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('zen') === '1';
+    }
+    return false;
+  });
   const [theme, setTheme] = useLocalStorage<'light' | 'dark' | 'system'>(
     'kairo_theme',
     'system',
     { version: 1, normalize: v => (v === 'light' || v === 'dark' ? v : 'system') },
   );
+  const [palette, setPalette] = useLocalStorage<'obsidian' | 'zen' | 'indigo' | 'washi'>(
+    'kairo_palette',
+    'obsidian',
+    {
+      version: 1,
+      normalize: v =>
+        typeof v === 'string' && ['obsidian', 'zen', 'indigo', 'washi'].includes(v)
+          ? (v as 'obsidian' | 'zen' | 'indigo' | 'washi')
+          : 'obsidian',
+    },
+  );
+  const [logoVariant, setLogoVariant] = useLocalStorage<LogoVariant>(
+    'kairo_logo_variant',
+    'interval',
+    {
+      version: 1,
+      // The old gallery was exploratory; the interval mark is now Kairo's
+      // canonical identity. Normalize legacy saved choices without touching
+      // any product data or settings outside this key.
+      normalize: () => 'interval',
+    },
+  );
 
-  // Reflect the theme choice onto <html data-theme> so every CSS token flips.
+  // Update browser tab favicon dynamically based on selected logo variant
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', theme);
-  }, [theme]);
+    if (typeof document === 'undefined') return;
+    let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.type = 'image/svg+xml';
+    link.href = getLogoSvgDataUri(logoVariant);
+  }, [logoVariant]);
 
-  // First-visit welcome. Uses its own storage key so it never repeats.
-  useEffect(() => {
-    if (!localStorage.getItem('kairo_seen_welcome')) setShowWelcome(true);
+  const toggleZenMode = useCallback(() => {
+    setZenMode(v => {
+      const next = !v;
+      if (typeof document !== 'undefined') {
+        if (next && !document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else if (!next && document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+      return next;
+    });
   }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && zenMode) {
+        setZenMode(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [zenMode]);
+
+  // Global key listener for shortcuts and Zen mode
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setShowShortcuts(v => !v);
+      } else if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        toggleZenMode();
+      } else if (e.key === 'Escape' && zenMode) {
+        e.preventDefault();
+        setZenMode(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [toggleZenMode, zenMode]);
+
+  // Reflect the theme & atmospheric palette choice onto <html data-theme data-palette>
+  useEffect(() => {
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const params = new URLSearchParams(search);
+    const paramTheme = params.get('theme');
+    const activeTheme = paramTheme === 'light' || paramTheme === 'dark' ? paramTheme : theme;
+    const paramPalette = params.get('palette');
+    const validPalettes = ['obsidian', 'zen', 'indigo', 'washi'];
+    const activePalette = validPalettes.includes(paramPalette || '') ? paramPalette : palette;
+
+    const root = document.documentElement;
+    if (activeTheme === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', activeTheme);
+
+    if (activePalette) root.setAttribute('data-palette', activePalette);
+  }, [theme, palette]);
+
+  // First-visit welcome
+  useEffect(() => {
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const params = new URLSearchParams(search);
+    if (params.get('welcome') === '0') {
+      setShowWelcome(false);
+      return;
+    }
+    // If user already has projects or sessions, they are an existing user with data — never show welcome
+    if (projects.length > 0 || sessions.length > 0) {
+      try {
+        localStorage.setItem('kairo_seen_welcome', '1');
+      } catch {}
+      setShowWelcome(false);
+      return;
+    }
+    if (!localStorage.getItem('kairo_seen_welcome')) setShowWelcome(true);
+  }, [projects.length, sessions.length]);
+
   const dismissWelcome = () => {
     localStorage.setItem('kairo_seen_welcome', '1');
     setShowWelcome(false);
   };
-  const [isSessionActive, setIsSessionActive] = useState(false);
 
+  const [isSessionActive, setIsSessionActive] = useState(false);
   const audioEngine = useAudioEngine(audioSettings);
   const sessionIdsRef = useRef(new Set(sessions.map(session => session.id)));
 
@@ -90,14 +294,26 @@ const App: React.FC = () => {
     sessionIdsRef.current = new Set(sessions.map(session => session.id));
   }, [sessions]);
 
-  const getActiveTarget = useCallback((items: Project[], id: string | null): FocusTarget | null => {
-    if (!id) return null;
+  const getActiveTarget = useCallback((items: Project[] | undefined, id: string | null): FocusTarget | null => {
+    if (!id || !Array.isArray(items)) return null;
     for (const project of items) {
+      if (!project) continue;
       if (project.id === id) return { id: project.id, name: project.name, kind: 'project' };
-      const task = project.tasks.find(candidate => candidate.id === id);
+      const tasks = Array.isArray(project.tasks) ? project.tasks : [];
+      const task = tasks.find(candidate => candidate?.id === id);
       if (task) return { id: task.id, name: task.name, kind: 'task', completed: task.completed };
-      const nested = getActiveTarget(project.subProjects, id);
-      if (nested) return nested;
+      for (const t of tasks) {
+        const subTasks = Array.isArray(t.subTasks) ? t.subTasks : [];
+        const subTask = subTasks.find(st => st?.id === id);
+        if (subTask) {
+          return { id: subTask.id, name: `${t.name} › ${subTask.name}`, kind: 'task', completed: subTask.completed };
+        }
+      }
+      const subProjects = Array.isArray(project.subProjects) ? project.subProjects : [];
+      if (subProjects.length > 0) {
+        const nested = getActiveTarget(subProjects, id);
+        if (nested) return nested;
+      }
     }
     return null;
   }, []);
@@ -132,61 +348,157 @@ const App: React.FC = () => {
   }, [sessions]);
 
   useEffect(() => {
-    if (!projects.some(project => project.subProjects.length > 0)) return;
-    const flatten = (items: Project[], parentName = ''): Project[] => items.flatMap(project => {
-      const projectName = parentName ? `${parentName} / ${project.name}` : project.name;
-      return [
-        { ...project, name: projectName, subProjects: [] },
-        ...flatten(project.subProjects, projectName),
-      ];
-    });
+    if (!Array.isArray(projects)) return;
+    if (!projects.some(project => Array.isArray(project?.subProjects) && project.subProjects.length > 0)) return;
+    const flatten = (items: Project[], parentName = ''): Project[] =>
+      (items || []).flatMap(project => {
+        if (!project) return [];
+        const projectName = parentName ? `${parentName} / ${project.name}` : project.name;
+        const subProjects = Array.isArray(project.subProjects) ? project.subProjects : [];
+        return [{ ...project, name: projectName, subProjects: [] }, ...flatten(subProjects, projectName)];
+      });
     setProjects(flatten(projects));
   }, [projects, setProjects]);
 
-  const addSession = useCallback((session: KairoSession) => {
-    if (sessionIdsRef.current.has(session.id)) return;
-    sessionIdsRef.current.add(session.id);
-    setSessions(prev => [session, ...prev]);
-    if (session.type === 'focus' && session.taskId) {
-      const addTime = (items: Project[]): Project[] => items.map(project => ({
-        ...project,
-        tasks: project.tasks.map(task => task.id === session.taskId
-          ? { ...task, timeSpent: task.timeSpent + session.duration }
-          : task),
-        subProjects: addTime(project.subProjects),
-      }));
-      setProjects(previous => addTime(previous));
-    }
-  }, [setProjects, setSessions]);
+  const nextReward = useMemo(() => {
+    const locked = capsules.find(c => !c.isUnlocked);
+    return locked ? locked.treat : null;
+  }, [capsules]);
 
-  const toggleAudio = useCallback((isPlaying: boolean) => {
-    if (isPlaying) {
-      void audioEngine.resume().catch(() => {
-        setAudioSettings(previous => ({ ...previous, isPlaying: false }));
-      });
+  const addSession = useCallback(
+    (session: KairoSession) => {
+      if (sessionIdsRef.current.has(session.id)) return;
+      sessionIdsRef.current.add(session.id);
+      setSessions(prev => [session, ...prev]);
+      if (session.type === 'focus' && session.taskId && session.duration > 0) {
+        const addTime = (items: Project[]): Project[] =>
+          (items || []).map(project => ({
+            ...project,
+            tasks: (project.tasks || []).map(task => {
+              const isDirect = task.id === session.taskId;
+              const hasSubTask = (task.subTasks || []).some(st => st.id === session.taskId);
+
+              if (hasSubTask) {
+                // Focus was directed to a specific subtask — update subtask & auto-cascade to task!
+                return updateSubtaskMinutes(task, session.taskId!, session.duration, 'add');
+              }
+              if (isDirect) {
+                // Focus was directed to the parent task directly
+                const hasSubs = Array.isArray(task.subTasks) && task.subTasks.length > 0;
+                const mode = task.timeCalcMode || (hasSubs ? 'hybrid' : 'direct');
+                if (mode === 'hybrid') {
+                  const directTime = (task.directTimeSpent || 0) + session.duration;
+                  const updated: Task = { ...task, directTimeSpent: directTime, timeCalcMode: 'hybrid' };
+                  return { ...updated, timeSpent: calculateEffectiveTaskTime(updated) };
+                }
+                return { ...task, timeSpent: (task.timeSpent || 0) + session.duration };
+              }
+              return task;
+            }),
+            subProjects: addTime(project.subProjects || []),
+          }));
+        setProjects(previous => addTime(previous));
+      }
+
+      if (session.type === 'focus' && session.completed) {
+        const nextCount = completedPomodoros + 1;
+        const { unlockable, remaining } = checkUnlockableCapsules(capsules, nextCount);
+        if (unlockable.length > 0) {
+          setCapsules([...unlockable, ...remaining]);
+          setActiveUnsealedCapsule(unlockable[0]);
+          setShowCapsuleModal(true);
+          announceToast(`🎉 Future Treat unsealed: ${unlockable[0].treat}`);
+        }
+      }
+    },
+    [announceToast, capsules, completedPomodoros, setCapsules, setProjects, setSessions],
+  );
+
+  useEffect(() => {
+    if (capsules.length === 0) return;
+    const { unlockable, remaining } = checkUnlockableCapsules(capsules, completedPomodoros);
+    if (unlockable.length > 0) {
+      setCapsules([...unlockable, ...remaining]);
+      setActiveUnsealedCapsule(unlockable[0]);
+      setShowCapsuleModal(true);
+      announceToast(`🎉 Future Treat unsealed: ${unlockable[0].treat}`);
     }
-    setAudioSettings(previous => ({ ...previous, isPlaying }));
-  }, [audioEngine]);
+  }, [capsules, completedPomodoros, setCapsules, announceToast]);
+
+  const handleSaveCapsule = useCallback(
+    (data: {
+      message: string;
+      treat: string;
+      triggerType: 'rounds' | 'time' | 'tomorrow';
+      targetRounds?: number;
+      targetTime?: string;
+    }) => {
+      const capsule: TimeCapsule = {
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        message: data.message,
+        treat: data.treat,
+        triggerType: data.triggerType,
+        targetRounds: data.targetRounds,
+        targetTime: data.targetTime,
+        completedRoundsAtCreation: completedPomodoros,
+        isUnlocked: false,
+      };
+      setCapsules(prev => [capsule, ...prev]);
+      announceToast('✉️ Time capsule sealed! Keep focusing to unlock it.');
+    },
+    [announceToast, completedPomodoros, setCapsules],
+  );
+
+  const handleClaimTreat = useCallback(
+    (_id: string) => {
+      setActiveUnsealedCapsule(null);
+      announceToast('Enjoy your well-earned reward! ☕✨');
+    },
+    [announceToast],
+  );
+
+  const toggleAudio = useCallback(
+    (isPlaying: boolean) => {
+      if (isPlaying) {
+        void audioEngine.resume().catch(() => {
+          setAudioSettings(previous => ({ ...previous, isPlaying: false }));
+        });
+      }
+      setAudioSettings(previous => ({ ...previous, isPlaying }));
+    },
+    [audioEngine],
+  );
 
   return (
-    <div className="app-shell" data-sidebar={sidebarCollapsed ? 'collapsed' : 'expanded'}>
-      <aside className="k-sidebar" aria-label="Primary">
+    <div
+      className={`app-shell ${isResizingSidebar ? 'is-resizing' : ''}`}
+      style={{ '--sidebar-w': `${sidebarWidth}px` } as React.CSSProperties}
+      data-sidebar={sidebarCollapsed ? 'collapsed' : 'expanded'}
+      data-sound-open={soundStudioOpen ? 'true' : 'false'}
+      data-zen={zenMode ? 'true' : undefined}
+    >
+      {/* 1. Left Sidebar */}
+      <aside className="k-sidebar" aria-label="Primary navigation">
         <div className="k-sidebar-head">
-          <div className="k-brand">
+          <div
+            className="k-brand"
+            title="Kairo interval mark"
+          >
             <span className="k-brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                <circle cx="8" cy="8" r="5.5" strokeDasharray="24 7" transform="rotate(-45 8 8)" />
-                <circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none" />
-              </svg>
+              <BrandLogo variant={logoVariant} size={15} />
             </span>
             <span className="k-brand-name">Kairo</span>
           </div>
+
           <div className="k-head-actions">
             <button
               className="k-head-icon"
-              onClick={() => setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'))}
+              onClick={() =>
+                setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'))
+              }
               aria-label={`Theme: ${theme}. Click to cycle.`}
-              title={`Theme: ${theme}${sidebarCollapsed ? '' : ' — click to cycle'}`}
+              title={`Theme: ${theme}${sidebarCollapsed ? '' : ' — click to toggle'}`}
             >
               {theme === 'dark' ? (
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -204,20 +516,18 @@ const App: React.FC = () => {
                 </svg>
               )}
             </button>
+
             <button
               className="k-head-icon k-collapse"
               onClick={() => setSidebarCollapsed(v => !v)}
               aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              title={sidebarCollapsed ? 'Expand' : 'Collapse'}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                {sidebarCollapsed
-                  ? <path d="M5 3l4 4-4 4" />
-                  : <path d="M9 3L5 7l4 4" />}
+                {sidebarCollapsed ? <path d="M5 3l4 4-4 4" /> : <path d="M9 3L5 7l4 4" />}
               </svg>
             </button>
           </div>
-          <span role="status" aria-live="polite" className="sr-only">Theme: {theme}</span>
         </div>
 
         <SidebarNav
@@ -227,12 +537,97 @@ const App: React.FC = () => {
           setActiveTaskId={setActiveTaskId}
           onProgress={() => setShowAnalytics(true)}
           onSettings={() => setShowSettings(true)}
+          onShortcuts={() => setShowShortcuts(true)}
+          onToggleSoundStudio={() => setSoundStudioOpen(v => !v)}
+          soundStudioOpen={soundStudioOpen}
+          onTimeCapsule={() => setShowCapsuleModal(true)}
+          capsuleCount={capsules.filter(c => !c.isUnlocked).length}
+          onScience={() => setShowScience(true)}
         />
-        {/* legacy modals removed -- Progress and Settings still overlay */}
+
+        {!sidebarCollapsed && (
+          <div
+            className="k-sidebar-resizer"
+            onMouseDown={startResizingSidebar}
+            onDoubleClick={resetSidebarWidth}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            title="Drag to resize sidebar (Double-click to reset)"
+          />
+        )}
       </aside>
 
+      {/* 2. Main Focus Stage & Sound Studio */}
       <main className="k-main">
         <section className="k-stage" id="focus-workspace">
+          {/* Pinned Stage Utility Header (Coordinated in-flow, completely eliminating overlaps) */}
+          <header className="k-stage-utility-header">
+            <div className="k-stage-utility-left" />
+
+            <div className="k-top-utility-bar" role="toolbar" aria-label="Stage utility actions">
+              <button
+                className={`k-zen-pill-btn ${zenMode ? 'is-active' : ''}`}
+                onClick={toggleZenMode}
+                aria-label={zenMode ? 'Exit Zen Mode (F)' : 'Enter Zen Mode (F)'}
+                title={zenMode ? 'Exit Zen Mode (F)' : 'Enter Zen Mode (F)'}
+              >
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  {zenMode ? (
+                    <path d="M5 2v3H2M11 2v3h3M5 14v-3H2M11 14v-3h3" />
+                  ) : (
+                    <path d="M2 5V2h3M14 5V2h-3M2 11v3h3M14 11v3h-3" />
+                  )}
+                </svg>
+                <span className="k-pill-label">{zenMode ? 'Exit Zen' : 'Zen'}</span>
+                <kbd className="k-kbd-inline">F</kbd>
+              </button>
+
+              <button
+                className={`k-sound-pill-btn ${audioSettings.isPlaying ? 'is-playing' : ''} ${soundStudioOpen ? 'is-open' : ''}`}
+                onClick={() => setSoundStudioOpen(v => !v)}
+                aria-label="Sound Studio"
+                title="Toggle Sound Studio"
+              >
+                <span className="k-sound-pill-wave">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+                <span className="k-pill-label">Sound Studio</span>
+                {audioSettings.isPlaying && <span className="k-sound-pill-active-tag">Active</span>}
+              </button>
+
+              <button
+                className={`k-capsule-pill-btn ${capsules.some(c => !c.isUnlocked) ? 'has-locked' : ''}`}
+                onClick={() => setShowCapsuleModal(true)}
+                aria-label="Time Capsule & Future Treat"
+                title="Time Capsule — Seal a reward for future-you"
+              >
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" />
+                  <path d="M2 5l6 4 6-4" />
+                </svg>
+                <span className="k-pill-label">Future Treat</span>
+                {capsules.filter(c => !c.isUnlocked).length > 0 && (
+                  <span className="k-capsule-pill-badge">{capsules.filter(c => !c.isUnlocked).length}</span>
+                )}
+              </button>
+
+              <button
+                className="k-guide-pill-btn"
+                onClick={() => setShowScience(true)}
+                aria-label="Focus Guide & Pomodoro Science"
+                title="The Science of Focus & Pomodoro Technique"
+              >
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 3.5A1.5 1.5 0 013.5 2H7v12H3.5A1.5 1.5 0 012 12.5v-9zM14 3.5A1.5 1.5 0 0012.5 2H9v12h3.5a1.5 1.5 0 001.5-1.5v-9z" />
+                </svg>
+                <span className="k-pill-label">Guide</span>
+              </button>
+            </div>
+          </header>
+
           <Stage
             settings={userSettings}
             setSettings={setUserSettings}
@@ -240,25 +635,51 @@ const App: React.FC = () => {
             activeTarget={activeTarget}
             toggleAudio={toggleAudio}
             playCompletionCue={audioEngine.playCue}
+            playTickCue={audioEngine.playTick}
             totalPomodoros={completedPomodoros}
             totalFocusMinutes={totalFocusMinutes}
             todaySummary={todaySummary}
             onActiveChange={setIsSessionActive}
+            onOpenCapsule={() => setShowCapsuleModal(true)}
+            nextReward={nextReward}
           />
         </section>
 
-        <aside className="k-sound-lib" aria-label="Sound library">
+        {/* 3. Sound Studio Drawer / Panel */}
+        <aside className={`k-sound-lib ${soundStudioOpen ? 'is-open' : 'is-closed'}`} aria-label="Sound library">
           <ControlPanel
             audioSettings={audioSettings}
             setAudioSettings={setAudioSettings}
             resumeAudio={audioEngine.resume}
             audioError={audioEngine.error}
+            onClose={() => setSoundStudioOpen(false)}
           />
         </aside>
 
+        {/* Backdrop for mobile drawer */}
+        {soundStudioOpen && (
+          <div
+            className="k-sound-backdrop"
+            onClick={() => setSoundStudioOpen(false)}
+            aria-hidden="true"
+          />
+        )}
       </main>
 
-      {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
+      {/* 4. Modals */}
+      {showWelcome && (
+        <WelcomeModal
+          onClose={dismissWelcome}
+          onOpenScience={() => {
+            dismissWelcome();
+            setShowScience(true);
+          }}
+          onOpenSettings={() => {
+            dismissWelcome();
+            setShowSettings(true);
+          }}
+        />
+      )}
 
       {showSettings && (
         <SettingsModal
@@ -266,6 +687,12 @@ const App: React.FC = () => {
           setSettings={setUserSettings}
           onClose={() => setShowSettings(false)}
           onToast={announceToast}
+          theme={theme}
+          setTheme={setTheme}
+          palette={palette}
+          setPalette={setPalette}
+          logoVariant={logoVariant}
+          setLogoVariant={setLogoVariant}
         />
       )}
 
@@ -277,246 +704,42 @@ const App: React.FC = () => {
           <span>{toast}</span>
         </div>
       )}
+
       {showAnalytics && (
-        <AnalyticsModal
-          sessions={sessions}
-          onClose={() => setShowAnalytics(false)}
+        <AnalyticsModal sessions={sessions} onClose={() => setShowAnalytics(false)} />
+      )}
+
+      {showShortcuts && (
+        <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {showCapsuleModal && (
+        <TimeCapsuleModal
+          capsules={capsules}
+          onSaveCapsule={handleSaveCapsule}
+          onClose={() => {
+            setShowCapsuleModal(false);
+            setActiveUnsealedCapsule(null);
+          }}
+          activeUnsealed={activeUnsealedCapsule}
+          onClaimTreat={handleClaimTreat}
+          totalCompletedRounds={completedPomodoros}
         />
+      )}
+
+      {showScience && (
+        <PomodoroScienceModal onClose={() => setShowScience(false)} />
       )}
     </div>
   );
 };
 
-/* Small SVG icon set for the sidebar -- Sumi-thin strokes, no library. */
-const NavIcon: React.FC<{ name: 'folder' | 'folder-open' | 'doc' | 'plus' | 'chart' | 'settings' | 'archive' | 'chevron' | 'chevron-down' | 'trash' | 'check' | 'sun' | 'moon' | 'system' }> = ({ name }) => {
-  const shared = { className: 'k-nav-icon', width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  switch (name) {
-    case 'folder':      return <svg {...shared}><path d="M2 4a1 1 0 011-1h3l1.5 1.5H13a1 1 0 011 1V12a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" /></svg>;
-    case 'folder-open': return <svg {...shared}><path d="M2 4a1 1 0 011-1h3l1.5 1.5H13a1 1 0 011 1v1H2z" /><path d="M2 6.5h12l-1.5 5.7a1 1 0 01-1 .8H3a1 1 0 01-1-1z" /></svg>;
-    case 'doc':         return <svg {...shared}><path d="M4 2h5l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M9 2v3h3" /></svg>;
-    case 'plus':        return <svg {...shared}><path d="M8 3v10M3 8h10" /></svg>;
-    case 'chart':       return <svg {...shared}><path d="M3 13V6M7 13V3M11 13V9" /></svg>;
-    case 'settings':    return <svg {...shared}><circle cx="8" cy="8" r="2.2" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4" /></svg>;
-    case 'archive':     return <svg {...shared}><rect x="2" y="3" width="12" height="3" rx="0.5" /><path d="M3 6v7a1 1 0 001 1h8a1 1 0 001-1V6M6.5 9h3" /></svg>;
-    case 'chevron':     return <svg {...shared}><path d="M6 4l4 4-4 4" /></svg>;
-    case 'chevron-down':return <svg {...shared}><path d="M4 6l4 4 4-4" /></svg>;
-    case 'trash':       return <svg {...shared}><path d="M3 4h10M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M4.5 4l.6 8.5a1 1 0 001 .9h3.8a1 1 0 001-.9L11.5 4" /></svg>;
-    case 'check':       return <svg {...shared}><path d="M3 8l3 3 7-7" /></svg>;
-    case 'sun':         return <svg {...shared}><circle cx="8" cy="8" r="3" /><path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.5 3.5l1 1M11.5 11.5l1 1M3.5 12.5l1-1M11.5 4.5l1-1" /></svg>;
-    case 'moon':        return <svg {...shared}><path d="M13 9.5A5.5 5.5 0 116.5 3a4.5 4.5 0 006.5 6.5z" /></svg>;
-    case 'system':      return <svg {...shared}><rect x="2" y="3" width="12" height="8" rx="1" /><path d="M6 13h4M8 11v2" /></svg>;
-  }
-};
-
-/* Folder-tree sidebar navigation: projects expand to show their tasks,
-   clicking a task sets it as the focus target, add/delete inline. */
-type SidebarNavProps = {
-  projects: Project[];
-  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
-  activeTaskId: string | null;
-  setActiveTaskId: (id: string | null) => void;
-  onProgress: () => void;
-  onSettings: () => void;
-};
-
-const SidebarNav: React.FC<SidebarNavProps> = ({ projects, setProjects, activeTaskId, setActiveTaskId, onProgress, onSettings }) => {
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(projects.map(p => p.id)));
-  const [newProjectName, setNewProjectName] = useState('');
-  const [addingTaskFor, setAddingTaskFor] = useState<string | null>(null);
-  const [newTaskName, setNewTaskName] = useState('');
-
-  const toggleExpand = (id: string) => {
-    setExpanded(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const addProject = () => {
-    const name = newProjectName.trim().slice(0, 80);
-    if (!name) return;
-    const project: Project = { id: crypto.randomUUID(), name, tasks: [], subProjects: [], isExpanded: true };
-    setProjects(prev => [...prev, project]);
-    setExpanded(prev => new Set(prev).add(project.id));
-    setNewProjectName('');
-  };
-
-  const addTask = (projectId: string) => {
-    const name = newTaskName.trim().slice(0, 160);
-    if (!name) return;
-    const task = { id: crypto.randomUUID(), name, completed: false, status: 'todo' as const, timeSpent: 0 };
-    setProjects(prev => prev.map(p => p.id === projectId ? { ...p, tasks: [...p.tasks, task] } : p));
-    setActiveTaskId(task.id);
-    setNewTaskName('');
-    setAddingTaskFor(null);
-  };
-
-  const toggleTaskDone = (taskId: string) => {
-    setProjects(prev => prev.map(p => ({
-      ...p,
-      tasks: p.tasks.map(t => t.id === taskId ? { ...t, completed: !t.completed, status: (t.completed ? 'todo' : 'done') as 'todo' | 'done' } : t),
-    })));
-  };
-
-  const deleteTask = (taskId: string) => {
-    setProjects(prev => prev.map(p => ({ ...p, tasks: p.tasks.filter(t => t.id !== taskId) })));
-    if (activeTaskId === taskId) setActiveTaskId(null);
-  };
-
-  const deleteProject = (projectId: string) => {
-    const p = projects.find(x => x.id === projectId);
-    if (!p) return;
-    if (p.tasks.length > 0 && !window.confirm(`Delete "${p.name}" and its ${p.tasks.length} task${p.tasks.length === 1 ? '' : 's'}?`)) return;
-    setProjects(prev => prev.filter(x => x.id !== projectId));
-    if (p.tasks.some(t => t.id === activeTaskId)) setActiveTaskId(null);
-  };
-
-  return (
-    <nav className="k-nav custom-scrollbar" aria-label="Workspace">
-      <div className="k-nav-eyebrow">Workspace</div>
-
-      <div className="k-nav-tree">
-        {projects.map(project => {
-          const isOpen = expanded.has(project.id);
-          const done = project.tasks.filter(t => t.completed).length;
-          return (
-            <div key={project.id} className="k-tree-project">
-              <div className="k-tree-project-row">
-                <button
-                  className="k-tree-toggle"
-                  onClick={() => toggleExpand(project.id)}
-                  aria-label={isOpen ? 'Collapse' : 'Expand'}
-                  aria-expanded={isOpen}
-                >
-                  <NavIcon name={isOpen ? 'chevron-down' : 'chevron'} />
-                </button>
-                <button
-                  className="k-tree-project-name"
-                  onClick={() => toggleExpand(project.id)}
-                  title={project.name}
-                >
-                  <NavIcon name={isOpen ? 'folder-open' : 'folder'} />
-                  <span className="k-nav-label">{project.name}</span>
-                  {project.tasks.length > 0 && (
-                    <span className="k-count">{done}/{project.tasks.length}</span>
-                  )}
-                </button>
-                <button
-                  className="k-tree-icon-btn"
-                  onClick={() => deleteProject(project.id)}
-                  aria-label={`Delete ${project.name}`}
-                  title="Delete project"
-                >
-                  <NavIcon name="trash" />
-                </button>
-              </div>
-
-              {isOpen && (
-                <div className="k-tree-tasks">
-                  {project.tasks.map(task => (
-                    <div
-                      key={task.id}
-                      className={`k-tree-task ${activeTaskId === task.id ? 'active' : ''} ${task.completed ? 'done' : ''}`}
-                    >
-                      <button
-                        className={`k-task-check ${task.completed ? 'checked' : ''}`}
-                        onClick={() => toggleTaskDone(task.id)}
-                        aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
-                      >
-                        {task.completed && <NavIcon name="check" />}
-                      </button>
-                      <button
-                        className="k-tree-task-name"
-                        onClick={() => setActiveTaskId(task.id)}
-                        title={task.timeSpent > 0 ? `${task.name} — ${task.timeSpent} min focused` : task.name}
-                      >
-                        <span>{task.name}</span>
-                        {task.timeSpent > 0 && (
-                          <em>
-                            {task.timeSpent >= 60
-                              ? `${Math.floor(task.timeSpent / 60)}h`
-                              : `${task.timeSpent}m`}
-                          </em>
-                        )}
-                      </button>
-                      <button
-                        className="k-tree-icon-btn"
-                        onClick={() => deleteTask(task.id)}
-                        aria-label={`Delete ${task.name}`}
-                        title="Delete task"
-                      >
-                        <NavIcon name="trash" />
-                      </button>
-                    </div>
-                  ))}
-
-                  {addingTaskFor === project.id ? (
-                    <div className="k-tree-add-task">
-                      <input
-                        autoFocus
-                        value={newTaskName}
-                        onChange={e => setNewTaskName(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') addTask(project.id);
-                          if (e.key === 'Escape') { setAddingTaskFor(null); setNewTaskName(''); }
-                        }}
-                        onBlur={() => { if (!newTaskName.trim()) setAddingTaskFor(null); }}
-                        placeholder="Task name"
-                        maxLength={160}
-                      />
-                    </div>
-                  ) : (
-                    <button
-                      className="k-tree-add-btn"
-                      onClick={() => setAddingTaskFor(project.id)}
-                    >
-                      <NavIcon name="plus" />
-                      <span>Add task</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {projects.length === 0 && (
-          <p className="k-tree-empty">No projects yet.</p>
-        )}
-      </div>
-
-      <div className="k-tree-add-project">
-        <input
-          value={newProjectName}
-          onChange={e => setNewProjectName(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') addProject(); }}
-          placeholder="New project"
-          maxLength={80}
-          aria-label="New project name"
-        />
-        <button onClick={addProject} aria-label="Add project" disabled={!newProjectName.trim()}>
-          <NavIcon name="plus" />
-        </button>
-      </div>
-
-      <div style={{ flex: 1, minHeight: 12 }} />
-
-      <button className="k-nav-item" onClick={onProgress}>
-        <NavIcon name="chart" />
-        <span className="k-nav-label">Progress</span>
-      </button>
-      <button className="k-nav-item" onClick={onSettings}>
-        <NavIcon name="settings" />
-        <span className="k-nav-label">Settings</span>
-      </button>
-    </nav>
-  );
-};
-
-/* First-run welcome. Explains the four moves that unlock the app:
-   add a project, pick a task, start focus, tune sound. Shows once. */
-const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+/* First-run welcome */
+const WelcomeModal: React.FC<{
+  onClose: () => void;
+  onOpenScience?: () => void;
+  onOpenSettings?: () => void;
+}> = ({ onClose, onOpenScience, onOpenSettings }) => (
   <Modal titleId="welcome-title" onClose={onClose} className="welcome-dialog">
     <>
       <header className="k-modal-header">
@@ -533,33 +756,53 @@ const WelcomeModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
       <div className="k-modal-body">
         {(() => {
           const steps: Array<[string, React.ReactNode]> = [
-            ['Add a project', 'Type its name in the sidebar and press Enter. Everything you focus on lives inside a project.'],
-            ['Pick one task', 'Expand a project and click a task. That is the one thing your next session belongs to.'],
-            ['Start focus', <>Drag the dial for any duration up to 60 minutes, then press Space or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</>],
-            ['Choose an atmosphere', 'The Sound Library on the right layers ambient sounds, binaural beats, or a lofi stream. Master volume governs everything.'],
+            ['Quick Start', 'Start focusing immediately with Quick Focus, or add a project & task in the sidebar to organize your goals.'],
+            ['Task Target Dots (●○○○)', 'The circles next to each task are estimated 25-minute Pomodoro rounds. Click them anytime to set your target (2, 4, 6, 8 rounds). As you complete sessions, the dots fill in solid red.'],
+            ['Tune Your Pace', <>Drag the dial for any duration up to 60 minutes, then press <kbd>Space</kbd> or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</>],
+            ['Atmospheric Sound Studio', 'Layer ambient rain, campfire, or real-time binaural brainwave frequencies using the Sound Studio toggle at top right.'],
+            ['Track Your Evidence', 'Every completed session banks focus minutes and fills your year-at-a-glance focus heatmap in Progress. 100% private & local.'],
           ];
           return (
             <ol className="k-welcome-list">
               {steps.map(([title, body], i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.08 * i + 0.15, duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-                >
-                  <b>{title}</b>
-                  <span>{body}</span>
-                </motion.li>
+                <li key={i}>
+                  <div className="k-welcome-text">
+                    <b>{title}</b>
+                    <span>{body}</span>
+                  </div>
+                </li>
               ))}
             </ol>
           );
         })()}
-        <p className="k-welcome-note">
-          Every completed session banks minutes to its task and fills a square in your yearly focus map (in Progress). Nothing leaves your browser — Kairo is fully local.
-        </p>
       </div>
-      <footer className="k-modal-footer">
-        <button className="k-btn k-btn-primary" onClick={onClose}>Start focusing</button>
+      <footer className="k-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {onOpenScience && (
+            <button
+              type="button"
+              className="k-btn"
+              onClick={onOpenScience}
+              style={{ fontSize: 12 }}
+            >
+              📚 Read the Science
+            </button>
+          )}
+          {onOpenSettings && (
+            <button
+              type="button"
+              className="k-btn"
+              onClick={onOpenSettings}
+              style={{ fontSize: 12 }}
+              title="Import an existing JSON snapshot or configure cloud sync"
+            >
+              📥 Import Backup / Cloud Sync
+            </button>
+          )}
+        </div>
+        <button className="k-btn k-btn-primary" onClick={onClose}>
+          Start focusing
+        </button>
       </footer>
     </>
   </Modal>

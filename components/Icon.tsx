@@ -42,7 +42,15 @@ export const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6' }) => {
   };
 
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+      style={{ width: '1em', height: '1em', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}
+    >
       {icons[name] || <circle cx="12" cy="12" r="10" />}
     </svg>
   );

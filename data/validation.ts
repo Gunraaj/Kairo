@@ -1,4 +1,4 @@
-import type { KairoSession, Project, Task, TaskStatus, UserSettings } from '../types';
+import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings } from '../types';
 
 const MAX_PROJECTS = 100;
 const MAX_TASKS_PER_PROJECT = 500;
@@ -25,6 +25,22 @@ const boundedNumber = (value: unknown, fallback: number, min: number, max: numbe
   return Number.isFinite(candidate) ? Math.min(max, Math.max(min, candidate)) : fallback;
 };
 
+const normalizeSubTask = (value: unknown): SubTask | null => {
+  const source = objectValue(value);
+  if (!source) return null;
+  return {
+    id: id(source.id),
+    name: text(source.name, 'Untitled subtask', 160),
+    completed: source.completed === true,
+    timeSpent: typeof source.timeSpent === 'number'
+      ? Math.round(boundedNumber(source.timeSpent, 0, 0, 1_000_000))
+      : 0,
+    estimatedMinutes: typeof source.estimatedMinutes === 'number'
+      ? Math.round(boundedNumber(source.estimatedMinutes, 25, 1, 10_000))
+      : undefined,
+  };
+};
+
 const normalizeTask = (value: unknown): Task | null => {
   const source = objectValue(value);
   if (!source) return null;
@@ -34,12 +50,32 @@ const normalizeTask = (value: unknown): Task | null => {
     ? source.status as TaskStatus
     : completed ? 'done' : 'todo';
 
+  const allowedCalcModes = ['auto', 'direct', 'hybrid'];
+  const timeCalcMode = allowedCalcModes.includes(source.timeCalcMode as string)
+    ? (source.timeCalcMode as 'auto' | 'direct' | 'hybrid')
+    : undefined;
+
+  const subTasks = Array.isArray(source.subTasks)
+    ? source.subTasks.slice(0, 50).flatMap(sub => {
+        const normalized = normalizeSubTask(sub);
+        return normalized ? [normalized] : [];
+      })
+    : [];
+
   return {
     id: id(source.id),
     name: text(source.name, 'Untitled task', 160),
     completed,
     status,
     timeSpent: Math.round(boundedNumber(source.timeSpent, 0, 0, 1_000_000)),
+    directTimeSpent: typeof source.directTimeSpent === 'number'
+      ? Math.round(boundedNumber(source.directTimeSpent, 0, 0, 1_000_000))
+      : undefined,
+    timeCalcMode,
+    targetRounds: typeof source.targetRounds === 'number'
+      ? Math.round(boundedNumber(source.targetRounds, 4, 1, 24))
+      : undefined,
+    subTasks,
   };
 };
 
