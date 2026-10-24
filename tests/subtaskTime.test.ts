@@ -2,10 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { Task } from '../types.ts';
 import {
+  calculateDonePomodoros,
   calculateEffectiveTaskTime,
+  calculatePlannedMinutes,
   calculateSubtaskSum,
   cycleTimeCalcMode,
+  estimatePomodorosFromSubtasks,
   formatDurationCompact,
+  formatPomodoroRatio,
   updateSubtaskMinutes,
 } from '../utils/subtaskTime.ts';
 
@@ -112,4 +116,40 @@ test('formatDurationCompact formats clean strings', () => {
   assert.equal(formatDurationCompact(60), '1h');
   assert.equal(formatDurationCompact(85), '1h 25m');
   assert.equal(formatDurationCompact(120), '2h');
+});
+
+test('Pomodoro target calculations enforce whole integers and clean ratios like Focus To-Do', () => {
+  // calculateDonePomodoros
+  assert.equal(calculateDonePomodoros(0, 25), 0);
+  assert.equal(calculateDonePomodoros(24, 25), 0); // 24m not yet 1 full pomodoro
+  assert.equal(calculateDonePomodoros(25, 25), 1);
+  assert.equal(calculateDonePomodoros(50, 25), 2);
+  assert.equal(calculateDonePomodoros(74, 25), 2);
+  assert.equal(calculateDonePomodoros(75, 25), 3);
+  assert.equal(calculateDonePomodoros(90, 30), 3); // 30m custom pomodoro duration
+
+  // formatPomodoroRatio produces integer ratios like 0/4, 2/4, never floats like 3.5
+  assert.equal(formatPomodoroRatio(0, 4), '0/4');
+  assert.equal(formatPomodoroRatio(2, 4), '2/4');
+  assert.equal(formatPomodoroRatio(4, 4), '4/4');
+  assert.equal(formatPomodoroRatio(5, 4), '5/4');
+  assert.equal(formatPomodoroRatio(3.7 as any, 5.2 as any), '3/5'); // always floored integers
+
+  // calculatePlannedMinutes
+  assert.equal(calculatePlannedMinutes(4, 25), 100);
+  assert.equal(calculatePlannedMinutes(3, 30), 90);
+  assert.equal(calculatePlannedMinutes(2, 50), 100);
+
+  // estimatePomodorosFromSubtasks
+  const subs = [
+    { id: '1', name: 'Outline', completed: false, estimatedMinutes: 20 },
+    { id: '2', name: 'Draft', completed: false, estimatedMinutes: 40 },
+    { id: '3', name: 'Review', completed: false, estimatedMinutes: 15 },
+  ];
+  // total estimated = 75m -> with 25m pomodoro = Math.ceil(75 / 25) = 3 pomodoros
+  assert.equal(estimatePomodorosFromSubtasks(subs, 25), 3);
+  // with 30m pomodoro = Math.ceil(75 / 30) = 3 pomodoros
+  assert.equal(estimatePomodorosFromSubtasks(subs, 30), 3);
+  // with 50m pomodoro = Math.ceil(75 / 50) = 2 pomodoros
+  assert.equal(estimatePomodorosFromSubtasks(subs, 50), 2);
 });

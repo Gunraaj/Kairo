@@ -39,7 +39,17 @@ class WorkerTimerManager {
         const blob = new Blob([workerCode], { type: 'application/javascript' });
         const url = URL.createObjectURL(blob);
         this.worker = new Worker(url);
-        URL.revokeObjectURL(url);
+        // Defer revoke so browser finishes asynchronous worker script compilation
+        if (typeof setTimeout !== 'undefined') {
+          setTimeout(() => {
+            try { URL.revokeObjectURL(url); } catch {}
+          }, 2000);
+        }
+
+        this.worker.onerror = () => {
+          // If worker crashes or CSP blocks it, fall back to window timer
+          this.worker = null;
+        };
 
         this.worker.onmessage = (event: MessageEvent<{ id: number }>) => {
           const handler = this.handlers.get(event.data.id);

@@ -27,6 +27,8 @@ interface StageProps {
   onActiveChange?: (active: boolean) => void;
   onOpenCapsule?: () => void;
   nextReward?: string | null;
+  startSessionTrigger?: number;
+  toggleSessionTrigger?: number;
 }
 
 const sessionCopy: Record<SessionType, { label: string; action: string }> = {
@@ -49,6 +51,8 @@ export const Stage: React.FC<StageProps> = ({
   onActiveChange,
   onOpenCapsule,
   nextReward,
+  startSessionTrigger,
+  toggleSessionTrigger,
 }) => {
   const restoredRef = useRef<TimerSnapshot | null>(readTimerSnapshot());
   const restored = restoredRef.current;
@@ -382,6 +386,31 @@ export const Stage: React.FC<StageProps> = ({
     if (sessionType === 'focus') toggleAudio(true);
   };
 
+  const prevStartTriggerRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (startSessionTrigger && startSessionTrigger !== prevStartTriggerRef.current) {
+      prevStartTriggerRef.current = startSessionTrigger;
+      if (!isActive) {
+        toggleTimer();
+      }
+    }
+  }, [startSessionTrigger, isActive]);
+
+  const prevToggleTriggerRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (toggleSessionTrigger && toggleSessionTrigger !== prevToggleTriggerRef.current) {
+      prevToggleTriggerRef.current = toggleSessionTrigger;
+      toggleTimer();
+    }
+  }, [toggleSessionTrigger]);
+
+  // Keep session target in sync if user changes target while focusing
+  useEffect(() => {
+    if (activeTarget && isActive) {
+      sessionTargetRef.current = activeTarget;
+    }
+  }, [activeTarget, isActive]);
+
   const resetTimer = () => {
     const total = sessionDurationRef.current ?? totalTime;
     const elapsedSeconds = Math.max(0, total - timeLeft);
@@ -491,6 +520,21 @@ export const Stage: React.FC<StageProps> = ({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  const prevTargetIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (activeTarget && activeTarget.id !== prevTargetIdRef.current) {
+      prevTargetIdRef.current = activeTarget.id;
+      // If idle, in focus mode, and task has a custom pomodoro length, adapt timer duration
+      if (!isActive && sessionType === 'focus' && activeTarget.kind === 'task' && activeTarget.pomodoroLength) {
+        setTimeLeft(activeTarget.pomodoroLength * 60);
+      }
+    }
+  }, [activeTarget, isActive, sessionType]);
+
+  const activeTargetRounds = activeTarget?.kind === 'task' ? (activeTarget.targetRounds || 4) : null;
+  const activePomoLen = activeTarget?.kind === 'task' ? (activeTarget.pomodoroLength || settings.focusDuration || 25) : settings.focusDuration;
+  const activeDoneRounds = activeTarget?.kind === 'task' ? Math.floor((activeTarget.timeSpent || 0) / activePomoLen) : null;
+
   const targetLabel =
     activeTarget?.kind === 'task'
       ? activeTarget.name
@@ -583,6 +627,31 @@ export const Stage: React.FC<StageProps> = ({
           <span className="k-target-text" title={targetLabel}>
             {targetLabel}
           </span>
+          {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
+            <span
+              className={`k-target-pomo-chip ${activeDoneRounds! >= activeTargetRounds ? 'is-complete' : ''}`}
+              title={`Pomodoro Target: ${activeDoneRounds} of ${activeTargetRounds} completed (${activePomoLen}m each)`}
+            >
+              🍅 {activeDoneRounds}/{activeTargetRounds} <small>({activePomoLen}m)</small>
+            </span>
+          )}
+          {activeTarget?.kind === 'task' && !isActive && (
+            <button
+              type="button"
+              className="k-target-start-btn"
+              onClick={toggleTimer}
+              title="Start countdown on this task now"
+              aria-label="Start focus countdown on this task"
+            >
+              ▶ Start
+            </button>
+          )}
+          {activeTarget?.kind === 'task' && isActive && (
+            <span className="k-target-active-pill" title="Clock is actively counting down on this task">
+              <span className="k-target-live-dot" aria-hidden="true" />
+              <span>Counting down</span>
+            </span>
+          )}
           {!activeTarget && <span className="k-target-hint">Untracked</span>}
         </div>
 

@@ -287,6 +287,18 @@ const App: React.FC = () => {
   };
 
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const [startSessionTrigger, setStartSessionTrigger] = useState<number>(0);
+  const [toggleSessionTrigger, setToggleSessionTrigger] = useState<number>(0);
+
+  const handleStartTaskFocus = useCallback((taskId: string) => {
+    setActiveTaskId(taskId);
+    setStartSessionTrigger(Date.now());
+  }, []);
+
+  const handleToggleTimer = useCallback(() => {
+    setToggleSessionTrigger(Date.now());
+  }, []);
+
   const audioEngine = useAudioEngine(audioSettings);
   const sessionIdsRef = useRef(new Set(sessions.map(session => session.id)));
 
@@ -301,12 +313,30 @@ const App: React.FC = () => {
       if (project.id === id) return { id: project.id, name: project.name, kind: 'project' };
       const tasks = Array.isArray(project.tasks) ? project.tasks : [];
       const task = tasks.find(candidate => candidate?.id === id);
-      if (task) return { id: task.id, name: task.name, kind: 'task', completed: task.completed };
+      if (task) {
+        return {
+          id: task.id,
+          name: task.name,
+          kind: 'task',
+          completed: task.completed,
+          targetRounds: task.targetRounds,
+          pomodoroLength: task.pomodoroLength,
+          timeSpent: task.timeSpent,
+        };
+      }
       for (const t of tasks) {
         const subTasks = Array.isArray(t.subTasks) ? t.subTasks : [];
         const subTask = subTasks.find(st => st?.id === id);
         if (subTask) {
-          return { id: subTask.id, name: `${t.name} › ${subTask.name}`, kind: 'task', completed: subTask.completed };
+          return {
+            id: subTask.id,
+            name: `${t.name} › ${subTask.name}`,
+            kind: 'task',
+            completed: subTask.completed,
+            targetRounds: t.targetRounds,
+            pomodoroLength: t.pomodoroLength,
+            timeSpent: subTask.timeSpent,
+          };
         }
       }
       const subProjects = Array.isArray(project.subProjects) ? project.subProjects : [];
@@ -533,8 +563,12 @@ const App: React.FC = () => {
         <SidebarNav
           projects={projects}
           setProjects={setProjects}
+          settings={userSettings}
           activeTaskId={activeTaskId}
           setActiveTaskId={setActiveTaskId}
+          isSessionActive={isSessionActive}
+          onStartTaskFocus={handleStartTaskFocus}
+          onToggleTimer={handleToggleTimer}
           onProgress={() => setShowAnalytics(true)}
           onSettings={() => setShowSettings(true)}
           onShortcuts={() => setShowShortcuts(true)}
@@ -642,6 +676,8 @@ const App: React.FC = () => {
             onActiveChange={setIsSessionActive}
             onOpenCapsule={() => setShowCapsuleModal(true)}
             nextReward={nextReward}
+            startSessionTrigger={startSessionTrigger}
+            toggleSessionTrigger={toggleSessionTrigger}
           />
         </section>
 

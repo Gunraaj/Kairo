@@ -75,6 +75,9 @@ const normalizeTask = (value: unknown): Task | null => {
     targetRounds: typeof source.targetRounds === 'number'
       ? Math.round(boundedNumber(source.targetRounds, 4, 1, 24))
       : undefined,
+    pomodoroLength: typeof source.pomodoroLength === 'number'
+      ? Math.round(boundedNumber(source.pomodoroLength, 25, 1, 180))
+      : undefined,
     subTasks,
   };
 };

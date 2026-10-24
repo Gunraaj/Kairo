@@ -12,6 +12,7 @@ import {
 } from '../utils/documentBreakdown';
 import { PresetCategory, SLICE_PRESETS } from '../utils/slicePresets';
 import { Project } from '../types';
+import { formatDurationCompact } from '../utils/subtaskTime';
 
 interface DocumentBreakdownModalProps {
   onClose: () => void;
@@ -525,7 +526,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                 </div>
                 <div className="k-stat-badge">
                   <span className="k-stat-val">{plan.totalRounds}</span>
-                  <span className="k-stat-lbl">Rounds ({(plan.totalMinutes / 60).toFixed(1)} hrs)</span>
+                  <span className="k-stat-lbl">Pomodoros ({formatDurationCompact(plan.totalMinutes)} · 25m ea)</span>
                 </div>
                 {plan.daysRemaining && plan.roundsPerDay ? (
                   <div className="k-stat-badge highlight">

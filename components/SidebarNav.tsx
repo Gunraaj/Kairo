@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import type { Project, SubTask, Task } from '../types';
+import React, { useState, useEffect } from 'react';
+import type { Project, SubTask, Task, UserSettings } from '../types';
 import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
 import { SLICE_PRESETS, PRESET_LIST, type SlicePreset } from '../utils/slicePresets';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import {
+  calculateDonePomodoros,
   calculateEffectiveTaskTime,
+  calculatePlannedMinutes,
   cycleTimeCalcMode,
+  estimatePomodorosFromSubtasks,
   formatDurationCompact,
+  formatPomodoroRatio,
   updateSubtaskMinutes,
 } from '../utils/subtaskTime';
 
@@ -89,6 +93,7 @@ export const NavIcon: React.FC<{
 export interface SidebarNavProps {
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+  settings?: UserSettings;
   activeTaskId: string | null;
   setActiveTaskId: (id: string | null) => void;
   onProgress: () => void;
@@ -99,11 +104,15 @@ export interface SidebarNavProps {
   onTimeCapsule?: () => void;
   capsuleCount?: number;
   onScience?: () => void;
+  isSessionActive?: boolean;
+  onStartTaskFocus?: (taskId: string) => void;
+  onToggleTimer?: () => void;
 }
 
 export const SidebarNav: React.FC<SidebarNavProps> = ({
   projects,
   setProjects,
+  settings,
   activeTaskId,
   setActiveTaskId,
   onProgress,
@@ -114,8 +123,23 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   onTimeCapsule,
   capsuleCount,
   onScience,
+  isSessionActive,
+  onStartTaskFocus,
+  onToggleTimer,
 }) => {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set((Array.isArray(projects) ? projects : []).map(p => p.id)));
+
+  useEffect(() => {
+    if (Array.isArray(projects) && projects.length > 0) {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        for (const p of projects) {
+          if (p.isExpanded !== false) next.add(p.id);
+        }
+        return next;
+      });
+    }
+  }, [projects]);
   const [newProjectName, setNewProjectName] = useState('');
   const [addingTaskFor, setAddingTaskFor] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
@@ -126,6 +150,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
   const [slicingProjectId, setSlicingProjectId] = useState<string | null>(null);
+  const [targetPopoverTaskId, setTargetPopoverTaskId] = useState<string | null>(null);
 
   // Subtask state
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(() => {
@@ -551,10 +576,57 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
           if (t.id !== taskId) return t;
           const current = t.targetRounds || 4;
-          const next = current >= 8 ? 2 : current + 2;
+          const next = current >= 8 ? 1 : current + 1;
           return { ...t, targetRounds: next };
         }),
       })),
+    );
+  };
+
+  const updateTaskPomodoroTarget = (projectId: string, taskId: string, rounds: number) => {
+    const targetRounds = Math.max(1, Math.min(24, Math.round(rounds)));
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
+            t.id === taskId ? { ...t, targetRounds } : t,
+          ),
+        };
+      }),
+    );
+  };
+
+  const updateTaskPomodoroLength = (projectId: string, taskId: string, minutes: number) => {
+    const pomodoroLength = Math.max(1, Math.min(180, Math.round(minutes)));
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
+            t.id === taskId ? { ...t, pomodoroLength } : t,
+          ),
+        };
+      }),
+    );
+  };
+
+  const alignTargetFromSubtasks = (projectId: string, taskId: string) => {
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
+            if (t.id !== taskId) return t;
+            const pLength = t.pomodoroLength || settings?.focusDuration || 25;
+            const estimated = estimatePomodorosFromSubtasks(t.subTasks, pLength);
+            return { ...t, targetRounds: estimated };
+          }),
+        };
+      }),
     );
   };
 
@@ -849,14 +921,18 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                 <div className="k-tree-tasks">
                   {tasks.map(task => {
                     const target = task.targetRounds || 4;
-                    const doneRounds = Math.min(target, Math.floor(task.timeSpent / 25));
-                    const pips = Array.from({ length: target }, (_, i) => (i < doneRounds ? '●' : '○')).join('');
+                    const pomodoroLength = task.pomodoroLength || settings?.focusDuration || 25;
+                    const doneRounds = calculateDonePomodoros(task.timeSpent, pomodoroLength);
+                    const isTargetMet = doneRounds >= target;
+                    const plannedMinutes = calculatePlannedMinutes(target, pomodoroLength);
                     const subTasks = Array.isArray(task.subTasks) ? task.subTasks : [];
                     const hasSubs = subTasks.length > 0;
                     const doneSubs = subTasks.filter(s => s.completed).length;
+                    const subtaskTotalEstimated = subTasks.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0);
                     const isTaskExpanded = expandedTasks.has(task.id);
                     const isSlicing = slicingTaskId === task.id;
                     const isTaskActive = activeTaskId === task.id;
+                    const isPomoPopoverOpen = targetPopoverTaskId === task.id;
 
                     return (
                       <div key={task.id} className="k-tree-task-group">
@@ -888,7 +964,12 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                           ) : (
                             <button
                               className="k-tree-task-name"
-                              onClick={() => setActiveTaskId(task.id)}
+                              onClick={() => {
+                                setActiveTaskId(task.id);
+                                if (!isSessionActive) {
+                                  onStartTaskFocus?.(task.id);
+                                }
+                              }}
                               onDoubleClick={e => {
                                 e.stopPropagation();
                                 setEditingTaskId(task.id);
@@ -896,8 +977,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               }}
                               title={
                                 task.timeSpent > 0
-                                  ? `${task.name} — ${task.timeSpent} min focused (Double-click to rename)`
-                                  : `${task.name} (Double-click to rename)`
+                                  ? `${task.name} — ${task.timeSpent} min focused (Click to focus, double-click to rename)`
+                                  : `${task.name} (Click to focus, double-click to rename)`
                               }
                             >
                               <span>{task.name}</span>
@@ -910,15 +991,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                   {doneSubs}/{subTasks.length} {isTaskExpanded ? '▾' : '▸'}
                                 </span>
                               )}
-                              <span
-                                className="k-task-pips"
-                                onClick={e => cycleTargetRounds(task.id, e)}
-                                data-completed={doneRounds >= target}
-                                title={`🎯 Pomodoro Target: ${doneRounds}/${target} rounds completed (25m each). Click to cycle target (2, 4, 6, 8 rounds).`}
-                                aria-label={`${doneRounds} of ${target} Pomodoro rounds completed. Click to change target.`}
-                              >
-                                {pips}
-                              </span>
                               {task.timeSpent > 0 && (
                                 <em>
                                   {formatDurationCompact(task.timeSpent)}
@@ -926,7 +998,39 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               )}
                             </button>
                           )}
+                          <button
+                            type="button"
+                            className={`k-task-pomo-badge ${isTargetMet ? 'is-complete' : ''}`}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setTargetPopoverTaskId(prev => (prev === task.id ? null : task.id));
+                              setPresetPickerForTask(null);
+                            }}
+                            title={`🎯 Pomodoro Target: ${doneRounds}/${target} completed (${pomodoroLength}m each = ${formatDurationCompact(plannedMinutes)} total). Click to adjust target & session length.`}
+                            aria-label={`${doneRounds} of ${target} Pomodoros completed, ${pomodoroLength}m each. Click to customize.`}
+                          >
+                            <span className="k-pomo-badge-icon">🍅</span>
+                            <span className="k-pomo-badge-ratio">{formatPomodoroRatio(doneRounds, target)}</span>
+                            <span className="k-pomo-badge-len">{pomodoroLength}m</span>
+                          </button>
                           <div className="k-task-actions">
+                            <button
+                              type="button"
+                              className={`k-tree-icon-btn k-task-play-btn ${isTaskActive && isSessionActive ? 'is-running' : ''}`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                if (isTaskActive && isSessionActive) {
+                                  onToggleTimer?.();
+                                } else {
+                                  setActiveTaskId(task.id);
+                                  onStartTaskFocus?.(task.id);
+                                }
+                              }}
+                              title={isTaskActive && isSessionActive ? 'Pause focus on this task' : `▶ Start Focus on ${task.name}`}
+                              aria-label={isTaskActive && isSessionActive ? 'Pause focus' : `Start focus on ${task.name}`}
+                            >
+                              {isTaskActive && isSessionActive ? '⏸' : '▶'}
+                            </button>
                             <button
                               className="k-tree-icon-btn k-task-add-subtask-btn"
                               onClick={() => {
@@ -957,6 +1061,116 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                             </button>
                           </div>
                         </div>
+
+                        {/* Focus To-Do Style Pomodoro Target & Pace Popover */}
+                        {isPomoPopoverOpen && (
+                          <div className="k-pomo-popover" onClick={e => e.stopPropagation()}>
+                            <div className="k-pomo-pop-head">
+                              <div className="k-pomo-pop-title">
+                                <span className="k-pomo-pop-icon">🍅</span>
+                                <b>Pomodoro Target & Pace</b>
+                              </div>
+                              <button
+                                type="button"
+                                className="k-pomo-pop-close"
+                                onClick={() => setTargetPopoverTaskId(null)}
+                                aria-label="Close"
+                              >
+                                ✕
+                              </button>
+                            </div>
+
+                            {/* Section 1: Estimated Pomodoros (Target) */}
+                            <div className="k-pomo-pop-section">
+                              <div className="k-pomo-pop-label-row">
+                                <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
+                                <span className="k-pomo-pop-hint">Target sessions (clean whole numbers)</span>
+                              </div>
+                              <div className="k-pomo-stepper-wrap">
+                                <div className="k-pomo-stepper">
+                                  <button
+                                    type="button"
+                                    className="k-pomo-stepper-btn"
+                                    onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.max(1, target - 1))}
+                                    aria-label="Decrease target"
+                                  >
+                                    −
+                                  </button>
+                                  <span className="k-pomo-stepper-val">{target}</span>
+                                  <button
+                                    type="button"
+                                    className="k-pomo-stepper-btn"
+                                    onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.min(24, target + 1))}
+                                    aria-label="Increase target"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                <div className="k-pomo-quick-chips">
+                                  {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
+                                    <button
+                                      key={n}
+                                      type="button"
+                                      className={`k-pomo-chip ${target === n ? 'active' : ''}`}
+                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, n)}
+                                    >
+                                      {n}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Section 2: Each Pomodoro Time */}
+                            <div className="k-pomo-pop-section">
+                              <div className="k-pomo-pop-label-row">
+                                <span className="k-pomo-pop-title-sm">Each Pomodoro Time</span>
+                                <span className="k-pomo-pop-hint">Focus session duration</span>
+                              </div>
+                              <div className="k-pomo-time-chips">
+                                {[15, 20, 25, 30, 45, 50, 60].map(mins => (
+                                  <button
+                                    key={mins}
+                                    type="button"
+                                    className={`k-pomo-chip ${pomodoroLength === mins ? 'active' : ''}`}
+                                    onClick={() => updateTaskPomodoroLength(project.id, task.id, mins)}
+                                  >
+                                    {mins}m {mins === (settings?.focusDuration || 25) ? '★' : ''}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Section 3: Live Planned Calculation */}
+                            <div className="k-pomo-pop-calc">
+                              <div className="k-pomo-calc-line">
+                                <span className="k-pomo-calc-k">Total Planned:</span>
+                                <span className="k-pomo-calc-v">
+                                  <b>{target}</b> × <b>{pomodoroLength}m</b> = <b>{formatDurationCompact(plannedMinutes)}</b>
+                                </span>
+                              </div>
+                              <div className="k-pomo-calc-line">
+                                <span className="k-pomo-calc-k">Progress:</span>
+                                <span className="k-pomo-calc-v">
+                                  <b>{doneRounds}</b> of <b>{target}</b> done ({formatDurationCompact(task.timeSpent)} focused)
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Auto-align from subtasks if subtasks exist */}
+                            {hasSubs && (
+                              <button
+                                type="button"
+                                className="k-pomo-auto-subs-btn"
+                                onClick={() => alignTargetFromSubtasks(project.id, task.id)}
+                                title="Auto-align target based on subtask estimated durations"
+                              >
+                                <span>⚡ Auto-align target from {subTasks.length} subtasks</span>
+                                {subtaskTotalEstimated > 0 && <small>({subtaskTotalEstimated}m total planned)</small>}
+                              </button>
+                            )}
+                          </div>
+                        )}
 
                         {/* Preset Picker Popover for Task */}
                         {presetPickerForTask === task.id && (
@@ -1058,13 +1272,18 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                   ) : (
                                     <button
                                       className="k-tree-subtask-name"
-                                      onClick={() => setActiveTaskId(st.id)}
+                                      onClick={() => {
+                                        setActiveTaskId(st.id);
+                                        if (!isSessionActive) {
+                                          onStartTaskFocus?.(st.id);
+                                        }
+                                      }}
                                       onDoubleClick={e => {
                                         e.stopPropagation();
                                         setEditingSubTaskId(st.id);
                                         setEditSubTaskName(st.name);
                                       }}
-                                      title={`${task.name} › ${st.name} (Double-click to rename)`}
+                                      title={`${task.name} › ${st.name} (Click to focus, double-click to rename)`}
                                     >
                                       <span>{st.name}</span>
                                       {Boolean(st.timeSpent && st.timeSpent > 0) && (
@@ -1084,15 +1303,32 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                   <div className="k-subtask-actions">
                                     <button
                                       type="button"
+                                      className={`k-tree-icon-btn k-task-play-btn ${activeTaskId === st.id && isSessionActive ? 'is-running' : ''}`}
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        if (activeTaskId === st.id && isSessionActive) {
+                                          onToggleTimer?.();
+                                        } else {
+                                          setActiveTaskId(st.id);
+                                          onStartTaskFocus?.(st.id);
+                                        }
+                                      }}
+                                      title={activeTaskId === st.id && isSessionActive ? 'Pause focus on this subtask' : `▶ Start Focus on ${st.name}`}
+                                      aria-label={activeTaskId === st.id && isSessionActive ? 'Pause focus' : `Start focus on ${st.name}`}
+                                    >
+                                      {activeTaskId === st.id && isSessionActive ? '⏸' : '▶'}
+                                    </button>
+                                    <button
+                                      type="button"
                                       className="k-tree-icon-btn k-subtask-add-time-btn"
                                       onClick={e => {
                                         e.stopPropagation();
-                                        adjustSubtaskTime(project.id, task.id, st.id, 25);
+                                        adjustSubtaskTime(project.id, task.id, st.id, pomodoroLength);
                                       }}
-                                      title="Add +25m (1 Pomodoro) to this subtask"
-                                      aria-label={`Add 25 minutes to ${st.name}`}
+                                      title={`Add +${pomodoroLength}m (1 Pomodoro) to this subtask`}
+                                      aria-label={`Add ${pomodoroLength} minutes to ${st.name}`}
                                     >
-                                      +25m
+                                      +{pomodoroLength}m
                                     </button>
                                     <button
                                       className="k-tree-icon-btn"

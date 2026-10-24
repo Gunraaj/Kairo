@@ -727,9 +727,9 @@ a {
 
 .k-tree-task {
   display: grid;
-  grid-template-columns: 16px 1fr auto;
+  grid-template-columns: 16px minmax(50px, 1fr) auto auto;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 5px 8px;
   border-radius: var(--r-sm);
   color: var(--sumi-2);
@@ -829,6 +829,307 @@ a {
   border-color: var(--shu-ring);
 }
 
+/* --- Focus To-Do Style Pomodoro Target Badge --------------------------- */
+.k-task-pomo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 6px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--sumi-2);
+  margin-left: 5px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 140ms ease;
+  user-select: none;
+}
+
+.k-task-pomo-badge:hover {
+  background: var(--stone-2);
+  border-color: var(--shu-ring);
+  color: var(--sumi-1);
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.k-pomo-badge-icon {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.k-pomo-badge-ratio {
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.k-pomo-badge-len {
+  font-size: 8.5px;
+  color: var(--sumi-4);
+  background: var(--stone-2);
+  padding: 0 3px;
+  border-radius: 3px;
+  letter-spacing: -0.1px;
+}
+
+.k-task-pomo-badge.is-complete {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-task-pomo-badge.is-complete .k-pomo-badge-len {
+  background: rgba(224, 82, 54, 0.15);
+  color: var(--shu);
+}
+
+/* Stage Target Pomodoro Chip */
+.k-target-pomo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-2);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.k-target-pomo-chip.is-complete {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-target-pomo-chip small {
+  font-size: 9px;
+  color: var(--sumi-4);
+  font-weight: 400;
+}
+
+/* --- Focus To-Do Style Pomodoro Popover --------------------------------- */
+.k-pomo-popover {
+  margin: 6px 0 8px 24px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: kPomoPopIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20;
+}
+
+@keyframes kPomoPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.k-pomo-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--stone-2);
+}
+
+.k-pomo-pop-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--sumi-1);
+}
+
+.k-pomo-pop-icon {
+  font-size: 14px;
+}
+
+.k-pomo-pop-close {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--sumi-4);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: var(--r-sm);
+  transition: all 120ms ease;
+}
+
+.k-pomo-pop-close:hover {
+  background: var(--stone-1);
+  color: var(--sumi-1);
+}
+
+.k-pomo-pop-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-pomo-pop-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.k-pomo-pop-title-sm {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-2);
+}
+
+.k-pomo-pop-hint {
+  font-size: 9.5px;
+  color: var(--sumi-4);
+}
+
+.k-pomo-stepper-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.k-pomo-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  background: var(--stone-1);
+  overflow: hidden;
+}
+
+.k-pomo-stepper-btn {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.k-pomo-stepper-btn:hover {
+  background: var(--stone-2);
+  color: var(--sumi-1);
+}
+
+.k-pomo-stepper-val {
+  min-width: 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sumi-1);
+  padding: 0 4px;
+}
+
+.k-pomo-quick-chips,
+.k-pomo-time-chips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.k-pomo-chip {
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  border-radius: var(--r-sm);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-pomo-chip:hover {
+  background: var(--stone-2);
+  color: var(--sumi-1);
+  border-color: var(--stone-3);
+}
+
+.k-pomo-chip.active {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.k-pomo-pop-calc {
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: var(--stone-1);
+  border: 1px dashed var(--stone-2);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10.5px;
+}
+
+.k-pomo-calc-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.k-pomo-calc-k {
+  color: var(--sumi-4);
+  font-size: 10px;
+}
+
+.k-pomo-calc-v {
+  font-family: var(--mono);
+  color: var(--sumi-2);
+}
+
+.k-pomo-auto-subs-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 120ms ease;
+  margin-top: 2px;
+}
+
+.k-pomo-auto-subs-btn:hover {
+  background: var(--shu);
+  color: #ffffff;
+}
+
+.k-pomo-auto-subs-btn small {
+  opacity: 0.85;
+}
+
 /* --- Nested Subtasks Tree ----------------------------------------------- */
 .k-tree-task-group {
   display: flex;
@@ -839,6 +1140,122 @@ a {
   display: flex;
   align-items: center;
   gap: 2px;
+}
+
+.k-task-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: all 140ms ease;
+}
+
+.k-tree-task:hover .k-task-actions .k-tree-icon-btn:not(.k-task-play-btn),
+.k-tree-task:focus-within .k-task-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 1;
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+}
+
+/* Direct 1-Click Task Play/Pause Button */
+.k-task-play-btn {
+  color: var(--shu);
+  background: var(--shu-soft);
+  border-radius: var(--r-full);
+  font-size: 10px;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 120ms ease;
+  margin-right: 2px;
+}
+
+.k-task-play-btn:hover {
+  background: var(--shu);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.k-task-play-btn.is-running {
+  background: var(--shu);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px var(--shu-soft);
+  animation: kPomoGlow 2s infinite ease-in-out;
+}
+
+@keyframes kPomoGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px var(--shu-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--shu-ring);
+  }
+}
+
+/* Stage Target Start & Countdown Badges */
+.k-target-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #ffffff;
+  border: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 140ms ease;
+  box-shadow: 0 2px 6px rgba(224, 82, 54, 0.25);
+}
+
+.k-target-start-btn:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 3px 8px rgba(224, 82, 54, 0.35);
+  background: #d4472c;
+}
+
+.k-target-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.k-target-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+  display: inline-block;
+  animation: kLiveDotBlink 1.4s infinite ease-in-out;
+}
+
+@keyframes kLiveDotBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
 }
 
 .k-tree-subtasks {

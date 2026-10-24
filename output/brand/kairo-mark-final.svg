@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">Kairo interval mark</title>
+  <desc id="desc">A custom Kairo mark: a held focus space inside a directional interval structure.</desc>
+
+  <!-- One continuous Kairo silhouette with a protected inner focus space. -->
+  <path fill="#20201E" fill-rule="evenodd" d="
+    M 18 10
+    C 12 10 8 14 8 20
+    V 80
+    C 8 86 12 90 18 90
+    H 24
+    C 29 90 32 87 32 82
+    V 66
+    L 66 92
+    C 71 96 78 95 82 90
+    C 86 85 85 79 80 75
+    L 56 55
+    L 80 34
+    C 85 30 86 24 82 19
+    C 78 14 71 13 66 17
+    L 32 43
+    V 18
+    C 32 13 29 10 24 10
+    Z
+
+    M 33 46
+    C 38 43 43 44 48 48
+    L 57 55
+    L 48 62
+    C 43 66 38 67 33 63
+    Z"/>
+
+  <!-- Active interval latch: rounded and structural, never a play triangle. -->
+  <path fill="#C9382A" d="
+    M 43 48
+    C 46 47 49 48 52 50
+    L 58 54
+    L 53 59
+    L 47 56
+    C 44 54 42 51 43 48
+    Z"/>
+</svg>

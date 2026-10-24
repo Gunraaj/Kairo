@@ -17,6 +17,7 @@ export interface Task {
   timeSpent: number; // in minutes
   status?: TaskStatus;
   targetRounds?: number;
+  pomodoroLength?: number; // duration of each pomodoro in minutes (default 25 or settings.focusDuration)
   subTasks?: SubTask[];
   timeCalcMode?: TimeCalcMode; // 'auto' (sum of subtasks), 'direct' (standalone), 'hybrid' (direct + subtasks)
   directTimeSpent?: number; // unassigned direct minutes spent on parent task (used in hybrid mode)
@@ -35,6 +36,9 @@ export interface FocusTarget {
   name: string;
   kind: 'project' | 'task';
   completed?: boolean;
+  targetRounds?: number;
+  pomodoroLength?: number;
+  timeSpent?: number;
 }
 
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
