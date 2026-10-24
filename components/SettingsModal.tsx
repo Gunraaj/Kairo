@@ -27,8 +27,8 @@ interface SettingsModalProps {
   setSettings: (settings: Settings) => void;
   onClose: () => void;
   onToast?: (message: string) => void;
-  theme?: 'light' | 'dark' | 'system';
-  setTheme?: (theme: 'light' | 'dark' | 'system') => void;
+  theme?: 'light' | 'dark';
+  setTheme?: (theme: 'light' | 'dark') => void;
   palette?: 'obsidian' | 'zen' | 'indigo' | 'washi';
   setPalette?: (palette: 'obsidian' | 'zen' | 'indigo' | 'washi') => void;
   logoVariant?: LogoVariant;
@@ -305,13 +305,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={() => setTheme?.('light')}
             >
               <span>☀️</span> Light
-            </button>
-            <button
-              type="button"
-              className={`k-theme-mode-btn ${theme === 'system' ? 'is-active' : ''}`}
-              onClick={() => setTheme?.('system')}
-            >
-              <span>💻</span> System
             </button>
           </div>
 

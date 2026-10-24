@@ -159,10 +159,10 @@ const App: React.FC = () => {
     }
     return false;
   });
-  const [theme, setTheme] = useLocalStorage<'light' | 'dark' | 'system'>(
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark'>(
     'kairo_theme',
-    'system',
-    { version: 1, normalize: v => (v === 'light' || v === 'dark' ? v : 'system') },
+    'dark',
+    { version: 1, normalize: v => (v === 'light' ? 'light' : 'dark') },
   );
   const [palette, setPalette] = useLocalStorage<'obsidian' | 'zen' | 'indigo' | 'washi'>(
     'kairo_palette',
@@ -256,8 +256,7 @@ const App: React.FC = () => {
     const activePalette = validPalettes.includes(paramPalette || '') ? paramPalette : palette;
 
     const root = document.documentElement;
-    if (activeTheme === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', activeTheme);
+    root.setAttribute('data-theme', activeTheme);
 
     if (activePalette) root.setAttribute('data-palette', activePalette);
   }, [theme, palette]);
@@ -524,25 +523,18 @@ const App: React.FC = () => {
           <div className="k-head-actions">
             <button
               className="k-head-icon"
-              onClick={() =>
-                setTheme(prev => (prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system'))
-              }
-              aria-label={`Theme: ${theme}. Click to cycle.`}
-              title={`Theme: ${theme}${sidebarCollapsed ? '' : ' — click to toggle'}`}
+              onClick={() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))}
+              aria-label={`Current theme: ${theme}. Click to switch to ${theme === 'dark' ? 'light' : 'dark'} mode.`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
               {theme === 'dark' ? (
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M13 9.5A5.5 5.5 0 116.5 3a4.5 4.5 0 006.5 6.5z" />
                 </svg>
-              ) : theme === 'light' ? (
+              ) : (
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="8" cy="8" r="3" />
                   <path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.5 3.5l1 1M11.5 11.5l1 1M3.5 12.5l1-1M11.5 4.5l1-1" />
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="3" width="12" height="8" rx="1" />
-                  <path d="M6 13h4M8 11v2" />
                 </svg>
               )}
             </button>
