@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import type { Project, SubTask, Task, UserSettings } from '../types';
-import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
-import { SLICE_PRESETS, PRESET_LIST, type SlicePreset } from '../utils/slicePresets';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import {
   calculateDonePomodoros,
@@ -149,7 +147,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [editTaskName, setEditTaskName] = useState('');
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
-  const [slicingProjectId, setSlicingProjectId] = useState<string | null>(null);
   const [targetPopoverTaskId, setTargetPopoverTaskId] = useState<string | null>(null);
 
   // Subtask state
@@ -172,9 +169,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [newSubTaskName, setNewSubTaskName] = useState('');
   const [editingSubTaskId, setEditingSubTaskId] = useState<string | null>(null);
   const [editSubTaskName, setEditSubTaskName] = useState('');
-  const [slicingTaskId, setSlicingTaskId] = useState<string | null>(null);
-  const [presetPickerForProject, setPresetPickerForProject] = useState<string | null>(null);
-  const [presetPickerForTask, setPresetPickerForTask] = useState<string | null>(null);
   const [isDocBreakdownOpen, setIsDocBreakdownOpen] = useState(false);
   const [docBreakdownTargetProjectId, setDocBreakdownTargetProjectId] = useState<string | null>(null);
 
@@ -379,172 +373,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         };
       }),
     );
-  };
-
-  const handleAiSubtaskSlice = async (projectId: string, task: Task) => {
-    if (slicingTaskId) return;
-    setSlicingTaskId(task.id);
-    try {
-      const generated = await breakdownSubtasks(task.name);
-      if (generated && generated.length > 0) {
-        const newSubs: SubTask[] = generated.map(name => ({
-          id: crypto.randomUUID(),
-          name,
-          completed: false,
-        }));
-        setProjects(prev =>
-          (Array.isArray(prev) ? prev : []).map(p =>
-            p.id === projectId
-              ? {
-                  ...p,
-                  tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
-                    t.id === task.id
-                      ? { ...t, subTasks: [...(Array.isArray(t.subTasks) ? t.subTasks : []), ...newSubs] }
-                      : t,
-                  ),
-                }
-              : p,
-          ),
-        );
-        setExpandedTasks(prev => new Set(prev).add(task.id));
-        if (!activeTaskId && newSubs[0]) {
-          setActiveTaskId(newSubs[0].id);
-        }
-      }
-    } catch {
-      // Non-blocking
-    } finally {
-      setSlicingTaskId(null);
-    }
-  };
-
-  const handleAiSlice = async (project: Project) => {
-    if (slicingProjectId) return;
-    setSlicingProjectId(project.id);
-    try {
-      const generated = await breakdownProjectTasks(project.name);
-      if (generated && generated.length > 0) {
-        const newTasks = generated.map(g => ({
-          id: crypto.randomUUID(),
-          name: g.name,
-          completed: false,
-          status: 'todo' as const,
-          timeSpent: 0,
-          targetRounds: g.targetRounds,
-          subTasks: [],
-        }));
-        setProjects(prev =>
-          (Array.isArray(prev) ? prev : []).map(p =>
-            p.id === project.id ? { ...p, tasks: [...(Array.isArray(p.tasks) ? p.tasks : []), ...newTasks] } : p,
-          ),
-        );
-        if (!activeTaskId && newTasks[0]) {
-          setActiveTaskId(newTasks[0].id);
-        }
-      }
-    } catch {
-      // Non-blocking
-    } finally {
-      setSlicingProjectId(null);
-    }
-  };
-
-  const applyPresetToProject = (projectId: string, preset: SlicePreset) => {
-    const newTasks: Task[] = preset.projectTasks.map(t => ({
-      id: crypto.randomUUID(),
-      name: t.name,
-      completed: false,
-      status: 'todo' as const,
-      timeSpent: 0,
-      targetRounds: t.targetRounds,
-      subTasks: (t.subTasks || []).map(st => ({
-        id: crypto.randomUUID(),
-        name: st,
-        completed: false,
-      })),
-    }));
-
-    setProjects(prev =>
-      (Array.isArray(prev) ? prev : []).map(p =>
-        p.id === projectId
-          ? { ...p, tasks: [...(Array.isArray(p.tasks) ? p.tasks : []), ...newTasks] }
-          : p,
-      ),
-    );
-
-    if (newTasks[0] && !activeTaskId) {
-      setActiveTaskId(newTasks[0].id);
-    }
-    setExpandedTasks(prev => {
-      const next = new Set(prev);
-      newTasks.forEach(t => next.add(t.id));
-      return next;
-    });
-    setPresetPickerForProject(null);
-  };
-
-  const applyPresetToTask = (projectId: string, taskId: string, preset: SlicePreset) => {
-    const newSubs: SubTask[] = preset.subtaskSteps.map(name => ({
-      id: crypto.randomUUID(),
-      name,
-      completed: false,
-    }));
-
-    setProjects(prev =>
-      (Array.isArray(prev) ? prev : []).map(p =>
-        p.id === projectId
-          ? {
-              ...p,
-              tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
-                t.id === taskId
-                  ? { ...t, subTasks: [...(Array.isArray(t.subTasks) ? t.subTasks : []), ...newSubs] }
-                  : t,
-              ),
-            }
-          : p,
-      ),
-    );
-    setExpandedTasks(prev => new Set(prev).add(taskId));
-    if (!activeTaskId && newSubs[0]) {
-      setActiveTaskId(newSubs[0].id);
-    }
-    setPresetPickerForTask(null);
-  };
-
-  const createPresetProject = (preset: SlicePreset) => {
-    const projectId = crypto.randomUUID();
-    const newTasks: Task[] = preset.projectTasks.map(t => ({
-      id: crypto.randomUUID(),
-      name: t.name,
-      completed: false,
-      status: 'todo' as const,
-      timeSpent: 0,
-      targetRounds: t.targetRounds,
-      subTasks: (t.subTasks || []).map(st => ({
-        id: crypto.randomUUID(),
-        name: st,
-        completed: false,
-      })),
-    }));
-
-    const newProject: Project = {
-      id: projectId,
-      name: `${preset.emoji} ${preset.name}`,
-      tasks: newTasks,
-      subProjects: [],
-      isExpanded: true,
-    };
-
-    setProjects(prev => [...(Array.isArray(prev) ? prev : []), newProject]);
-    setExpanded(prev => new Set(prev).add(projectId));
-    setExpandedTasks(prev => {
-      const next = new Set(prev);
-      newTasks.forEach(t => next.add(t.id));
-      return next;
-    });
-    if (newTasks[0]) {
-      setActiveTaskId(newTasks[0].id);
-    }
   };
 
   const saveTaskRename = (taskId: string) => {
@@ -776,69 +604,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           </button>
         </div>
 
-        {/* Quick Starter Presets for Study, Learning, Work & Writing */}
-        <div className="k-tree-presets-shelf">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span className="k-shelf-label">Quick Presets</span>
-            <button
-              type="button"
-              onClick={() => {
-                setDocBreakdownTargetProjectId(null);
-                setIsDocBreakdownOpen(true);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--shu)',
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '1px 4px',
-              }}
-              title="Import syllabus, PRD, or topic list for grounded breakdown"
-            >
-              <span>📄 Doc / Syllabus</span>
-            </button>
-          </div>
-          <div className="k-preset-chips-row">
-            {PRESET_LIST.map(preset => (
-              <button
-                key={preset.id}
-                type="button"
-                className="k-preset-chip-btn"
-                onClick={() => createPresetProject(preset)}
-                title={`1-Click create ${preset.name} project with Pomodoro tasks`}
-              >
-                <span className="k-chip-emoji">{preset.emoji}</span>
-                <span className="k-chip-name">
-                  {preset.category === 'study'
-                    ? 'Study'
-                    : preset.category === 'learning'
-                    ? 'Learn'
-                    : preset.category === 'working'
-                    ? 'Work'
-                    : 'Write'}
-                </span>
-              </button>
-            ))}
-            <button
-              type="button"
-              className="k-preset-chip-btn k-import-doc-btn"
-              onClick={() => {
-                setDocBreakdownTargetProjectId(null);
-                setIsDocBreakdownOpen(true);
-              }}
-              title="Import course syllabus, PRD, or topic list for grounded breakdown"
-            >
-              <span className="k-chip-emoji">📄</span>
-              <span className="k-chip-name">Doc / Syllabus</span>
-            </button>
-          </div>
-        </div>
-
         {visibleProjects.map(project => {
           const tasks = Array.isArray(project.tasks) ? project.tasks : [];
           const isOpen = expanded.has(project.id) || Boolean(query);
@@ -930,7 +695,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                     const doneSubs = subTasks.filter(s => s.completed).length;
                     const subtaskTotalEstimated = subTasks.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0);
                     const isTaskExpanded = expandedTasks.has(task.id);
-                    const isSlicing = slicingTaskId === task.id;
                     const isTaskActive = activeTaskId === task.id;
                     const isPomoPopoverOpen = targetPopoverTaskId === task.id;
 
@@ -1004,7 +768,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                             onClick={e => {
                               e.stopPropagation();
                               setTargetPopoverTaskId(prev => (prev === task.id ? null : task.id));
-                              setPresetPickerForTask(null);
                             }}
                             title={`🎯 Pomodoro Target: ${doneRounds}/${target} completed (${pomodoroLength}m each = ${formatDurationCompact(plannedMinutes)} total). Click to adjust target & session length.`}
                             aria-label={`${doneRounds} of ${target} Pomodoros completed, ${pomodoroLength}m each. Click to customize.`}
@@ -1041,15 +804,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               title="Add subtask"
                             >
                               <NavIcon name="plus" />
-                            </button>
-                            <button
-                              className={`k-tree-icon-btn ${isSlicing ? 'spinning' : ''}`}
-                              onClick={() => setPresetPickerForTask(prev => prev === task.id ? null : task.id)}
-                              aria-label={`Slice ${task.name} into subtasks (Presets or AI)`}
-                              title={isSlicing ? 'Slicing subtasks...' : 'Slice into subtasks (Study, Learn, Work, or AI)'}
-                              disabled={isSlicing}
-                            >
-                              ✨
                             </button>
                             <button
                               className="k-tree-icon-btn"
@@ -1169,46 +923,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                 {subtaskTotalEstimated > 0 && <small>({subtaskTotalEstimated}m total planned)</small>}
                               </button>
                             )}
-                          </div>
-                        )}
-
-                        {/* Preset Picker Popover for Task */}
-                        {presetPickerForTask === task.id && (
-                          <div className="k-slice-popover k-slice-popover-task">
-                            <div className="k-popover-head">
-                              <b>Slice Subtasks</b>
-                              <button onClick={() => setPresetPickerForTask(null)} aria-label="Close">✕</button>
-                            </div>
-                            <div className="k-popover-options">
-                              <button
-                                type="button"
-                                className="k-popover-preset-btn is-ai"
-                                onClick={() => {
-                                  setPresetPickerForTask(null);
-                                  handleAiSubtaskSlice(project.id, task);
-                                }}
-                              >
-                                <span className="k-popover-emoji">✨</span>
-                                <div className="k-popover-text">
-                                  <b>AI Dynamic Slice</b>
-                                  <span>Auto-generate steps via AI engine</span>
-                                </div>
-                              </button>
-                              {PRESET_LIST.map(preset => (
-                                <button
-                                  key={preset.id}
-                                  type="button"
-                                  className="k-popover-preset-btn"
-                                  onClick={() => applyPresetToTask(project.id, task.id, preset)}
-                                >
-                                  <span className="k-popover-emoji">{preset.emoji}</span>
-                                  <div className="k-popover-text">
-                                    <b>{preset.name}</b>
-                                    <span>{preset.subtaskSteps.slice(0, 2).join(' · ')}</span>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
                           </div>
                         )}
 
@@ -1404,76 +1118,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                         <NavIcon name="plus" />
                         <span>Add task</span>
                       </button>
-                      <div className="k-slice-btn-group">
-                        <button
-                          className={`k-tree-ai-slice-btn ${slicingProjectId === project.id ? 'is-loading' : ''}`}
-                          onClick={() => handleAiSlice(project)}
-                          disabled={slicingProjectId === project.id}
-                          title="Auto-slice project into Pomodoro tasks with configured AI (OpenRouter, Ollama, Gemini, or Offline)"
-                        >
-                          {slicingProjectId === project.id ? (
-                            <>
-                              <span className="k-ai-spinner" aria-hidden="true" />
-                              <span>Slicing...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span aria-hidden="true">✨</span>
-                              <span>AI Slice</span>
-                            </>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className={`k-tree-presets-menu-btn ${presetPickerForProject === project.id ? 'is-open' : ''}`}
-                          onClick={() => setPresetPickerForProject(prev => (prev === project.id ? null : project.id))}
-                          title="Choose Study, Learning, Work, or Writing breakdown presets"
-                        >
-                          Presets ▾
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Preset Picker Popover for Project */}
-                  {presetPickerForProject === project.id && (
-                    <div className="k-slice-popover">
-                      <div className="k-popover-head">
-                        <b>Choose Breakdown Preset</b>
-                        <button onClick={() => setPresetPickerForProject(null)} aria-label="Close presets">✕</button>
-                      </div>
-                      <div className="k-popover-options">
-                        {PRESET_LIST.map(preset => (
-                          <button
-                            key={preset.id}
-                            type="button"
-                            className="k-popover-preset-btn"
-                            onClick={() => applyPresetToProject(project.id, preset)}
-                          >
-                            <span className="k-popover-emoji">{preset.emoji}</span>
-                            <div className="k-popover-text">
-                              <b>{preset.name}</b>
-                              <span>{preset.tagline}</span>
-                            </div>
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          className="k-popover-preset-btn"
-                          style={{ borderTop: '1px solid var(--stone-3)', marginTop: 4, paddingTop: 6 }}
-                          onClick={() => {
-                            setPresetPickerForProject(null);
-                            setDocBreakdownTargetProjectId(project.id);
-                            setIsDocBreakdownOpen(true);
-                          }}
-                        >
-                          <span className="k-popover-emoji">📄</span>
-                          <div className="k-popover-text">
-                            <b>Import Doc or Syllabus...</b>
-                            <span>Slice from syllabus PDF, PRD, or topic list</span>
-                          </div>
-                        </button>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -1530,6 +1174,18 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           )}
         </button>
       )}
+
+      <button
+        className="k-nav-item"
+        onClick={() => {
+          setDocBreakdownTargetProjectId(null);
+          setIsDocBreakdownOpen(true);
+        }}
+        title="Import Syllabus or Document Outline"
+      >
+        <NavIcon name="doc" />
+        <span className="k-nav-label">Import Syllabus</span>
+      </button>
 
       {onScience && (
         <button className="k-nav-item" onClick={onScience} title="Focus Science & Pomodoro Guide">
