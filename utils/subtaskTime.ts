@@ -127,6 +127,15 @@ export const estimatePomodorosFromSubtasks = (
 ): number => {
   if (!Array.isArray(subTasks) || subTasks.length === 0) return 4;
   const safeLength = Math.max(1, Math.round(pomodoroLength || 25));
+  const hasExplicitRounds = subTasks.some(st => typeof st.targetRounds === 'number' && st.targetRounds > 0);
+  if (hasExplicitRounds) {
+    const totalRounds = subTasks.reduce((acc, st) => {
+      if (typeof st.targetRounds === 'number' && st.targetRounds > 0) return acc + st.targetRounds;
+      if (st.estimatedMinutes && st.estimatedMinutes > 0) return acc + Math.max(1, Math.ceil(st.estimatedMinutes / safeLength));
+      return acc + 1;
+    }, 0);
+    return Math.max(1, Math.min(24, Math.round(totalRounds)));
+  }
   const totalEstimated = subTasks.reduce((acc, st) => acc + (st.estimatedMinutes || 0), 0);
   if (totalEstimated <= 0) return Math.max(1, Math.min(24, subTasks.length));
   return Math.max(1, Math.min(24, Math.ceil(totalEstimated / safeLength)));

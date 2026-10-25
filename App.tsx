@@ -92,14 +92,14 @@ const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
-    if (typeof window === 'undefined') return 240;
+    if (typeof window === 'undefined') return 260;
     try {
       const saved = localStorage.getItem('kairo_sidebar_width');
-      if (!saved) return 240;
+      if (!saved) return 260;
       const num = Number(saved);
       return Number.isFinite(num) ? Math.max(180, Math.min(480, num)) : 240;
     } catch {
-      return 240;
+      return 260;
     }
   });
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
@@ -126,7 +126,7 @@ const App: React.FC = () => {
   }, [sidebarWidth]);
 
   const resetSidebarWidth = useCallback(() => {
-    setSidebarWidth(240);
+    setSidebarWidth(260);
   }, []);
 
   useEffect(() => {
@@ -328,13 +328,15 @@ const App: React.FC = () => {
         const subTasks = Array.isArray(t.subTasks) ? t.subTasks : [];
         const subTask = subTasks.find(st => st?.id === id);
         if (subTask) {
+          const subTarget = subTask.targetRounds || Math.max(1, Math.ceil((subTask.estimatedMinutes || t.pomodoroLength || userSettings.focusDuration || 25) / (subTask.pomodoroLength || t.pomodoroLength || userSettings.focusDuration || 25)));
+          const subPomodoroLength = subTask.pomodoroLength || t.pomodoroLength || userSettings.focusDuration || 25;
           return {
             id: subTask.id,
             name: `${t.name} › ${subTask.name}`,
             kind: 'task',
             completed: subTask.completed,
-            targetRounds: t.targetRounds,
-            pomodoroLength: t.pomodoroLength,
+            targetRounds: subTarget,
+            pomodoroLength: subPomodoroLength,
             timeSpent: subTask.timeSpent,
           };
         }

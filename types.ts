@@ -8,6 +8,8 @@ export interface SubTask {
   completed: boolean;
   timeSpent?: number; // in minutes spent on this subtask
   estimatedMinutes?: number; // estimated duration in minutes
+  targetRounds?: number; // target Pomodoro rounds (whole integer)
+  pomodoroLength?: number; // duration of each pomodoro in minutes
 }
 
 export interface Task {

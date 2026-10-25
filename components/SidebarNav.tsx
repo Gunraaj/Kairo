@@ -476,6 +476,52 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     );
   };
 
+  const updateSubTaskPomodoroTarget = (projectId: string, taskId: string, subTaskId: string, rounds: number) => {
+    const targetRounds = Math.max(1, Math.min(24, Math.round(rounds)));
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
+            if (t.id !== taskId) return t;
+            const subTasks = (Array.isArray(t.subTasks) ? t.subTasks : []).map(st => {
+              if (st.id !== subTaskId) return st;
+              const pLen = st.pomodoroLength || t.pomodoroLength || settings?.focusDuration || 25;
+              return { ...st, targetRounds, estimatedMinutes: targetRounds * pLen };
+            });
+            const updatedTask = { ...t, subTasks };
+            return {
+              ...updatedTask,
+              timeSpent: calculateEffectiveTaskTime(updatedTask),
+            };
+          }),
+        };
+      }),
+    );
+  };
+
+  const updateSubTaskPomodoroLength = (projectId: string, taskId: string, subTaskId: string, minutes: number) => {
+    const pomodoroLength = Math.max(1, Math.min(180, Math.round(minutes)));
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
+            if (t.id !== taskId) return t;
+            const subTasks = (Array.isArray(t.subTasks) ? t.subTasks : []).map(st => {
+              if (st.id !== subTaskId) return st;
+              const rounds = st.targetRounds || 1;
+              return { ...st, pomodoroLength, estimatedMinutes: rounds * pomodoroLength };
+            });
+            return { ...t, subTasks };
+          }),
+        };
+      }),
+    );
+  };
+
   const toggleExpand = (id: string) => {
     setExpanded(prev => {
       const next = new Set(prev);
@@ -1030,103 +1076,251 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                             )}
                             {subTasks.map(st => {
                               const isSubActive = activeTaskId === st.id;
+                              const subPomodoroLength = st.pomodoroLength || task.pomodoroLength || settings?.focusDuration || 25;
+                              const taskPomodoroLength = task.pomodoroLength || settings?.focusDuration || 25;
+                              const isDifferentPace = subPomodoroLength !== taskPomodoroLength;
+                              const subTarget = st.targetRounds || Math.max(1, Math.ceil((st.estimatedMinutes || subPomodoroLength) / subPomodoroLength));
+                              const subDoneRounds = calculateDonePomodoros(st.timeSpent || 0, subPomodoroLength);
+                              const isSubTargetMet = subDoneRounds >= subTarget;
+                              const subPlannedMinutes = calculatePlannedMinutes(subTarget, subPomodoroLength);
+                              const isSubPopoverOpen = targetPopoverTaskId === st.id;
+
                               return (
-                                <div
-                                  key={st.id}
-                                  className={`k-tree-subtask ${isSubActive ? 'active' : ''} ${
-                                    st.completed ? 'done' : ''
-                                  }`}
-                                >
-                                  <button
-                                    className={`k-subtask-check ${st.completed ? 'checked' : ''}`}
-                                    onClick={() => toggleSubTaskDone(project.id, task.id, st.id)}
-                                    aria-label={st.completed ? 'Mark subtask incomplete' : 'Mark subtask complete'}
+                                <div key={st.id} className="k-tree-subtask-group">
+                                  <div
+                                    className={`k-tree-subtask ${isSubActive ? 'active' : ''} ${
+                                      st.completed ? 'done' : ''
+                                    }`}
                                   >
-                                    {st.completed && <NavIcon name="check" />}
-                                  </button>
-                                  {editingSubTaskId === st.id ? (
-                                    <input
-                                      className="k-tree-rename-input"
-                                      value={editSubTaskName}
-                                      onChange={e => setEditSubTaskName(e.target.value)}
-                                      onBlur={() => saveSubTaskRename(project.id, task.id, st.id)}
-                                      onKeyDown={e => {
-                                        if (e.key === 'Enter') saveSubTaskRename(project.id, task.id, st.id);
-                                        else if (e.key === 'Escape') setEditingSubTaskId(null);
-                                      }}
-                                      autoFocus
-                                      maxLength={160}
-                                    />
-                                  ) : (
                                     <button
-                                      className="k-tree-subtask-name"
-                                      onClick={() => {
-                                        setActiveTaskId(st.id);
-                                        if (!isSessionActive) {
-                                          onStartTaskFocus?.(st.id);
-                                        }
-                                      }}
-                                      onDoubleClick={e => {
-                                        e.stopPropagation();
-                                        setEditingSubTaskId(st.id);
-                                        setEditSubTaskName(st.name);
-                                      }}
-                                      title={`${task.name} › ${st.name} (Click to focus, double-click to rename)`}
+                                      className={`k-subtask-check ${st.completed ? 'checked' : ''}`}
+                                      onClick={() => toggleSubTaskDone(project.id, task.id, st.id)}
+                                      aria-label={st.completed ? 'Mark subtask incomplete' : 'Mark subtask complete'}
                                     >
-                                      <span>{st.name}</span>
-                                      {Boolean(st.timeSpent && st.timeSpent > 0) && (
-                                        <span
-                                          className="k-subtask-time-chip"
-                                          onClick={e => {
-                                            e.stopPropagation();
-                                            adjustSubtaskTime(project.id, task.id, st.id, 15);
-                                          }}
-                                          title={`${st.timeSpent}m spent on this subtask. Click to add +15m.`}
-                                        >
-                                          {formatDurationCompact(st.timeSpent || 0)}
-                                        </span>
+                                      {st.completed && <NavIcon name="check" />}
+                                    </button>
+                                    {editingSubTaskId === st.id ? (
+                                      <input
+                                        className="k-tree-rename-input"
+                                        value={editSubTaskName}
+                                        onChange={e => setEditSubTaskName(e.target.value)}
+                                        onBlur={() => saveSubTaskRename(project.id, task.id, st.id)}
+                                        onKeyDown={e => {
+                                          if (e.key === 'Enter') saveSubTaskRename(project.id, task.id, st.id);
+                                          else if (e.key === 'Escape') setEditingSubTaskId(null);
+                                        }}
+                                        autoFocus
+                                        maxLength={160}
+                                      />
+                                    ) : (
+                                      <button
+                                        className="k-tree-subtask-name"
+                                        onClick={() => {
+                                          setActiveTaskId(st.id);
+                                          if (!isSessionActive) {
+                                            onStartTaskFocus?.(st.id);
+                                          }
+                                        }}
+                                        onDoubleClick={e => {
+                                          e.stopPropagation();
+                                          setEditingSubTaskId(st.id);
+                                          setEditSubTaskName(st.name);
+                                        }}
+                                        title={`${task.name} › ${st.name} (Click to focus, double-click to rename)`}
+                                      >
+                                        <span>{st.name}</span>
+                                        {Boolean(st.timeSpent && st.timeSpent > 0 && !st.targetRounds) && (
+                                          <em>{formatDurationCompact(st.timeSpent || 0)}</em>
+                                        )}
+                                      </button>
+                                    )}
+
+                                    <button
+                                      type="button"
+                                      className={`k-task-pomo-badge k-subtask-pomo-badge ${isSubTargetMet ? 'is-complete' : ''}`}
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        setTargetPopoverTaskId(prev => (prev === st.id ? null : st.id));
+                                      }}
+                                      title={`🎯 Subtask Pomodoro Target: ${subDoneRounds}/${subTarget} completed (${subPomodoroLength}m each = ${formatDurationCompact(subPlannedMinutes)} total). Click to adjust target & session length.`}
+                                      aria-label={`${subDoneRounds} of ${subTarget} Pomodoros completed on subtask`}
+                                    >
+                                      <span className="k-pomo-badge-icon">🍅</span>
+                                      <span className="k-pomo-badge-ratio">{formatPomodoroRatio(subDoneRounds, subTarget)}</span>
+                                      {isDifferentPace && (
+                                        <span className="k-pomo-badge-len">{subPomodoroLength}m</span>
                                       )}
                                     </button>
-                                  )}
-                                  <div className="k-subtask-actions">
-                                    <button
-                                      type="button"
-                                      className={`k-tree-icon-btn k-task-play-btn ${activeTaskId === st.id && isSessionActive ? 'is-running' : ''}`}
-                                      onClick={e => {
-                                        e.stopPropagation();
-                                        if (activeTaskId === st.id && isSessionActive) {
-                                          onToggleTimer?.();
-                                        } else {
-                                          setActiveTaskId(st.id);
-                                          onStartTaskFocus?.(st.id);
-                                        }
-                                      }}
-                                      title={activeTaskId === st.id && isSessionActive ? 'Pause focus on this subtask' : `▶ Start Focus on ${st.name}`}
-                                      aria-label={activeTaskId === st.id && isSessionActive ? 'Pause focus' : `Start focus on ${st.name}`}
-                                    >
-                                      {activeTaskId === st.id && isSessionActive ? '⏸' : '▶'}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="k-tree-icon-btn k-subtask-add-time-btn"
-                                      onClick={e => {
-                                        e.stopPropagation();
-                                        adjustSubtaskTime(project.id, task.id, st.id, pomodoroLength);
-                                      }}
-                                      title={`Add +${pomodoroLength}m (1 Pomodoro) to this subtask`}
-                                      aria-label={`Add ${pomodoroLength} minutes to ${st.name}`}
-                                    >
-                                      +{pomodoroLength}m
-                                    </button>
-                                    <button
-                                      className="k-tree-icon-btn"
-                                      onClick={() => deleteSubTask(project.id, task.id, st.id)}
-                                      aria-label={`Delete subtask ${st.name}`}
-                                      title="Delete subtask"
-                                    >
-                                      <NavIcon name="trash" />
-                                    </button>
+
+                                    <div className="k-subtask-actions">
+                                      <button
+                                        type="button"
+                                        className={`k-tree-icon-btn k-task-play-btn ${activeTaskId === st.id && isSessionActive ? 'is-running' : ''}`}
+                                        onClick={e => {
+                                          e.stopPropagation();
+                                          if (activeTaskId === st.id && isSessionActive) {
+                                            onToggleTimer?.();
+                                          } else {
+                                            setActiveTaskId(st.id);
+                                            onStartTaskFocus?.(st.id);
+                                          }
+                                        }}
+                                        title={activeTaskId === st.id && isSessionActive ? 'Pause focus on this subtask' : `▶ Start Focus on ${st.name}`}
+                                        aria-label={activeTaskId === st.id && isSessionActive ? 'Pause focus' : `Start focus on ${st.name}`}
+                                      >
+                                        {activeTaskId === st.id && isSessionActive ? '⏸' : '▶'}
+                                      </button>
+                                      <button
+                                        className="k-tree-icon-btn"
+                                        onClick={() => deleteSubTask(project.id, task.id, st.id)}
+                                        aria-label={`Delete subtask ${st.name}`}
+                                        title="Delete subtask"
+                                      >
+                                        <NavIcon name="trash" />
+                                      </button>
+                                    </div>
                                   </div>
+
+                                  {/* Subtask Pomodoro Target Popover */}
+                                  {isSubPopoverOpen && (() => {
+                                    const subFinish = calculateFinishEstimate([
+                                      {
+                                        targetRounds: subTarget,
+                                        completed: st.completed,
+                                        timeSpent: st.timeSpent || 0,
+                                        pomodoroLength: subPomodoroLength,
+                                      }
+                                    ], settings);
+                                    return (
+                                      <div className="k-pomo-popover k-subtask-popover" onClick={e => e.stopPropagation()}>
+                                        <div className="k-pomo-pop-head">
+                                          <div className="k-pomo-pop-title">
+                                            <span className="k-pomo-pop-icon">🍅</span>
+                                            <b>Subtask Target & Pace</b>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            className="k-pomo-pop-close"
+                                            onClick={() => setTargetPopoverTaskId(null)}
+                                            aria-label="Close"
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+
+                                        <div className="k-pomo-finish-pill-full" title="Estimated subtask completion time based on rounds & breaks">
+                                          <span>Finish at ~<b>{subFinish.finishTimeFormatted}</b></span>
+                                          <small>({subFinish.hoursFormatted} total)</small>
+                                        </div>
+
+                                        {/* Section 1: Estimated Pomodoros (Target) */}
+                                        <div className="k-pomo-pop-section">
+                                          <div className="k-pomo-pop-label-row">
+                                            <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
+                                            <span className="k-pomo-pop-hint">Subtask target (whole numbers)</span>
+                                          </div>
+                                          <div className="k-pomo-stepper-wrap">
+                                            <div className="k-pomo-stepper">
+                                              <button
+                                                type="button"
+                                                className="k-pomo-stepper-btn"
+                                                onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, Math.max(1, subTarget - 1))}
+                                                aria-label="Decrease target"
+                                              >
+                                                −
+                                              </button>
+                                              <span className="k-pomo-stepper-val">{subTarget}</span>
+                                              <button
+                                                type="button"
+                                                className="k-pomo-stepper-btn"
+                                                onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, Math.min(24, subTarget + 1))}
+                                                aria-label="Increase target"
+                                              >
+                                                +
+                                              </button>
+                                            </div>
+                                            <div className="k-pomo-quick-chips">
+                                              {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
+                                                <button
+                                                  key={n}
+                                                  type="button"
+                                                  className={`k-pomo-chip ${subTarget === n ? 'active' : ''}`}
+                                                  onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, n)}
+                                                >
+                                                  {n}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          {/* Or set by duration */}
+                                          <div className="k-pomo-time-calc-chips">
+                                            <span className="k-pomo-sublabel">Or by total duration:</span>
+                                            <div className="k-pomo-quick-chips">
+                                              {[
+                                                { label: '15m', mins: 15 },
+                                                { label: '30m', mins: 30 },
+                                                { label: '45m', mins: 45 },
+                                                { label: '1h', mins: 60 },
+                                                { label: '1.5h', mins: 90 },
+                                                { label: '2h', mins: 120 },
+                                              ].map(({ label, mins }) => {
+                                                const computedRounds = Math.max(1, Math.ceil(mins / subPomodoroLength));
+                                                const isCurrent = subTarget === computedRounds;
+                                                return (
+                                                  <button
+                                                    key={label}
+                                                    type="button"
+                                                    className={`k-pomo-chip k-chip-duration ${isCurrent ? 'active' : ''}`}
+                                                    onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, computedRounds)}
+                                                    title={`Set ~${mins}m total → ${computedRounds} Pomodoros (${subPomodoroLength}m each)`}
+                                                  >
+                                                    {label}
+                                                  </button>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* Section 2: Each Pomodoro Time */}
+                                        <div className="k-pomo-pop-section">
+                                          <div className="k-pomo-pop-label-row">
+                                            <span className="k-pomo-pop-title-sm">Each Pomodoro Time</span>
+                                            <span className="k-pomo-pop-hint">Subtask session length</span>
+                                          </div>
+                                          <div className="k-pomo-time-chips">
+                                            {[15, 20, 25, 30, 45, 50, 60].map(mins => (
+                                              <button
+                                                key={mins}
+                                                type="button"
+                                                className={`k-pomo-chip ${subPomodoroLength === mins ? 'active' : ''}`}
+                                                onClick={() => updateSubTaskPomodoroLength(project.id, task.id, st.id, mins)}
+                                              >
+                                                {mins}m {mins === (settings?.focusDuration || 25) ? '★' : ''}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+
+                                        {/* Section 3: Planned Calculation */}
+                                        <div className="k-pomo-pop-calc">
+                                          <div className="k-pomo-calc-line">
+                                            <span className="k-pomo-calc-k">Subtask Planned:</span>
+                                            <span className="k-pomo-calc-v">
+                                              <b>{subTarget}</b> × <b>{subPomodoroLength}m</b> = <b>{formatDurationCompact(subPlannedMinutes)}</b>
+                                            </span>
+                                          </div>
+                                          <div className="k-pomo-calc-line">
+                                            <span className="k-pomo-calc-k">Progress:</span>
+                                            <span className="k-pomo-calc-v">
+                                              <b>{subDoneRounds}</b> of <b>{subTarget}</b> done {Boolean(st.timeSpent && st.timeSpent > 0) && `(${st.timeSpent}m focused)`}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
                               );
                             })}

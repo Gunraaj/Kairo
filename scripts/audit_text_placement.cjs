@@ -111,6 +111,70 @@ const outDir = 'C:/Users/Gg/.gemini/antigravity/brain/4ecd6f56-37e5-4910-bfc2-4f
     console.log('Saved verify_sound_studio_all_channels_crop.png');
   }
 
+  // AUDIT PART 2: Subtask Text Placement & Badge Visibility
+  await page.evaluate(() => {
+    const sampleProjects = [
+      {
+        id: 'p-1',
+        name: 'Deep Learning Research',
+        color: '#dc2626',
+        isExpanded: true,
+        tasks: [
+          {
+            id: 't-1',
+            name: 'Read Attention is All You Need',
+            completed: false,
+            targetRounds: 4,
+            pomodoroLength: 25,
+            timeSpent: 25,
+            subTasks: [
+              {
+                id: 'st-1',
+                name: 'Self-attention derivation',
+                completed: false,
+                timeSpent: 25,
+                targetRounds: 2,
+                pomodoroLength: 25,
+              },
+              {
+                id: 'st-2',
+                name: 'Multi-head projection notes',
+                completed: false,
+                timeSpent: 0,
+                targetRounds: 1,
+                pomodoroLength: 25,
+              },
+            ]
+          }
+        ]
+      }
+    ];
+    localStorage.setItem('kairo_projects', JSON.stringify(sampleProjects));
+  });
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(400);
+
+  const subtaskAudit = await page.evaluate(() => {
+    const subtaskNames = Array.from(document.querySelectorAll('.k-tree-subtask-name > span:first-child'));
+    return subtaskNames.map(el => {
+      const text = el.textContent ? el.textContent.trim() : '';
+      const clientWidth = el.clientWidth;
+      const scrollWidth = el.scrollWidth;
+      const isClipped = scrollWidth > clientWidth + 1;
+      return {
+        name: text,
+        clientWidth: `${clientWidth}px`,
+        scrollWidth: `${scrollWidth}px`,
+        isClipped,
+        status: isClipped ? 'CLIPPED' : 'OK',
+      };
+    });
+  });
+
+  console.log('\n=== SUBTASK TEXT PLACEMENT REPORT ===');
+  console.table(subtaskAudit);
+
   await browser.close();
   if (failures.length > 0) {
     process.exit(1);
