@@ -10,7 +10,7 @@ import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
 import { PomodoroScienceModal } from './components/PomodoroScienceModal';
 import { BrandLogo, getLogoSvgDataUri, type LogoVariant } from './components/BrandLogo';
-import type { Project, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule } from './types';
+import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';

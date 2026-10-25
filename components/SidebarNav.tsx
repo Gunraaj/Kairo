@@ -1083,7 +1083,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                           }}
                                           title={`${st.timeSpent}m spent on this subtask. Click to add +15m.`}
                                         >
-                                          {formatDurationCompact(st.timeSpent)}
+                                          {formatDurationCompact(st.timeSpent || 0)}
                                         </span>
                                       )}
                                     </button>

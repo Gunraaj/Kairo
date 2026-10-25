@@ -1102,7 +1102,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                         <span className="k-channel-name" title={labelFor(sound.name)}>
                           {labelFor(sound.name)}
                         </span>
-                        <span className="k-channel-type-tag">Ambient</span>
                       </div>
 
                       <div className="k-channel-fader-wrap">
@@ -1208,7 +1207,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                         <span className="k-channel-name" title={activeLofiName}>
                           {activeLofiName}
                         </span>
-                        <span className="k-channel-type-tag lofi">Lofi Stream</span>
+                        <span className="k-channel-type-tag lofi">Lofi</span>
                       </div>
 
                       <div className="k-channel-wave-indicator" aria-hidden="true" title="Playing stream">

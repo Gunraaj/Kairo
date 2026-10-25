@@ -5,13 +5,15 @@
  * faster, deterministic alternative to generative AI.
  */
 
+export type PresetCategory = 'study' | 'learning' | 'working' | 'writing';
+
 export interface SlicePreset {
   id: string;
   name: string;
   emoji: string;
   tagline: string;
   description: string;
-  category: 'study' | 'learning' | 'working' | 'writing';
+  category: PresetCategory;
   projectTasks: Array<{
     name: string;
     targetRounds: number;

@@ -165,7 +165,7 @@ export const parseOutlineOffline = (
 ): BreakdownPlan => {
   const content = (rawContent || '').trim();
   const archetype: PresetCategory =
-    options?.archetype || detectPresetCategory(content.slice(0, 300) || options?.fileName || 'Study Project').id;
+    options?.archetype || detectPresetCategory(content.slice(0, 300) || options?.fileName || 'Study Project').category;
 
   const lines = content.split(/\r?\n/).map(l => l.trimEnd());
   

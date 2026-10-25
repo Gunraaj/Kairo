@@ -3292,7 +3292,7 @@ a {
 
 /* --- Sound Studio (Collapsible Panel / Drawer) ---------------------------- */
 .k-sound-lib {
-  width: 380px;
+  width: 400px;
   background: var(--washi-sidebar);
   border-left: 1px solid var(--stone-2);
   padding: 0;
@@ -3306,7 +3306,7 @@ a {
 }
 
 .k-sound-lib.is-closed {
-  margin-right: -380px;
+  margin-right: -400px;
   opacity: 0;
   pointer-events: none;
   border-left: none;
@@ -4026,15 +4026,15 @@ a {
 /* Individual Channel Strip */
 .k-channel-strip {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 100px auto;
+  grid-template-columns: minmax(130px, 1fr) 88px auto;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: var(--r-sm);
+  gap: 10px;
+  padding: 5px 10px;
+  border-radius: var(--r-md);
   background: var(--washi-card);
   border: 1px solid var(--stone-3);
-  transition: all 120ms ease;
-  min-height: 32px;
+  transition: border-color 150ms ease, background-color 150ms ease;
+  min-height: 36px;
 }
 
 .k-channel-strip:hover {
@@ -4057,13 +4057,14 @@ a {
 .k-channel-info {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .k-channel-thumb {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 4px;
   background: var(--washi-2);
   display: grid;
@@ -4087,26 +4088,30 @@ a {
 }
 
 .k-channel-name {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--sumi);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .k-channel-type-tag {
-  font-size: 8.5px;
+  font-size: 9px;
   font-family: var(--mono);
-  padding: 1px 4px;
-  border-radius: 3px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 4px;
   background: var(--washi-2);
   color: var(--sumi-3);
   border: 1px solid var(--stone-3);
   text-transform: uppercase;
   flex-shrink: 0;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 
 .k-channel-type-tag.synth {
@@ -4125,6 +4130,7 @@ a {
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 88px;
 }
 
 .k-channel-fader-wrap input[type="range"] {
