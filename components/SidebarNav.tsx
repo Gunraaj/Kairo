@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { Project, SubTask, Task, UserSettings } from '../types';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
+import { InfoTip } from './InfoTip';
 import {
   calculateDonePomodoros,
   calculateEffectiveTaskTime,
+  calculateFinishEstimate,
   calculatePlannedMinutes,
   cycleTimeCalcMode,
   estimatePomodorosFromSubtasks,
@@ -225,6 +227,22 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       }
     }
   };
+
+  const allTasks = React.useMemo(() => {
+    const list: Task[] = [];
+    if (Array.isArray(projects)) {
+      for (const p of projects) {
+        if (Array.isArray(p.tasks)) {
+          list.push(...p.tasks);
+        }
+      }
+    }
+    return list;
+  }, [projects]);
+
+  const finishCalc = React.useMemo(() => {
+    return calculateFinishEstimate(allTasks, settings);
+  }, [allTasks, settings]);
 
   const toggleTaskSubtasks = (taskId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -591,6 +609,24 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       )}
 
       <div className="k-nav-tree">
+        {/* Pomofocus-style compiled target & finish time summary */}
+        {allTasks.length > 0 && (
+          <div className="k-pomo-summary-bar" title="Overall Pomodoro target & estimated finish time across all tasks">
+            <div className="k-pomo-sum-item">
+              <span className="k-pomo-sum-label">Pomos</span>
+              <span className="k-pomo-sum-val"><b>{finishCalc.donePomos}</b>/<b>{finishCalc.totalPomos}</b></span>
+            </div>
+            <div className="k-pomo-sum-divider">•</div>
+            <div className="k-pomo-sum-item">
+              <span className="k-pomo-sum-label">Finish</span>
+              <span className="k-pomo-sum-val"><b>{finishCalc.finishTimeFormatted}</b> <small>({finishCalc.hoursFormatted})</small></span>
+            </div>
+            <InfoTip title="Estimated Finish Time" position="bottom">
+              Calculates total planned focus rounds plus short & long breaks based on your settings.
+            </InfoTip>
+          </div>
+        )}
+
         {/* Quick Focus default item */}
         <div className={`k-tree-task k-quick-focus-item ${activeTaskId === null ? 'active' : ''}`}>
           <div className="k-quick-focus-indicator" aria-hidden="true" />
@@ -817,63 +853,100 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                         </div>
 
                         {/* Focus To-Do Style Pomodoro Target & Pace Popover */}
-                        {isPomoPopoverOpen && (
-                          <div className="k-pomo-popover" onClick={e => e.stopPropagation()}>
-                            <div className="k-pomo-pop-head">
-                              <div className="k-pomo-pop-title">
-                                <span className="k-pomo-pop-icon">🍅</span>
-                                <b>Pomodoro Target & Pace</b>
+                        {isPomoPopoverOpen && (() => {
+                          const taskFinish = calculateFinishEstimate([task], settings);
+                          return (
+                            <div className="k-pomo-popover" onClick={e => e.stopPropagation()}>
+                              <div className="k-pomo-pop-head">
+                                <div className="k-pomo-pop-title">
+                                  <span className="k-pomo-pop-icon">🍅</span>
+                                  <b>Pomodoro Target & Pace</b>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="k-pomo-pop-close"
+                                  onClick={() => setTargetPopoverTaskId(null)}
+                                  aria-label="Close"
+                                >
+                                  ✕
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                className="k-pomo-pop-close"
-                                onClick={() => setTargetPopoverTaskId(null)}
-                                aria-label="Close"
-                              >
-                                ✕
-                              </button>
-                            </div>
 
-                            {/* Section 1: Estimated Pomodoros (Target) */}
-                            <div className="k-pomo-pop-section">
-                              <div className="k-pomo-pop-label-row">
-                                <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
-                                <span className="k-pomo-pop-hint">Target sessions (clean whole numbers)</span>
+                              <div className="k-pomo-finish-pill-full" title="Estimated completion time based on rounds & breaks">
+                                <span>Finish at ~<b>{taskFinish.finishTimeFormatted}</b></span>
+                                <small>({taskFinish.hoursFormatted} total)</small>
                               </div>
-                              <div className="k-pomo-stepper-wrap">
-                                <div className="k-pomo-stepper">
-                                  <button
-                                    type="button"
-                                    className="k-pomo-stepper-btn"
-                                    onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.max(1, target - 1))}
-                                    aria-label="Decrease target"
-                                  >
-                                    −
-                                  </button>
-                                  <span className="k-pomo-stepper-val">{target}</span>
-                                  <button
-                                    type="button"
-                                    className="k-pomo-stepper-btn"
-                                    onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.min(24, target + 1))}
-                                    aria-label="Increase target"
-                                  >
-                                    +
-                                  </button>
+
+                              {/* Section 1: Estimated Pomodoros (Target) */}
+                              <div className="k-pomo-pop-section">
+                                <div className="k-pomo-pop-label-row">
+                                  <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
+                                  <span className="k-pomo-pop-hint">Target sessions (clean whole numbers)</span>
                                 </div>
-                                <div className="k-pomo-quick-chips">
-                                  {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
+                                <div className="k-pomo-stepper-wrap">
+                                  <div className="k-pomo-stepper">
                                     <button
-                                      key={n}
                                       type="button"
-                                      className={`k-pomo-chip ${target === n ? 'active' : ''}`}
-                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, n)}
+                                      className="k-pomo-stepper-btn"
+                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.max(1, target - 1))}
+                                      aria-label="Decrease target"
                                     >
-                                      {n}
+                                      −
                                     </button>
-                                  ))}
+                                    <span className="k-pomo-stepper-val">{target}</span>
+                                    <button
+                                      type="button"
+                                      className="k-pomo-stepper-btn"
+                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.min(24, target + 1))}
+                                      aria-label="Increase target"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                  <div className="k-pomo-quick-chips">
+                                    {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
+                                      <button
+                                        key={n}
+                                        type="button"
+                                        className={`k-pomo-chip ${target === n ? 'active' : ''}`}
+                                        onClick={() => updateTaskPomodoroTarget(project.id, task.id, n)}
+                                      >
+                                        {n}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Or set by total estimated time (auto-divided by pomodoro duration) */}
+                                <div className="k-pomo-time-calc-chips">
+                                  <span className="k-pomo-sublabel">Or by total duration:</span>
+                                  <div className="k-pomo-quick-chips">
+                                    {[
+                                      { label: '30m', mins: 30 },
+                                      { label: '45m', mins: 45 },
+                                      { label: '1h', mins: 60 },
+                                      { label: '1.5h', mins: 90 },
+                                      { label: '2h', mins: 120 },
+                                      { label: '3h', mins: 180 },
+                                      { label: '4h', mins: 240 },
+                                    ].map(({ label, mins }) => {
+                                      const computedRounds = Math.max(1, Math.ceil(mins / pomodoroLength));
+                                      const isCurrent = target === computedRounds;
+                                      return (
+                                        <button
+                                          key={label}
+                                          type="button"
+                                          className={`k-pomo-chip k-chip-duration ${isCurrent ? 'active' : ''}`}
+                                          onClick={() => updateTaskPomodoroTarget(project.id, task.id, computedRounds)}
+                                          title={`Set ~${mins}m total → ${computedRounds} Pomodoros (${pomodoroLength}m each)`}
+                                        >
+                                          {label}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
 
                             {/* Section 2: Each Pomodoro Time */}
                             <div className="k-pomo-pop-section">
@@ -924,7 +997,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               </button>
                             )}
                           </div>
-                        )}
+                        );
+                      })()}
 
                         {/* Nested Subtasks Container */}
                         {(isTaskExpanded || addingSubTaskFor === task.id || hasSubs) && (
@@ -1194,12 +1268,12 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </button>
       )}
 
-      <button className="k-nav-item" onClick={onProgress}>
+      <button className="k-nav-item" onClick={onProgress} title="Progress & Focus Analytics">
         <NavIcon name="chart" />
         <span className="k-nav-label">Progress</span>
       </button>
 
-      <button className="k-nav-item" onClick={onSettings}>
+      <button className="k-nav-item" onClick={onSettings} title="Preferences & Settings">
         <NavIcon name="settings" />
         <span className="k-nav-label">Settings</span>
       </button>

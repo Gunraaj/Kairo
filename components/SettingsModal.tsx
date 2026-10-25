@@ -332,7 +332,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           <div className="k-settings-section-title" style={{ marginTop: 24 }}>Kairo brand mark</div>
-          <p className="k-settings-section-help">The interval mark pairs a K-shaped path with one active vermilion node — Kairo's visual shorthand for one focused moment.</p>
+          <p className="k-settings-section-help">The interval mark uses a bold task anchor, tactile interval arms, and one rounded vermilion active-state latch.</p>
           <div className="k-logo-variants-grid">
             {LOGO_VARIANTS.map(v => (
               <button

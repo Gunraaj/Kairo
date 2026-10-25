@@ -90,6 +90,7 @@ const App: React.FC = () => {
     normalize: normalizeCapsules,
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     if (typeof window === 'undefined') return 240;
     try {
@@ -499,11 +500,25 @@ const App: React.FC = () => {
     [audioEngine],
   );
 
+  const handleToggleSidebar = useCallback(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      setMobileNavOpen(v => !v);
+    } else {
+      setSidebarCollapsed(v => !v);
+    }
+  }, []);
+
+  const handleSelectTask = useCallback((taskId: string | null) => {
+    setActiveTaskId(taskId);
+    setMobileNavOpen(false);
+  }, [setActiveTaskId]);
+
   return (
     <div
       className={`app-shell ${isResizingSidebar ? 'is-resizing' : ''}`}
       style={{ '--sidebar-w': `${sidebarWidth}px` } as React.CSSProperties}
       data-sidebar={sidebarCollapsed ? 'collapsed' : 'expanded'}
+      data-mobile-nav={mobileNavOpen ? 'open' : 'closed'}
       data-sound-open={soundStudioOpen ? 'true' : 'false'}
       data-zen={zenMode ? 'true' : undefined}
     >
@@ -517,7 +532,7 @@ const App: React.FC = () => {
             <span className="k-brand-mark" aria-hidden="true">
               <BrandLogo variant={logoVariant} size={15} />
             </span>
-            <span className="k-brand-name">Kairo</span>
+            <span className="k-brand-name">kairo</span>
           </div>
 
           <div className="k-head-actions">
@@ -541,12 +556,35 @@ const App: React.FC = () => {
 
             <button
               className="k-head-icon k-collapse"
-              onClick={() => setSidebarCollapsed(v => !v)}
-              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              onClick={handleToggleSidebar}
+              aria-label={
+                typeof window !== 'undefined' && window.innerWidth <= 768
+                  ? mobileNavOpen
+                    ? 'Close navigation menu'
+                    : 'Open navigation menu'
+                  : sidebarCollapsed
+                  ? 'Expand sidebar'
+                  : 'Collapse sidebar'
+              }
+              title={
+                typeof window !== 'undefined' && window.innerWidth <= 768
+                  ? mobileNavOpen
+                    ? 'Close navigation menu'
+                    : 'Open navigation menu'
+                  : sidebarCollapsed
+                  ? 'Expand sidebar'
+                  : 'Collapse sidebar'
+              }
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="k-collapse-icon-desktop">
                 {sidebarCollapsed ? <path d="M5 3l4 4-4 4" /> : <path d="M9 3L5 7l4 4" />}
+              </svg>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="k-collapse-icon-mobile">
+                {mobileNavOpen ? (
+                  <path d="M4 4l8 8M12 4l-8 8" />
+                ) : (
+                  <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
+                )}
               </svg>
             </button>
           </div>
@@ -557,18 +595,39 @@ const App: React.FC = () => {
           setProjects={setProjects}
           settings={userSettings}
           activeTaskId={activeTaskId}
-          setActiveTaskId={setActiveTaskId}
+          setActiveTaskId={handleSelectTask}
           isSessionActive={isSessionActive}
-          onStartTaskFocus={handleStartTaskFocus}
+          onStartTaskFocus={taskId => {
+            handleStartTaskFocus(taskId);
+            setMobileNavOpen(false);
+          }}
           onToggleTimer={handleToggleTimer}
-          onProgress={() => setShowAnalytics(true)}
-          onSettings={() => setShowSettings(true)}
-          onShortcuts={() => setShowShortcuts(true)}
-          onToggleSoundStudio={() => setSoundStudioOpen(v => !v)}
+          onProgress={() => {
+            setMobileNavOpen(false);
+            setShowAnalytics(true);
+          }}
+          onSettings={() => {
+            setMobileNavOpen(false);
+            setShowSettings(true);
+          }}
+          onShortcuts={() => {
+            setMobileNavOpen(false);
+            setShowShortcuts(true);
+          }}
+          onToggleSoundStudio={() => {
+            setMobileNavOpen(false);
+            setSoundStudioOpen(v => !v);
+          }}
           soundStudioOpen={soundStudioOpen}
-          onTimeCapsule={() => setShowCapsuleModal(true)}
+          onTimeCapsule={() => {
+            setMobileNavOpen(false);
+            setShowCapsuleModal(true);
+          }}
           capsuleCount={capsules.filter(c => !c.isUnlocked).length}
-          onScience={() => setShowScience(true)}
+          onScience={() => {
+            setMobileNavOpen(false);
+            setShowScience(true);
+          }}
         />
 
         {!sidebarCollapsed && (
@@ -689,6 +748,15 @@ const App: React.FC = () => {
           <div
             className="k-sound-backdrop"
             onClick={() => setSoundStudioOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile Navigation Drawer Backdrop */}
+        {mobileNavOpen && (
+          <div
+            className="k-mobile-backdrop"
+            onClick={() => setMobileNavOpen(false)}
             aria-hidden="true"
           />
         )}

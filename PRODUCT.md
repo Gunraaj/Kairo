@@ -34,7 +34,7 @@ Users move between project/task selection, a draggable timer dial, ambient audio
 - Product name: Kairo.
 - Existing voice: calm, direct, and focused; current line: “Make space for one thing.”
 - Existing visual world: Washi paper, Sumi ink, and Vermilion active-state accent, inspired by Japanese material references.
-- The user asked for a better logo, favicon, and surrounding brand assets. The current implementation decision is the Kairo Interval Mark: a K-shaped path held by a returning loop with one vermilion node.
+- The user asked for a better logo, favicon, and surrounding brand assets. The current implementation decision is Kairo Interval Mark A2: a bulky task anchor with tactile interval arms, a notch, and one rounded vermilion active-state latch.
 
 ## Evidence on Hand
 

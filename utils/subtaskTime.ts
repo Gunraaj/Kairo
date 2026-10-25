@@ -131,3 +131,75 @@ export const estimatePomodorosFromSubtasks = (
   if (totalEstimated <= 0) return Math.max(1, Math.min(24, subTasks.length));
   return Math.max(1, Math.min(24, Math.ceil(totalEstimated / safeLength)));
 };
+
+export interface FinishCalculation {
+  totalPomos: number;
+  donePomos: number;
+  remainingPomos: number;
+  totalMinutes: number;
+  finishTimeFormatted: string; // e.g. "21:59"
+  hoursFormatted: string; // e.g. "4.7h"
+}
+
+/**
+ * Calculates compiled Pomodoro totals, remaining focus & break time,
+ * and estimated finish time (e.g. Pomofocus style "Pomos: 0/9 Finish At: 21:59 (4.7h)").
+ */
+export const calculateFinishEstimate = (
+  tasks: Array<{ targetRounds?: number; completed?: boolean; timeSpent?: number; pomodoroLength?: number }>,
+  settings?: { focusDuration?: number; shortBreakDuration?: number; longBreakDuration?: number; longBreakInterval?: number },
+  now: Date = new Date(),
+): FinishCalculation => {
+  let totalPomos = 0;
+  let donePomos = 0;
+
+  const defaultFocusLen = settings?.focusDuration || 25;
+  const shortBreak = settings?.shortBreakDuration || 5;
+  const longBreak = settings?.longBreakDuration || 15;
+  const longBreakInterval = settings?.longBreakInterval || 4;
+
+  const list = Array.isArray(tasks) ? tasks : [];
+  for (const t of list) {
+    const target = Math.max(1, Math.round(t.targetRounds ?? 1));
+    const pLen = t.pomodoroLength || defaultFocusLen;
+    const done = Math.min(target, Math.floor((t.timeSpent || 0) / pLen));
+    totalPomos += target;
+    donePomos += t.completed ? target : done;
+  }
+
+  const remainingPomos = Math.max(0, totalPomos - donePomos);
+  if (remainingPomos === 0) {
+    const hours = now.getHours().toString().padStart(2, '0');
+    const mins = now.getMinutes().toString().padStart(2, '0');
+    return {
+      totalPomos,
+      donePomos,
+      remainingPomos: 0,
+      totalMinutes: 0,
+      finishTimeFormatted: `${hours}:${mins}`,
+      hoursFormatted: '0.0h',
+    };
+  }
+
+  const focusMinutes = remainingPomos * defaultFocusLen;
+  const breaksNeeded = Math.max(0, remainingPomos - 1);
+  const numLongBreaks = Math.floor(breaksNeeded / longBreakInterval);
+  const numShortBreaks = Math.max(0, breaksNeeded - numLongBreaks);
+  const breakMinutes = (numShortBreaks * shortBreak) + (numLongBreaks * longBreak);
+
+  const totalMinutes = focusMinutes + breakMinutes;
+  const finishDate = new Date(now.getTime() + totalMinutes * 60 * 1000);
+  const finishHours = finishDate.getHours().toString().padStart(2, '0');
+  const finishMins = finishDate.getMinutes().toString().padStart(2, '0');
+  const finishTimeFormatted = `${finishHours}:${finishMins}`;
+  const hoursFormatted = (totalMinutes / 60).toFixed(1) + 'h';
+
+  return {
+    totalPomos,
+    donePomos,
+    remainingPomos,
+    totalMinutes,
+    finishTimeFormatted,
+    hoursFormatted,
+  };
+};

@@ -12,6 +12,8 @@ import {
 } from '../utils/timerState';
 import { workerTimer } from '../utils/workerTimer';
 import { sharpenIntention } from '../utils/geminiAi';
+import { InfoTip } from './InfoTip';
+import { calculateFinishEstimate } from '../utils/subtaskTime';
 
 interface StageProps {
   settings: UserSettings;
@@ -535,6 +537,11 @@ export const Stage: React.FC<StageProps> = ({
   const activePomoLen = activeTarget?.kind === 'task' ? (activeTarget.pomodoroLength || settings.focusDuration || 25) : settings.focusDuration;
   const activeDoneRounds = activeTarget?.kind === 'task' ? Math.floor((activeTarget.timeSpent || 0) / activePomoLen) : null;
 
+  const activeTaskFinish = useMemo(() => {
+    if (activeTarget?.kind !== 'task') return null;
+    return calculateFinishEstimate([activeTarget], settings);
+  }, [activeTarget, settings]);
+
   const targetLabel =
     activeTarget?.kind === 'task'
       ? activeTarget.name
@@ -613,6 +620,11 @@ export const Stage: React.FC<StageProps> = ({
             {sessionCopy[type].label}
           </button>
         ))}
+        <InfoTip title="Focus & Break Modes" position="bottom">
+          <p style={{ margin: '0 0 4px' }}><b>Focus:</b> 25m uninterrupted deep work round.</p>
+          <p style={{ margin: '0 0 4px' }}><b>Short Break:</b> 5m restorative breath recharge.</p>
+          <p style={{ margin: 0 }}><b>Long Break:</b> 15-20m deep reset every 4 rounds.</p>
+        </InfoTip>
       </div>
 
       {/* 2. Target Context & Intention */}
@@ -633,6 +645,14 @@ export const Stage: React.FC<StageProps> = ({
               title={`Pomodoro Target: ${activeDoneRounds} of ${activeTargetRounds} completed (${activePomoLen}m each)`}
             >
               🍅 {activeDoneRounds}/{activeTargetRounds} <small>({activePomoLen}m)</small>
+            </span>
+          )}
+          {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
+            <span
+              className="k-target-finish-pill"
+              title={`Finish at ~${activeTaskFinish.finishTimeFormatted} (${activeTaskFinish.hoursFormatted} remaining incl. breaks)`}
+            >
+              Finish ~{activeTaskFinish.finishTimeFormatted}
             </span>
           )}
           {activeTarget?.kind === 'task' && !isActive && (

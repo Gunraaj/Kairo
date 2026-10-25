@@ -4,6 +4,7 @@ import type { Task } from '../types.ts';
 import {
   calculateDonePomodoros,
   calculateEffectiveTaskTime,
+  calculateFinishEstimate,
   calculatePlannedMinutes,
   calculateSubtaskSum,
   cycleTimeCalcMode,
@@ -152,4 +153,38 @@ test('Pomodoro target calculations enforce whole integers and clean ratios like 
   assert.equal(estimatePomodorosFromSubtasks(subs, 30), 3);
   // with 50m pomodoro = Math.ceil(75 / 50) = 2 pomodoros
   assert.equal(estimatePomodorosFromSubtasks(subs, 50), 2);
+});
+
+test('calculateFinishEstimate compiles Pomofocus-style total pomodoros and finish time', () => {
+  const tasks = [
+    { targetRounds: 6, timeSpent: 0, completed: false }, // 6 pomos
+    { targetRounds: 2, timeSpent: 0, completed: false }, // 2 pomos
+    { targetRounds: 1, timeSpent: 0, completed: false }, // 1 pomo
+  ];
+  const settings = { focusDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, longBreakInterval: 4 };
+  const mockNow = new Date('2026-10-25T10:00:00.000Z');
+
+  // Total pomos = 9, done = 0, remaining = 9
+  // Focus minutes = 9 * 25 = 225m
+  // Breaks between 9 sessions = 8 breaks
+  // Long breaks = Math.floor(8 / 4) = 2 long breaks (2 * 15 = 30m)
+  // Short breaks = 8 - 2 = 6 short breaks (6 * 5 = 30m)
+  // Total break minutes = 60m
+  // Total minutes = 225 + 60 = 285m (4.75h) -> 4.8h
+  const res = calculateFinishEstimate(tasks, settings, mockNow);
+  assert.equal(res.totalPomos, 9);
+  assert.equal(res.donePomos, 0);
+  assert.equal(res.remainingPomos, 9);
+  assert.equal(res.totalMinutes, 285);
+  assert.equal(res.hoursFormatted, '4.8h');
+
+  // Verify all tasks done gives 0m remaining
+  const doneTasks = [
+    { targetRounds: 2, timeSpent: 50, completed: true },
+  ];
+  const doneRes = calculateFinishEstimate(doneTasks, settings, mockNow);
+  assert.equal(doneRes.totalPomos, 2);
+  assert.equal(doneRes.donePomos, 2);
+  assert.equal(doneRes.remainingPomos, 0);
+  assert.equal(doneRes.totalMinutes, 0);
 });

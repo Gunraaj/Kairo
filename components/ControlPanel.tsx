@@ -1127,9 +1127,23 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                           className={`k-channel-mute-btn ${isMuted ? 'active-mute' : ''}`}
                           onClick={() => toggleSoundMute(sound.url)}
                           title={isMuted ? `Unmute ${labelFor(sound.name)}` : `Mute ${labelFor(sound.name)}`}
-                          aria-label={`Mute ${labelFor(sound.name)}`}
+                          aria-label={isMuted ? `Unmute ${labelFor(sound.name)}` : `Mute ${labelFor(sound.name)}`}
                         >
-                          M
+                          {isMuted ? (
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              {/* Windows volume taskbar mute: speaker with cross */}
+                              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
+                              <line x1="10.5" y1="6.5" x2="14.5" y2="10.5" />
+                              <line x1="14.5" y1="6.5" x2="10.5" y2="10.5" />
+                            </svg>
+                          ) : (
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              {/* Active speaker with sound waves */}
+                              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
+                              <path d="M10.5 5.5a3.5 3.5 0 010 5" />
+                              <path d="M13 3.5a6.5 6.5 0 010 9" />
+                            </svg>
+                          )}
                         </button>
                         <button
                           type="button"
@@ -2177,17 +2191,27 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 <iframe
                   src={embedUrl}
                   title="Lofi player"
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  sandbox="allow-scripts allow-popups"
-                  referrerPolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
                   loading="lazy"
                   allowFullScreen
                 />
-                <button onClick={() => setEmbedUrl('')} aria-label="Close lofi player">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                    <path d="M4 4l8 8M12 4l-8 8" />
-                  </svg>
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderTop: '1px solid var(--stone-3)', background: 'var(--washi-card)' }}>
+                  <a
+                    href={embedUrl.includes('youtube') ? embedUrl.replace('youtube-nocookie.com/embed/', 'youtube.com/watch?v=').replace('?autoplay=1', '') : embedUrl.replace('open.spotify.com/embed/', 'open.spotify.com/')}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    style={{ fontSize: 11, color: 'var(--shu)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    title="Open live stream in new tab if video playback is restricted"
+                  >
+                    <span>Open in new tab ↗</span>
+                  </a>
+                  <button onClick={() => setEmbedUrl('')} aria-label="Close lofi player" style={{ background: 'none', border: 'none', color: 'var(--sumi-3)', cursor: 'pointer', padding: 2 }}>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                      <path d="M4 4l8 8M12 4l-8 8" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="lofi-empty">

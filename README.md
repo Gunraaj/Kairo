@@ -51,7 +51,7 @@ Kairo is a local-first single-page app that combines a Pomodoro timer, a folder-
 
 **Design**
 - Single-stylesheet **Washi** design system: Sumi ink (`#20201E`) on Washi paper (`#F7F7F3`), Vermilion (`#C9382A`) reserved for the currently-active element
-- Canonical **Kairo Interval Mark**: a K-shaped focus loop with one active vermilion node, shared by the sidebar brand and `public/favicon.svg`
+- Canonical **Kairo Interval Mark A2**: a bulky task anchor with tactile interval arms and one rounded Vermilion active latch, shared by the sidebar brand and `public/favicon.svg`
 - Collapsible sidebar; fully responsive down to mobile
 - Real drawn SVG icons, no icon fonts
 - Respects `prefers-reduced-motion`, meets WCAG contrast, keyboard-navigable

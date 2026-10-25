@@ -467,9 +467,13 @@ a {
 .k-brand-name {
   color: var(--sumi);
   font-family: var(--jp);
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.01em;
+  display: inline-block;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  transform: scaleX(0.97);
+  transform-origin: left center;
   white-space: nowrap;
 }
 
@@ -509,18 +513,173 @@ a {
   display: none !important;
 }
 
+.app-shell[data-sidebar="collapsed"] .k-sidebar {
+  padding: 12px 6px;
+  overflow-x: hidden !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-sidebar-nav,
+.app-shell[data-sidebar="collapsed"] .k-nav,
+.app-shell[data-sidebar="collapsed"] .k-tree {
+  overflow-x: hidden !important;
+}
+
 .app-shell[data-sidebar="collapsed"] .k-sidebar-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 2px 0 10px;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-brand {
+  display: flex;
   justify-content: center;
-  padding: 2px 0 12px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-brand-mark {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
 }
 
 .app-shell[data-sidebar="collapsed"] .k-head-actions {
+  display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-head-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 4px auto;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: none;
+  border: 1px solid transparent;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item.active {
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name span,
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name small {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-quick-focus-indicator {
+  width: 10px;
+  height: 10px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project-row {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 2px auto;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-shell[data-sidebar="collapsed"] .k-tree-project-name {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project-row .k-tree-icon {
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project {
+  padding: 0;
+  margin: 6px auto;
+  border: none;
+  background: transparent;
+  display: flex;
   justify-content: center;
-  padding: 8px 0;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project input {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 2px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  position: relative;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-nav-label,
+.app-shell[data-sidebar="collapsed"] .k-nav-item kbd {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-nav-icon {
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-badge-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }
 
 /* Sidebar Nav */
@@ -1128,6 +1287,245 @@ a {
 
 .k-pomo-auto-subs-btn small {
   opacity: 0.85;
+}
+
+/* --- Pomofocus-Style Summary Bar (Overall Target & Finish Time) --- */
+.k-pomo-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 6px;
+  margin: 0 2px 8px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--sumi-2);
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.k-pomo-sum-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.k-pomo-sum-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sumi-4);
+  font-weight: 600;
+}
+
+.k-pomo-sum-val {
+  color: var(--sumi);
+}
+
+.k-pomo-sum-val b {
+  font-weight: 600;
+  color: var(--shu);
+}
+
+.k-pomo-sum-val small {
+  color: var(--sumi-4);
+  font-size: 9.5px;
+}
+
+.k-pomo-sum-divider {
+  color: var(--stone-3);
+  font-size: 10px;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-pomo-summary-bar {
+  display: none !important;
+}
+
+/* Finish pill in Pomodoro Popover header */
+.k-pomo-finish-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-2);
+}
+
+.k-pomo-finish-pill b {
+  color: var(--shu);
+}
+
+.k-pomo-finish-pill small {
+  color: var(--sumi-4);
+  font-size: 9px;
+}
+
+.k-pomo-finish-pill-full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 10px;
+  padding: 4px 8px;
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-md);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--sumi-2);
+}
+
+.k-pomo-finish-pill-full b {
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-pomo-finish-pill-full small {
+  color: var(--sumi-4);
+  font-size: 9.5px;
+}
+
+/* Duration chips in Pomodoro Popover */
+.k-pomo-time-calc-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--stone-2);
+}
+
+.k-pomo-sublabel {
+  font-size: 9.5px;
+  color: var(--sumi-4);
+}
+
+.k-chip-duration {
+  font-size: 10px;
+  padding: 3px 6px;
+}
+
+/* Stage Target Finish Pill */
+.k-target-finish-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  margin-left: 6px;
+}
+
+/* --- InfoTip Contextual Help Tooltip --- */
+.k-infotip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.k-infotip-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--stone-3);
+  background: transparent;
+  color: var(--sumi-4);
+  font-family: var(--serif);
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 120ms ease;
+}
+
+.k-infotip-btn:hover,
+.k-infotip-btn.is-active {
+  color: var(--shu);
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+  transform: scale(1.05);
+}
+
+.k-infotip-card {
+  position: absolute;
+  z-index: 100;
+  width: 230px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  animation: kPomoPopIn 140ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--sumi-2);
+}
+
+.k-infotip-card.pos-bottom {
+  top: calc(100% + 6px);
+  right: 0;
+}
+
+.k-infotip-card.pos-top {
+  bottom: calc(100% + 6px);
+  right: 0;
+}
+
+.k-infotip-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-infotip-head b {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sumi);
+  flex: 1;
+}
+
+.k-infotip-icon {
+  font-size: 12px;
+}
+
+.k-infotip-close {
+  background: none;
+  border: none;
+  color: var(--sumi-4);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 2px;
+}
+
+.k-infotip-close:hover {
+  color: var(--sumi);
+}
+
+.k-infotip-body {
+  font-size: 11px;
+  color: var(--sumi-2);
 }
 
 /* --- Nested Subtasks Tree ----------------------------------------------- */
@@ -3786,17 +4184,15 @@ a {
 }
 
 .k-channel-mute-btn {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
   border: 1px solid var(--stone-3);
   background: var(--washi-2);
   color: var(--sumi-3);
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   padding: 0;
   transition: all 120ms ease;
@@ -6914,32 +7310,102 @@ input[type="range"]::-moz-range-thumb:hover {
   .k-sidebar {
     border-right: 0;
     border-bottom: 1px solid var(--stone-2);
-    padding: 12px 16px;
+    padding: 10px 16px;
     height: auto;
+    position: relative;
+    z-index: 80;
   }
   .k-sidebar-head {
     border-bottom: 0;
     padding: 0;
+    width: 100%;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
-  .app-shell[data-sidebar="collapsed"] {
-    grid-template-columns: 1fr;
+  .app-shell[data-sidebar="collapsed"] .k-sidebar-head {
+    flex-direction: row !important;
+    justify-content: space-between !important;
   }
+  .app-shell[data-sidebar="collapsed"] .k-head-actions {
+    flex-direction: row !important;
+  }
+  .app-shell[data-sidebar="collapsed"] .k-brand-name {
+    display: inline-block !important;
+  }
+
+  .k-collapse-icon-desktop {
+    display: none !important;
+  }
+  .k-collapse-icon-mobile {
+    display: inline-flex !important;
+  }
+
+  /* Default hidden on mobile */
   .k-nav {
     display: none;
   }
+
+  /* Mobile Drawer Overlay when open */
+  .app-shell[data-mobile-nav="open"] .k-nav {
+    display: flex !important;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    width: min(85vw, 320px);
+    background: var(--washi-sidebar);
+    border-right: 1px solid var(--stone-2);
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.25);
+    padding: 16px 12px;
+    z-index: 100;
+    overflow-y: auto;
+    animation: kDrawerSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Backdrop for mobile drawer */
+  .k-mobile-backdrop {
+    display: none;
+  }
+  .app-shell[data-mobile-nav="open"] .k-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 95;
+    animation: kFadeIn 150ms ease;
+  }
+
   .k-stage {
-    padding: 24px 16px;
+    padding: 20px 12px;
   }
   .k-dial-time {
-    font-size: 52px;
+    font-size: 46px;
   }
   .k-hero-dial-wrapper {
-    max-width: 280px;
+    max-width: min(80vw, 270px);
   }
   .k-btn-hero {
     min-height: 48px;
-    padding: 0 28px;
+    padding: 0 24px;
     font-size: 14px;
+  }
+}
+
+.k-collapse-icon-mobile {
+  display: none;
+}
+.k-collapse-icon-desktop {
+  display: inline-flex;
+}
+
+@keyframes kDrawerSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 

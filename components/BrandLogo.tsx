@@ -34,28 +34,36 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   switch (variant) {
     /**
-     * Kairo Interval Mark (間)
-     * A compact K-shaped path held inside a returning loop. The vermilion node
-     * marks the single active interval without turning the mark into a clock.
+     * Kairo Interval Mark
+     * The approved A2 direction: a bulky task anchor, two interval arms,
+     * a tactile notch, and one rounded vermilion active-state latch.
      */
     case 'interval':
       return (
         <svg {...shared}>
-          <path
-            d="M 8 6.5 V 25.5 M 8 16 L 22.5 7 M 8 16 L 22.5 25"
+          <g
+            fill="none"
             stroke={color}
-            strokeWidth="2.8"
+            strokeWidth="6.25"
             strokeLinecap="round"
             strokeLinejoin="round"
+          >
+            <path d="M 8 5.5 V 26.5" />
+            <path d="M 15.5 14.2 L 25 6.7" />
+            <path d="M 15.5 17.8 L 25 25.3" />
+          </g>
+          {/* tactile notch cut into the lower arm */}
+          <circle cx="15.5" cy="17.8" r="2.05" fill="var(--washi-2, #F7F7F3)" />
+          {/* rounded active interval latch, never a play triangle */}
+          <rect
+            x="17.4"
+            y="14.9"
+            width="8"
+            height="3.45"
+            rx="1.72"
+            fill={accentColor}
+            transform="rotate(-10 21.4 16.625)"
           />
-          <path
-            d="M 22.5 7 C 26.2 9.4, 28 12.5, 28 16 C 28 21.6, 23.7 26, 18.3 26"
-            stroke={color}
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            opacity="0.58"
-          />
-          <circle cx="23" cy="16" r="2.65" fill={accentColor} />
         </svg>
       );
 
@@ -249,7 +257,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
  */
 export const getLogoSvgDataUri = (variant: LogoVariant = 'interval'): string => {
   const svgs: Record<LogoVariant, string> = {
-    interval: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="${INTERVAL_MARK_COLORS.ink}"/><path d="M 8 6.5 V 25.5 M 8 16 L 22.5 7 M 8 16 L 22.5 25" stroke="${INTERVAL_MARK_COLORS.paper}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M 22.5 7 C 26.2 9.4, 28 12.5, 28 16 C 28 21.6, 23.7 26, 18.3 26" stroke="${INTERVAL_MARK_COLORS.paper}" stroke-width="1.8" stroke-linecap="round" opacity=".58"/><circle cx="23" cy="16" r="2.65" fill="${INTERVAL_MARK_COLORS.vermilion}"/></svg>`,
+    interval: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="${INTERVAL_MARK_COLORS.ink}"/><g fill="none" stroke="${INTERVAL_MARK_COLORS.paper}" stroke-width="6.25" stroke-linecap="round" stroke-linejoin="round"><path d="M 8 5.5 V 26.5"/><path d="M 15.5 14.2 L 25 6.7"/><path d="M 15.5 17.8 L 25 25.3"/></g><circle cx="15.5" cy="17.8" r="2.05" fill="${INTERVAL_MARK_COLORS.ink}"/><rect x="17.4" y="14.9" width="8" height="3.45" rx="1.72" fill="${INTERVAL_MARK_COLORS.vermilion}" transform="rotate(-10 21.4 16.625)"/></svg>`,
     enso: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M 23 9 C 27 13, 27 21, 22 25 C 16 30, 8 28, 5 22 C 2 15, 5 8, 12 5 C 17 3, 21 5, 23 7" stroke="#FAF7F2" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="15.5" r="2.8" fill="#BC3B2C"/></svg>`,
     kairos: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#FAF7F2" stroke-width="2" stroke-dasharray="60 14" transform="rotate(-30 16 16)" stroke-linecap="round"/><line x1="24.5" y1="7.5" x2="17" y2="15" stroke="#BC3B2C" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="16" r="3" fill="#FAF7F2"/><circle cx="16" cy="16" r="1.2" fill="#BC3B2C"/></svg>`,
     circuit: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><line x1="9" y1="6" x2="9" y2="26" stroke="#FAF7F2" stroke-width="2.4" stroke-linecap="round"/><path d="M 9 7 C 9 7, 16 12, 16 16 C 16 20, 23 25, 23 25" stroke="#FAF7F2" stroke-width="2.4" stroke-linecap="round"/><path d="M 9 25 C 9 25, 16 20, 16 16 C 16 12, 23 7, 23 7" stroke="#FAF7F2" stroke-width="2.4" stroke-linecap="round"/><circle cx="23" cy="7" r="2.8" fill="#BC3B2C"/></svg>`,
@@ -272,9 +280,9 @@ export const LOGO_VARIANTS: Array<{
   {
     id: 'interval',
     name: 'Kairo Interval Mark',
-    japanese: '間',
-    concept: 'K-shaped loop for one active moment',
+    japanese: 'A2',
+    concept: 'Bulky task anchor with a tactile active interval',
     philosophy:
-      '間 (ma) is the meaningful space or interval between things. The K-shaped path gives Kairo an ownable silhouette, while the returning arc and single vermilion node express a focused cycle without depicting a literal clock.',
+      'The vertical anchor is the chosen task. The two angled arms create the interval opening, the notch adds physical dial character, and the rounded vermilion latch marks the active focus state without becoming a play or power icon.',
   },
 ];
