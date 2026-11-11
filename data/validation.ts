@@ -1,4 +1,4 @@
-import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream } from '../types';
+import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream, TimeCapsule } from '../types';
 
 const MAX_PROJECTS = 100;
 const MAX_TASKS_PER_PROJECT = 500;
@@ -200,6 +200,53 @@ export const normalizeSavedStreams = (value: unknown): SavedFocusStream[] => {
       badge,
       emoji,
       createdAt,
+    }];
+  });
+};
+
+export const normalizeTimeCapsules = (value: unknown): TimeCapsule[] => {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 50).flatMap(item => {
+    const source = objectValue(item);
+    if (!source) return [];
+    const rawMessage = typeof source.message === 'string' ? source.message.trim() : '';
+    if (!rawMessage) return [];
+
+    const triggerType: TimeCapsule['triggerType'] =
+      source.triggerType === 'time' ? 'time'
+      : source.triggerType === 'tomorrow' ? 'tomorrow'
+      : 'rounds';
+
+    const targetRounds = typeof source.targetRounds === 'number' && Number.isFinite(source.targetRounds)
+      ? Math.max(1, Math.min(24, Math.floor(source.targetRounds)))
+      : undefined;
+
+    const targetTime = typeof source.targetTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(source.targetTime)
+      ? source.targetTime
+      : undefined;
+
+    const createdAt = typeof source.createdAt === 'string' && !Number.isNaN(new Date(source.createdAt).getTime())
+      ? source.createdAt
+      : new Date().toISOString();
+
+    const unlockedAt = typeof source.unlockedAt === 'string' && !Number.isNaN(new Date(source.unlockedAt).getTime())
+      ? source.unlockedAt
+      : undefined;
+
+    return [{
+      id: id(source.id),
+      createdAt,
+      message: text(rawMessage, '', 500),
+      treat: typeof source.treat === 'string' ? text(source.treat, '', 200) : '',
+      triggerType,
+      targetRounds,
+      completedRoundsAtCreation: typeof source.completedRoundsAtCreation === 'number' && Number.isFinite(source.completedRoundsAtCreation)
+        ? Math.max(0, Math.floor(source.completedRoundsAtCreation))
+        : 0,
+      targetTime,
+      targetDate: typeof source.targetDate === 'string' ? text(source.targetDate, '', 32) : undefined,
+      isUnlocked: Boolean(source.isUnlocked),
+      unlockedAt,
     }];
   });
 };

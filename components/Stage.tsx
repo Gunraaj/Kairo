@@ -64,6 +64,8 @@ export const Stage: React.FC<StageProps> = ({
   });
   const [isActive, setIsActive] = useState(restored?.isActive ?? false);
   const [completionMessage, setCompletionMessage] = useState('');
+  const [completionTimestamp, setCompletionTimestamp] = useState(0);
+  const toastRef = useRef<HTMLDivElement | null>(null);
   const lastSnapshotWriteRef = useRef(0);
   const sessionIdRef = useRef(restored?.id ?? crypto.randomUUID());
   const deadlineRef = useRef<number | null>(restored?.deadline ?? null);
@@ -252,6 +254,7 @@ export const Stage: React.FC<StageProps> = ({
     setCompletionMessage(
       `${completedLabel} ${autoStart ? 'Break started automatically.' : 'Choose when to continue.'}`,
     );
+    setCompletionTimestamp(Date.now());
     if (
       typeof window !== 'undefined' &&
       'Notification' in window &&
@@ -387,6 +390,29 @@ export const Stage: React.FC<StageProps> = ({
     setIsActive(true);
     if (sessionType === 'focus') toggleAudio(true);
   };
+
+  useEffect(() => {
+    if (!completionMessage || !toastRef.current) return;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        toastRef.current,
+        { opacity: 0, y: 10, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(1.4)' },
+      );
+    }, toastRef);
+
+    const timer = setTimeout(() => {
+      setCompletionMessage('');
+    }, 6000);
+
+    return () => {
+      ctx.revert();
+      clearTimeout(timer);
+    };
+  }, [completionMessage]);
 
   const prevStartTriggerRef = useRef<number | null>(null);
   useEffect(() => {
@@ -746,6 +772,7 @@ export const Stage: React.FC<StageProps> = ({
           formatted={formattedTime}
           isActive={isActive}
           disabled={isActive || Boolean(startedAtRef.current)}
+          completionTimestamp={completionTimestamp}
           label={sessionType === 'focus' ? 'Focus duration' : sessionType === 'shortBreak' ? 'Short break duration' : 'Long break duration'}
           onTick={playTickCue}
           onSet={mins => {
@@ -764,6 +791,20 @@ export const Stage: React.FC<StageProps> = ({
 
       {/* 4. Unified Ergonomic Control Dock */}
       <div className="k-control-dock">
+        {completionMessage && (
+          <div ref={toastRef} className="k-completion-toast" role="status">
+            <span className="k-completion-dot" aria-hidden="true" />
+            <span className="k-completion-text">{completionMessage}</span>
+            <button
+              type="button"
+              className="k-completion-dismiss"
+              onClick={() => setCompletionMessage('')}
+              aria-label="Dismiss message"
+            >
+              ×
+            </button>
+          </div>
+        )}
         <div className="k-dock-primary-row">
           <button
             onClick={toggleTimer}
@@ -911,18 +952,30 @@ type DialProps = {
   formatted: string;
   isActive: boolean;
   disabled: boolean;
+  completionTimestamp?: number;
   onSet: (minutes: number) => void;
   onTick?: (isMajor?: boolean) => void;
   label?: string;
 };
 
-const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isActive, disabled, onSet, onTick, label }) => {
+const AnalogDial: React.FC<DialProps> = ({
+  totalTime,
+  timeLeft,
+  formatted,
+  isActive,
+  disabled,
+  completionTimestamp,
+  onSet,
+  onTick,
+  label,
+}) => {
   const R = 130;
   const CENTER = 160;
   const CIRC = 2 * Math.PI * R;
   const [dragging, setDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dialRootRef = useRef<HTMLDivElement | null>(null);
+  const handleGroupRef = useRef<SVGGElement | null>(null);
 
   const minutesRemaining = timeLeft / 60;
   const currentMinutes = Math.max(1, Math.round(timeLeft / 60));
@@ -957,6 +1010,47 @@ const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isAct
     }
     wasActiveRef.current = isActive;
   }, [isActive]);
+
+  // Celebratory breath animation on session completion
+  useEffect(() => {
+    if (!completionTimestamp || !dialRootRef.current) return;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+      tl.to(dialRootRef.current, {
+        scale: 1.035,
+        duration: 0.35,
+        ease: 'back.out(1.4)',
+      }).to(dialRootRef.current, {
+        scale: 1,
+        duration: 0.45,
+        ease: 'power2.out',
+      });
+    }, dialRootRef);
+
+    return () => ctx.revert();
+  }, [completionTimestamp]);
+
+  // Tactile handle expansion on drag interaction
+  useEffect(() => {
+    if (!handleGroupRef.current) return;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      if (dragging) {
+        gsap.to('.k-dial-handle-outer', { scale: 1.22, duration: 0.18, ease: 'back.out(2)', transformOrigin: '50% 50%' });
+        gsap.to('.k-dial-handle-inner', { scale: 1.35, duration: 0.18, ease: 'power2.out', transformOrigin: '50% 50%' });
+      } else {
+        gsap.to('.k-dial-handle-outer', { scale: 1, duration: 0.22, ease: 'power2.out', transformOrigin: '50% 50%' });
+        gsap.to('.k-dial-handle-inner', { scale: 1, duration: 0.22, ease: 'power2.out', transformOrigin: '50% 50%' });
+      }
+    }, handleGroupRef);
+
+    return () => ctx.revert();
+  }, [dragging]);
 
   const dialFrac = Math.max(0, Math.min(1, minutesRemaining / 60));
   const arcLen = CIRC * dialFrac;
@@ -1167,6 +1261,7 @@ const AnalogDial: React.FC<DialProps> = ({ totalTime, timeLeft, formatted, isAct
 
         {/* Interactive Tactile Handle */}
         <g
+          ref={handleGroupRef}
           className={`k-dial-handle-group ${dragging ? 'is-dragging' : ''}`}
           style={{
             transform: `translate(${handleX}px, ${handleY}px)`,

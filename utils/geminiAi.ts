@@ -107,6 +107,25 @@ export const POPULAR_MODELS: Record<
   ],
 };
 
+const sanitizeApiKey = (key: string): string => {
+  return key.replace(/[\r\n]/g, '').trim();
+};
+
+const sanitizeAiBaseUrl = (rawUrl: string, defaultUrl: string): string => {
+  const trimmed = rawUrl.replace(/[\r\n]/g, '').trim();
+  if (!trimmed) return defaultUrl;
+  try {
+    const parsed = new URL(trimmed);
+    const isLocal = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    if (parsed.protocol === 'https:' || (isLocal && parsed.protocol === 'http:')) {
+      return (parsed.origin + parsed.pathname).replace(/\/+$/, '');
+    }
+    return defaultUrl;
+  } catch {
+    return defaultUrl;
+  }
+};
+
 /**
  * Get current configured AI settings from localStorage
  */
@@ -128,11 +147,12 @@ export const getAiConfig = (): AiConfig => {
       if (parsed && typeof parsed === 'object' && parsed.provider) {
         const prov = parsed.provider as AiProviderType;
         const defaults = DEFAULT_AI_CONFIGS[prov] || DEFAULT_AI_CONFIGS.gemini;
+        const rawBaseUrl = typeof parsed.baseUrl === 'string' && parsed.baseUrl.trim() ? parsed.baseUrl : defaults.baseUrl;
         return {
           provider: prov,
-          apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
-          baseUrl: typeof parsed.baseUrl === 'string' && parsed.baseUrl.trim() ? parsed.baseUrl : defaults.baseUrl,
-          model: typeof parsed.model === 'string' && parsed.model.trim() ? parsed.model : defaults.model,
+          apiKey: typeof parsed.apiKey === 'string' ? sanitizeApiKey(parsed.apiKey) : '',
+          baseUrl: sanitizeAiBaseUrl(rawBaseUrl, defaults.baseUrl),
+          model: typeof parsed.model === 'string' && parsed.model.trim() ? parsed.model.replace(/[\r\n]/g, '').trim() : defaults.model,
           temperature: typeof parsed.temperature === 'number' ? parsed.temperature : 0.3,
         };
       }
@@ -146,7 +166,7 @@ export const getAiConfig = (): AiConfig => {
   if (legacyGeminiKey) {
     return {
       provider: 'gemini',
-      apiKey: legacyGeminiKey,
+      apiKey: sanitizeApiKey(legacyGeminiKey),
       baseUrl: DEFAULT_AI_CONFIGS.gemini.baseUrl,
       model: DEFAULT_AI_CONFIGS.gemini.model,
       temperature: 0.3,
@@ -171,6 +191,17 @@ export const saveAiConfig = (partial: Partial<AiConfig>): void => {
   const providerChanged = partial.provider && partial.provider !== current.provider;
   const defaults = partial.provider ? DEFAULT_AI_CONFIGS[partial.provider] : DEFAULT_AI_CONFIGS[current.provider];
 
+  const sanitizedPartial: Partial<AiConfig> = { ...partial };
+  if (typeof sanitizedPartial.apiKey === 'string') {
+    sanitizedPartial.apiKey = sanitizeApiKey(sanitizedPartial.apiKey);
+  }
+  if (typeof sanitizedPartial.baseUrl === 'string') {
+    sanitizedPartial.baseUrl = sanitizeAiBaseUrl(sanitizedPartial.baseUrl, defaults.baseUrl);
+  }
+  if (typeof sanitizedPartial.model === 'string') {
+    sanitizedPartial.model = sanitizedPartial.model.replace(/[\r\n]/g, '').trim();
+  }
+
   const next: AiConfig = {
     ...current,
     ...(providerChanged
@@ -179,7 +210,7 @@ export const saveAiConfig = (partial: Partial<AiConfig>): void => {
           model: defaults.model,
         }
       : {}),
-    ...partial,
+    ...sanitizedPartial,
   };
 
   try {
@@ -201,7 +232,8 @@ export const getGeminiApiKey = (): string => {
   if (typeof window === 'undefined') return '';
   const config = getAiConfig();
   if (config.provider === 'gemini') return config.apiKey;
-  return localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+  const legacy = localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+  return sanitizeApiKey(legacy);
 };
 
 /**
@@ -209,7 +241,7 @@ export const getGeminiApiKey = (): string => {
  */
 export const setGeminiApiKey = (key: string): void => {
   if (typeof window === 'undefined') return;
-  const trimmed = key.trim();
+  const trimmed = sanitizeApiKey(key);
   if (trimmed) {
     localStorage.setItem(GEMINI_KEY_STORAGE, trimmed);
   } else {

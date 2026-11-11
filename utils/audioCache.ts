@@ -5,10 +5,12 @@
  * are stored locally for instant subsequent playback and offline capability.
  */
 
+import { isTrustedAmbientUrl } from './embed';
+
 const CACHE_NAME = 'kairo-audio-cache-v1';
 
 export const getCachedAudioUrl = async (url: string): Promise<string> => {
-  if (typeof window === 'undefined' || !('caches' in window)) {
+  if (typeof window === 'undefined' || !('caches' in window) || !isTrustedAmbientUrl(url)) {
     return url;
   }
 
@@ -38,9 +40,12 @@ export const getCachedAudioUrl = async (url: string): Promise<string> => {
 
 export const prefetchAudioUrls = async (urls: string[]): Promise<void> => {
   if (typeof window === 'undefined' || !('caches' in window)) return;
+  const trustedUrls = urls.filter(isTrustedAmbientUrl);
+  if (!trustedUrls.length) return;
+
   try {
     const cache = await caches.open(CACHE_NAME);
-    for (const url of urls) {
+    for (const url of trustedUrls) {
       const match = await cache.match(url);
       if (!match) {
         fetch(url, { mode: 'cors' })

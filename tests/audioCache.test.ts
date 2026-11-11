@@ -37,3 +37,27 @@ test('getCachedAudioUrl utilizes CacheStorage when available', async () => {
     URL.createObjectURL = originalCreateObjectURL;
   }
 });
+
+test('getCachedAudioUrl rejects untrusted ambient audio URLs from caching', async () => {
+  const untrustedUrl = 'https://malicious-domain.com/audio.mp3';
+  const originalWindow = (globalThis as any).window;
+  const originalCaches = (globalThis as any).caches;
+
+  try {
+    let openCalled = false;
+    (globalThis as any).window = { caches: {} };
+    (globalThis as any).caches = {
+      open: async () => {
+        openCalled = true;
+        return {} as any;
+      },
+    };
+
+    const result = await getCachedAudioUrl(untrustedUrl);
+    assert.equal(result, untrustedUrl);
+    assert.equal(openCalled, false, 'Should never open cache for untrusted URLs');
+  } finally {
+    (globalThis as any).window = originalWindow;
+    (globalThis as any).caches = originalCaches;
+  }
+});

@@ -9,6 +9,7 @@ import {
   normalizeSessions,
   normalizeSettings,
   normalizeTheme,
+  normalizeTimeCapsules,
 } from '../data/validation';
 import {
   checkAiCapability,
@@ -86,6 +87,7 @@ const KAIRO_KEYS = [
   'kairo_custom_beats',
   'kairo_saved_streams',
   'kairo_treat_capsules',
+  'kairo_time_capsules',
   'kairo_logo_variant',
 ];
 
@@ -155,6 +157,10 @@ const importSnapshot = (text: string): number => {
     } else if (key === 'kairo_saved_streams') {
       const normalized = normalizeSavedStreams(val);
       localStorage.setItem(key, JSON.stringify({ version: 1, data: normalized }));
+      count += 1;
+    } else if (key === 'kairo_time_capsules' || key === 'kairo_treat_capsules') {
+      const normalized = normalizeTimeCapsules(val);
+      localStorage.setItem('kairo_time_capsules', JSON.stringify({ version: 1, data: normalized }));
       count += 1;
     } else {
       localStorage.setItem(key, JSON.stringify(val));

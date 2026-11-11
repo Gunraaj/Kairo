@@ -1,4 +1,5 @@
 import type { TimeCapsule } from '../types';
+import { normalizeTimeCapsules } from '../data/validation';
 
 const STORAGE_KEY = 'kairo_time_capsules';
 
@@ -9,8 +10,7 @@ export const readTimeCapsules = (): TimeCapsule[] => {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     const list = Array.isArray(parsed) ? parsed : parsed?.data;
-    if (!Array.isArray(list)) return [];
-    return list.filter(item => item && typeof item.id === 'string' && typeof item.message === 'string');
+    return normalizeTimeCapsules(list);
   } catch {
     return [];
   }
@@ -19,9 +19,10 @@ export const readTimeCapsules = (): TimeCapsule[] => {
 export const writeTimeCapsules = (capsules: TimeCapsule[]): void => {
   if (typeof window === 'undefined') return;
   try {
+    const normalized = normalizeTimeCapsules(capsules);
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ version: 1, data: capsules.slice(0, 50) }),
+      JSON.stringify({ version: 1, data: normalized }),
     );
   } catch {
     // Ignore storage quota

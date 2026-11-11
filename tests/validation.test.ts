@@ -5,6 +5,7 @@ import {
   normalizeProjects,
   normalizeSessions,
   normalizeSettings,
+  normalizeTimeCapsules,
 } from '../data/validation.ts';
 
 test('normalizes and bounds settings', () => {
@@ -61,4 +62,40 @@ test('accepts only bounded active task identifiers', () => {
   assert.equal(normalizeActiveTaskId('task_123'), 'task_123');
   assert.equal(normalizeActiveTaskId('javascript:alert(1)'), null);
   assert.equal(normalizeActiveTaskId('x'.repeat(129)), null);
+});
+
+test('normalizes and bounds time capsules securely', () => {
+  const capsules = normalizeTimeCapsules([
+    null,
+    {
+      id: 'cap-1',
+      message: 'Great job staying focused!\u0000',
+      treat: 'Single origin pour-over',
+      triggerType: 'rounds',
+      targetRounds: 99,
+      completedRoundsAtCreation: -5,
+      createdAt: '2026-10-23T12:00:00.000Z',
+      isUnlocked: false,
+    },
+    {
+      id: 'cap-2',
+      message: 'Time-based capsule',
+      triggerType: 'time',
+      targetTime: '18:30',
+      isUnlocked: true,
+      unlockedAt: '2026-10-23T18:30:00.000Z',
+    },
+    {
+      // Missing message - should be rejected
+      id: 'cap-invalid',
+      message: '   ',
+    },
+  ]);
+
+  assert.equal(capsules.length, 2);
+  assert.equal(capsules[0]?.message, 'Great job staying focused!');
+  assert.equal(capsules[0]?.targetRounds, 24); // clamped to 24 max
+  assert.equal(capsules[0]?.completedRoundsAtCreation, 0); // clamped to >= 0
+  assert.equal(capsules[1]?.targetTime, '18:30');
+  assert.equal(capsules[1]?.isUnlocked, true);
 });

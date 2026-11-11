@@ -90,6 +90,16 @@ test('getAiConfig and saveAiConfig support OpenRouter, Ollama, and Custom endpoi
     });
     const offlineConfig = getAiConfig();
     assert.equal(offlineConfig.provider, 'offline');
+
+    // 5. Security: CRLF injection in apiKey & unsafe baseUrl protocols
+    saveAiConfig({
+      provider: 'gemini',
+      apiKey: 'AIzaSySafeKey\r\nInjectedHeader: value',
+      baseUrl: 'javascript:alert(1)',
+    });
+    const sanitizedConfig = getAiConfig();
+    assert.equal(sanitizedConfig.apiKey, 'AIzaSySafeKeyInjectedHeader: value');
+    assert.equal(sanitizedConfig.baseUrl, DEFAULT_AI_CONFIGS.gemini.baseUrl);
   } finally {
     (globalThis as any).window = originalWindow;
     (globalThis as any).localStorage = originalLocalStorage;

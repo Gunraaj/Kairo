@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import type { AudioSettings, SavedFocusStream } from '../types';
 import { Icon } from './Icon';
 import moodistSounds from '../moodist_sounds_utf8.json';
@@ -380,6 +381,96 @@ const CURATED_LOFI_STATIONS: LofiStation[] = [
     badge: 'LOFI HIP HOP',
   },
 ];
+
+const AmbientChannelStrip: React.FC<{
+  sound: { name: string; url: string };
+  volume: number;
+  isMuted: boolean;
+  label: string;
+  onVolumeChange: (vol: number) => void;
+  onToggleMute: () => void;
+  onRemove: () => void;
+}> = ({ sound, volume, isMuted, label, onVolumeChange, onToggleMute, onRemove }) => {
+  const rowRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!rowRef.current) return;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        rowRef.current,
+        { opacity: 0, y: -6, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.25, ease: 'power2.out' },
+      );
+    }, rowRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={rowRef} className={`k-channel-strip ${isMuted ? 'is-muted' : ''}`}>
+      <div className="k-channel-info">
+        <span className="k-channel-thumb" aria-hidden="true">
+          <SoundIcon name={sound.name} />
+        </span>
+        <span className="k-channel-name" title={label}>
+          {label}
+        </span>
+      </div>
+
+      <div className="k-channel-fader-wrap">
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={event => onVolumeChange(Number(event.target.value))}
+          aria-label={`${label} volume`}
+          disabled={isMuted}
+        />
+        <span className="k-channel-vol-readout">
+          {isMuted ? 'MUTE' : `${Math.round(volume * 100)}%`}
+        </span>
+      </div>
+
+      <div className="k-channel-actions">
+        <button
+          type="button"
+          className={`k-channel-mute-btn ${isMuted ? 'active-mute' : ''}`}
+          onClick={onToggleMute}
+          title={isMuted ? `Unmute ${label}` : `Mute ${label}`}
+          aria-label={isMuted ? `Unmute ${label}` : `Mute ${label}`}
+        >
+          {isMuted ? (
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
+              <line x1="10.5" y1="6.5" x2="14.5" y2="10.5" />
+              <line x1="14.5" y1="6.5" x2="10.5" y2="10.5" />
+            </svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
+              <path d="M10.5 5.5a3.5 3.5 0 010 5" />
+              <path d="M13 3.5a6.5 6.5 0 010 9" />
+            </svg>
+          )}
+        </button>
+        <button
+          type="button"
+          className="k-channel-remove-btn"
+          onClick={onRemove}
+          title={`Stop & remove ${label}`}
+          aria-label={`Remove ${label}`}
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   audioSettings,
@@ -1093,69 +1184,18 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="k-mixer-rack custom-scrollbar">
               <div className="k-mixer-channels-list">
                 {/* Active Ambient Layers */}
-                  {activeAmbientItems.map(({ sound, volume, isMuted }) => (
-                    <div key={sound.url} className={`k-channel-strip ${isMuted ? 'is-muted' : ''}`}>
-                      <div className="k-channel-info">
-                        <span className="k-channel-thumb" aria-hidden="true">
-                          <SoundIcon name={sound.name} />
-                        </span>
-                        <span className="k-channel-name" title={labelFor(sound.name)}>
-                          {labelFor(sound.name)}
-                        </span>
-                      </div>
-
-                      <div className="k-channel-fader-wrap">
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={volume}
-                          onChange={event => setLayerVolume(sound.url, Number(event.target.value))}
-                          aria-label={`${labelFor(sound.name)} volume`}
-                          disabled={isMuted}
-                        />
-                        <span className="k-channel-vol-readout">
-                          {isMuted ? 'MUTE' : `${Math.round(volume * 100)}%`}
-                        </span>
-                      </div>
-
-                      <div className="k-channel-actions">
-                        <button
-                          type="button"
-                          className={`k-channel-mute-btn ${isMuted ? 'active-mute' : ''}`}
-                          onClick={() => toggleSoundMute(sound.url)}
-                          title={isMuted ? `Unmute ${labelFor(sound.name)}` : `Mute ${labelFor(sound.name)}`}
-                          aria-label={isMuted ? `Unmute ${labelFor(sound.name)}` : `Mute ${labelFor(sound.name)}`}
-                        >
-                          {isMuted ? (
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              {/* Windows volume taskbar mute: speaker with cross */}
-                              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
-                              <line x1="10.5" y1="6.5" x2="14.5" y2="10.5" />
-                              <line x1="14.5" y1="6.5" x2="10.5" y2="10.5" />
-                            </svg>
-                          ) : (
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              {/* Active speaker with sound waves */}
-                              <path d="M7 3.5L3.8 6H1.5v4h2.3L7 12.5V3.5z" />
-                              <path d="M10.5 5.5a3.5 3.5 0 010 5" />
-                              <path d="M13 3.5a6.5 6.5 0 010 9" />
-                            </svg>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className="k-channel-remove-btn"
-                          onClick={() => toggleAmbient(sound)}
-                          title={`Stop & remove ${labelFor(sound.name)}`}
-                          aria-label={`Remove ${labelFor(sound.name)}`}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                {activeAmbientItems.map(({ sound, volume, isMuted }) => (
+                  <AmbientChannelStrip
+                    key={sound.url}
+                    sound={sound}
+                    volume={volume}
+                    isMuted={isMuted}
+                    label={labelFor(sound.name)}
+                    onVolumeChange={val => setLayerVolume(sound.url, val)}
+                    onToggleMute={() => toggleSoundMute(sound.url)}
+                    onRemove={() => toggleAmbient(sound)}
+                  />
+                ))}
 
                   {/* Active Brainwaves Synthesizer Layer */}
                   {audioSettings.isPlaying && (

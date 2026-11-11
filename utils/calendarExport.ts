@@ -11,23 +11,40 @@ const formatIcsDate = (date: Date): string => {
   return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 };
 
+export const escapeIcsText = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r\n|\r|\n/g, '\\n');
+};
+
 export const generateIcsContent = (sessions: KairoSession[]): string => {
   const completedFocusSessions = sessions.filter(s => s.type === 'focus' && s.completed);
   const now = formatIcsDate(new Date());
 
   const events = completedFocusSessions.map(session => {
     const startDate = new Date(session.date);
-    const endDate = new Date(startDate.getTime() + session.duration * 60 * 1000);
-    const summary = session.taskName ? `Focus: ${session.taskName}` : 'Kairo Focus Session';
-    const description = session.intention
-      ? `Goal: ${session.intention}\\nDuration: ${session.duration} minutes`
-      : `Duration: ${session.duration} minutes`;
+    const validStartDate = Number.isNaN(startDate.getTime()) ? new Date() : startDate;
+    const durationMins = typeof session.duration === 'number' && Number.isFinite(session.duration) && session.duration > 0
+      ? session.duration
+      : 25;
+    const endDate = new Date(validStartDate.getTime() + durationMins * 60 * 1000);
+    const safeUid = (session.id || '').replace(/[^a-zA-Z0-9_-]/g, '') || 'session';
+
+    const rawSummary = session.taskName ? `Focus: ${session.taskName}` : 'Kairo Focus Session';
+    const summary = escapeIcsText(rawSummary);
+
+    const rawDescription = session.intention
+      ? `Goal: ${session.intention}\nDuration: ${durationMins} minutes`
+      : `Duration: ${durationMins} minutes`;
+    const description = escapeIcsText(rawDescription);
 
     return [
       'BEGIN:VEVENT',
-      `UID:${session.id}@kairo.app`,
+      `UID:${safeUid}@kairo.app`,
       `DTSTAMP:${now}`,
-      `DTSTART:${formatIcsDate(startDate)}`,
+      `DTSTART:${formatIcsDate(validStartDate)}`,
       `DTEND:${formatIcsDate(endDate)}`,
       `SUMMARY:${summary}`,
       `DESCRIPTION:${description}`,
