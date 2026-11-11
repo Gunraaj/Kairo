@@ -35,8 +35,8 @@ export const writeTimeCapsules = (capsules: TimeCapsule[]): void => {
 export const checkUnlockableCapsules = (
   capsules: TimeCapsule[],
   totalCompletedRounds: number,
+  now: Date = new Date(),
 ): { unlockable: TimeCapsule[]; remaining: TimeCapsule[] } => {
-  const now = new Date();
   const unlockable: TimeCapsule[] = [];
   const remaining: TimeCapsule[] = [];
 
@@ -62,10 +62,28 @@ export const checkUnlockableCapsules = (
       }
     } else if (capsule.triggerType === 'time' && capsule.targetTime) {
       const [hours, minutes] = capsule.targetTime.split(':').map(Number);
-      const targetDate = new Date(capsule.createdAt);
-      targetDate.setHours(hours, minutes, 0, 0);
-      if (now.getTime() >= targetDate.getTime()) {
-        shouldUnlock = true;
+      if (
+        !Number.isNaN(hours) &&
+        !Number.isNaN(minutes) &&
+        Number.isInteger(hours) &&
+        Number.isInteger(minutes) &&
+        hours >= 0 &&
+        hours <= 23 &&
+        minutes >= 0 &&
+        minutes <= 59
+      ) {
+        const createdAtDate = new Date(capsule.createdAt);
+        const targetDate = new Date(capsule.createdAt);
+        targetDate.setHours(hours, minutes, 0, 0);
+
+        // If scheduled time has already passed on the day of creation, roll over to tomorrow
+        if (targetDate.getTime() <= createdAtDate.getTime()) {
+          targetDate.setDate(targetDate.getDate() + 1);
+        }
+
+        if (now.getTime() >= targetDate.getTime()) {
+          shouldUnlock = true;
+        }
       }
     }
 

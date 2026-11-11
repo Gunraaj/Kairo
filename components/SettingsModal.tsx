@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Settings } from '../types';
+import type { Settings, Palette } from '../types';
 import { Modal } from './Modal';
 import {
   normalizeActiveTaskId,
@@ -38,8 +38,8 @@ interface SettingsModalProps {
   onToast?: (message: string) => void;
   theme?: 'light' | 'dark';
   setTheme?: (theme: 'light' | 'dark') => void;
-  palette?: 'obsidian' | 'zen' | 'indigo' | 'washi';
-  setPalette?: (palette: 'obsidian' | 'zen' | 'indigo' | 'washi') => void;
+  palette?: Palette;
+  setPalette?: (palette: Palette) => void;
   logoVariant?: LogoVariant;
   setLogoVariant?: (variant: LogoVariant) => void;
 }

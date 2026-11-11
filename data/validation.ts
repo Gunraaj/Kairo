@@ -1,4 +1,4 @@
-import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream, TimeCapsule } from '../types';
+import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream, TimeCapsule, Palette } from '../types';
 
 const MAX_PROJECTS = 100;
 const MAX_TASKS_PER_PROJECT = 500;
@@ -167,11 +167,12 @@ export const normalizeActiveTaskId = (value: unknown): string | null =>
 export const normalizeTheme = (value: unknown): 'light' | 'dark' =>
   value === 'light' ? 'light' : 'dark';
 
-export const normalizePalette = (value: unknown): string => {
-  const allowed = ['sumi', 'washi', 'matcha', 'sakura', 'indigo', 'shinrin', 'terracotta'];
-  return typeof value === 'string' && allowed.includes(value.toLowerCase().trim())
-    ? value.toLowerCase().trim()
-    : 'sumi';
+export const ALLOWED_PALETTES: readonly Palette[] = ['obsidian', 'zen', 'indigo', 'washi'] as const;
+
+export const normalizePalette = (value: unknown): Palette => {
+  if (typeof value !== 'string') return 'obsidian';
+  const cleaned = value.toLowerCase().trim() as Palette;
+  return ALLOWED_PALETTES.includes(cleaned) ? cleaned : 'obsidian';
 };
 
 export const normalizeSavedStreams = (value: unknown): SavedFocusStream[] => {

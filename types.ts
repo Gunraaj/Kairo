@@ -41,6 +41,7 @@ export interface FocusTarget {
   targetRounds?: number;
   pomodoroLength?: number;
   timeSpent?: number;
+  subTasks?: SubTask[];
 }
 
 export type SessionType = 'focus' | 'shortBreak' | 'longBreak';
@@ -84,6 +85,10 @@ export interface UserSettings {
 }
 
 export type Settings = UserSettings;
+
+export type Palette = 'obsidian' | 'zen' | 'indigo' | 'washi';
+
+export type StageLayoutVariation = 'zen' | 'classic' | 'cockpit';
 
 export interface TimeCapsule {
   id: string;

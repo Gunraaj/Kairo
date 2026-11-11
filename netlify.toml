@@ -10,8 +10,8 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob: https://raw.githubusercontent.com; frame-src https://www.youtube-nocookie.com https://open.spotify.com; connect-src 'self' https://raw.githubusercontent.com https://generativelanguage.googleapis.com https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
-    Referrer-Policy = "no-referrer"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*; media-src 'self' blob: https://raw.githubusercontent.com https://*; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://open.spotify.com; connect-src 'self' https://raw.githubusercontent.com https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://openrouter.ai http://localhost:11434 http://127.0.0.1:11434 https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"

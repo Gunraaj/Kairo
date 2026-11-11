@@ -5,7 +5,10 @@ import type { SubTask, Task, TimeCalcMode } from '../types';
  */
 export const calculateSubtaskSum = (subTasks: SubTask[] | undefined): number => {
   if (!Array.isArray(subTasks) || subTasks.length === 0) return 0;
-  return subTasks.reduce((sum, st) => sum + (Number.isFinite(st.timeSpent) ? Math.max(0, st.timeSpent || 0) : 0), 0);
+  return subTasks.reduce((sum, st) => {
+    const val = Number.isFinite(st.timeSpent) ? st.timeSpent : (st as any).duration;
+    return sum + (Number.isFinite(val) ? Math.max(0, val || 0) : 0);
+  }, 0);
 };
 
 /**
@@ -150,30 +153,63 @@ export interface FinishCalculation {
   hoursFormatted: string; // e.g. "4.7h"
 }
 
+export interface FinishCalculationSettings {
+  focusDuration?: number;
+  shortBreakDuration?: number;
+  longBreakDuration?: number;
+  longBreakInterval?: number;
+  sessionsPerRound?: number;
+}
+
 /**
  * Calculates compiled Pomodoro totals, remaining focus & break time,
  * and estimated finish time (e.g. Pomofocus style "Pomos: 0/9 Finish At: 21:59 (4.7h)").
  */
 export const calculateFinishEstimate = (
-  tasks: Array<{ targetRounds?: number; completed?: boolean; timeSpent?: number; pomodoroLength?: number }>,
-  settings?: { focusDuration?: number; shortBreakDuration?: number; longBreakDuration?: number; longBreakInterval?: number },
+  tasks: Array<{
+    targetRounds?: number;
+    completed?: boolean;
+    timeSpent?: number;
+    pomodoroLength?: number;
+    subTasks?: SubTask[];
+    timeCalcMode?: TimeCalcMode;
+  }>,
+  settings?: FinishCalculationSettings,
   now: Date = new Date(),
 ): FinishCalculation => {
   let totalPomos = 0;
   let donePomos = 0;
 
-  const defaultFocusLen = settings?.focusDuration || 25;
-  const shortBreak = settings?.shortBreakDuration || 5;
-  const longBreak = settings?.longBreakDuration || 15;
-  const longBreakInterval = settings?.longBreakInterval || 4;
+  const defaultFocusLen = Math.max(1, Math.round(settings?.focusDuration || 25));
+  const shortBreak = Math.max(0, Math.round(settings?.shortBreakDuration ?? 5));
+  const longBreak = Math.max(0, Math.round(settings?.longBreakDuration ?? 15));
+  const longBreakInterval = Math.max(1, Math.round(settings?.sessionsPerRound || settings?.longBreakInterval || 4));
 
+  let focusMinutes = 0;
   const list = Array.isArray(tasks) ? tasks : [];
+
   for (const t of list) {
-    const target = Math.max(1, Math.round(t.targetRounds ?? 1));
-    const pLen = t.pomodoroLength || defaultFocusLen;
-    const done = Math.min(target, Math.floor((t.timeSpent || 0) / pLen));
+    const pLen = Math.max(1, Math.round(t.pomodoroLength || defaultFocusLen));
+    const target = Math.max(
+      1,
+      Math.round(
+        t.targetRounds ?? (t.subTasks && t.subTasks.length > 0 ? estimatePomodorosFromSubtasks(t.subTasks, pLen) : 1),
+      ),
+    );
+    const spent = Math.max(
+      0,
+      Number.isFinite(t.timeSpent)
+        ? (t.timeSpent || 0)
+        : (t.subTasks && t.subTasks.length > 0 ? calculateSubtaskSum(t.subTasks) : 0),
+    );
+    const done = Math.min(target, Math.floor(spent / pLen));
+    const effectiveDone = t.completed ? target : done;
+
     totalPomos += target;
-    donePomos += t.completed ? target : done;
+    donePomos += effectiveDone;
+
+    const remainingForTask = Math.max(0, target - effectiveDone);
+    focusMinutes += remainingForTask * pLen;
   }
 
   const remainingPomos = Math.max(0, totalPomos - donePomos);
@@ -190,7 +226,6 @@ export const calculateFinishEstimate = (
     };
   }
 
-  const focusMinutes = remainingPomos * defaultFocusLen;
   const breaksNeeded = Math.max(0, remainingPomos - 1);
   const numLongBreaks = Math.floor(breaksNeeded / longBreakInterval);
   const numShortBreaks = Math.max(0, breaksNeeded - numLongBreaks);

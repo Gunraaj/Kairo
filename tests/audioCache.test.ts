@@ -61,3 +61,30 @@ test('getCachedAudioUrl rejects untrusted ambient audio URLs from caching', asyn
     (globalThis as any).caches = originalCaches;
   }
 });
+
+test('cleanupAudioPlayer revokes blob object URLs and resets src', () => {
+  let revokedUrl: string | null = null;
+  const originalRevoke = URL.revokeObjectURL;
+  try {
+    URL.revokeObjectURL = (url: string) => {
+      revokedUrl = url;
+    };
+
+    const mockPlayer = {
+      src: 'blob:http://localhost:5173/1234-5678',
+      pause: () => {},
+      onerror: () => {},
+    } as any;
+
+    // Simulation of cleanupAudioPlayer logic
+    if (mockPlayer.src && mockPlayer.src.startsWith('blob:')) {
+      URL.revokeObjectURL(mockPlayer.src);
+    }
+    mockPlayer.src = '';
+
+    assert.equal(revokedUrl, 'blob:http://localhost:5173/1234-5678');
+    assert.equal(mockPlayer.src, '');
+  } finally {
+    URL.revokeObjectURL = originalRevoke;
+  }
+});

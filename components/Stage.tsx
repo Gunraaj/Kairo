@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import type { FocusTarget, KairoSession, SessionType, UserSettings } from '../types';
+import type { FocusTarget, KairoSession, SessionType, UserSettings, StageLayoutVariation } from '../types';
 import { Icon } from './Icon';
 import {
   calculateElapsedSeconds,
@@ -31,6 +31,7 @@ interface StageProps {
   nextReward?: string | null;
   startSessionTrigger?: number;
   toggleSessionTrigger?: number;
+  onToggleSubtask?: (subtaskId: string) => void;
 }
 
 const sessionCopy: Record<SessionType, { label: string; action: string }> = {
@@ -55,7 +56,24 @@ export const Stage: React.FC<StageProps> = ({
   nextReward,
   startSessionTrigger,
   toggleSessionTrigger,
+  onToggleSubtask,
 }) => {
+  const [layoutVariation, setLayoutVariation] = useState<StageLayoutVariation>(() => {
+    if (typeof window === 'undefined') return 'classic';
+    try {
+      const saved = localStorage.getItem('kairo_stage_variation');
+      if (saved === 'zen' || saved === 'classic' || saved === 'cockpit') return saved;
+    } catch {}
+    return 'classic';
+  });
+
+  const handleVariationChange = (next: StageLayoutVariation) => {
+    setLayoutVariation(next);
+    try {
+      localStorage.setItem('kairo_stage_variation', next);
+    } catch {}
+  };
+
   const restoredRef = useRef<TimerSnapshot | null>(readTimerSnapshot());
   const restored = restoredRef.current;
   const [sessionType, setSessionType] = useState<SessionType>(restored?.sessionType ?? 'focus');
@@ -185,11 +203,16 @@ export const Stage: React.FC<StageProps> = ({
 
   const durationFor = useCallback(
     (type: SessionType) => {
-      if (type === 'focus') return settings.focusDuration * 60;
+      if (type === 'focus') {
+        if (activeTarget?.kind === 'task' && typeof activeTarget.pomodoroLength === 'number' && activeTarget.pomodoroLength > 0) {
+          return activeTarget.pomodoroLength * 60;
+        }
+        return settings.focusDuration * 60;
+      }
       if (type === 'longBreak') return settings.longBreakDuration * 60;
       return settings.shortBreakDuration * 60;
     },
-    [settings.focusDuration, settings.longBreakDuration, settings.shortBreakDuration],
+    [settings.focusDuration, settings.longBreakDuration, settings.shortBreakDuration, activeTarget],
   );
 
   const totalTime = durationFor(sessionType);
@@ -510,10 +533,12 @@ export const Stage: React.FC<StageProps> = ({
   const resetTimerRef = useRef(resetTimer);
   const skipBreakRef = useRef(skipBreak);
   const extendTimerRef = useRef(extendTimer);
+  const selectSessionRef = useRef(selectSession);
   toggleTimerRef.current = toggleTimer;
   resetTimerRef.current = resetTimer;
   skipBreakRef.current = skipBreak;
   extendTimerRef.current = extendTimer;
+  selectSessionRef.current = selectSession;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -543,6 +568,21 @@ export const Stage: React.FC<StageProps> = ({
         extendTimerRef.current();
         return;
       }
+      if (event.key === '1') {
+        event.preventDefault();
+        selectSessionRef.current('focus');
+        return;
+      }
+      if (event.key === '2') {
+        event.preventDefault();
+        selectSessionRef.current('shortBreak');
+        return;
+      }
+      if (event.key === '3') {
+        event.preventDefault();
+        selectSessionRef.current('longBreak');
+        return;
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -550,14 +590,18 @@ export const Stage: React.FC<StageProps> = ({
 
   const prevTargetIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (activeTarget && activeTarget.id !== prevTargetIdRef.current) {
-      prevTargetIdRef.current = activeTarget.id;
-      // If idle, in focus mode, and task has a custom pomodoro length, adapt timer duration
-      if (!isActive && sessionType === 'focus' && activeTarget.kind === 'task' && activeTarget.pomodoroLength) {
-        setTimeLeft(activeTarget.pomodoroLength * 60);
+    const currentId = activeTarget?.id ?? null;
+    if (currentId !== prevTargetIdRef.current) {
+      prevTargetIdRef.current = currentId;
+      // If idle, in focus mode, and not mid-session, adapt timer duration to activeTarget or default
+      if (!isActive && !startedAtRef.current && sessionType === 'focus') {
+        const nextSecs = activeTarget?.kind === 'task' && activeTarget.pomodoroLength
+          ? activeTarget.pomodoroLength * 60
+          : settings.focusDuration * 60;
+        setTimeLeft(nextSecs);
       }
     }
-  }, [activeTarget, isActive, sessionType]);
+  }, [activeTarget, isActive, sessionType, settings.focusDuration]);
 
   const activeTargetRounds = activeTarget?.kind === 'task' ? (activeTarget.targetRounds || 4) : null;
   const activePomoLen = activeTarget?.kind === 'task' ? (activeTarget.pomodoroLength || settings.focusDuration || 25) : settings.focusDuration;
@@ -581,8 +625,321 @@ export const Stage: React.FC<StageProps> = ({
     { min: 15, label: '15m' },
   ];
 
+  const renderDial = () => (
+    <div className="k-hero-dial-wrapper">
+      <AnalogDial
+        totalTime={totalTime}
+        timeLeft={timeLeft}
+        formatted={formattedTime}
+        isActive={isActive}
+        disabled={isActive || Boolean(startedAtRef.current)}
+        completionTimestamp={completionTimestamp}
+        label={sessionType === 'focus' ? 'Focus duration' : sessionType === 'shortBreak' ? 'Short break duration' : 'Long break duration'}
+        onTick={playTickCue}
+        onSet={mins => {
+          const seconds = Math.max(60, mins * 60);
+          setTimeLeft(seconds);
+          if (sessionType === 'focus') {
+            updateDuration('focusDuration', Math.min(180, Math.max(1, Math.round(seconds / 60))));
+          } else if (sessionType === 'shortBreak') {
+            updateDuration('shortBreakDuration', Math.min(60, Math.max(1, Math.round(seconds / 60))));
+          } else if (sessionType === 'longBreak') {
+            updateDuration('longBreakDuration', Math.min(120, Math.max(1, Math.round(seconds / 60))));
+          }
+        }}
+      />
+    </div>
+  );
+
+  const renderModePills = () => (
+    <div className="k-mode-pill-bar" role="tablist" aria-label="Session mode">
+      {(['focus', 'shortBreak', 'longBreak'] as const).map(type => (
+        <button
+          key={type}
+          role="tab"
+          aria-selected={sessionType === type}
+          disabled={isActive}
+          className={`k-mode-pill ${sessionType === type ? 'active' : ''}`}
+          onClick={() => selectSession(type)}
+        >
+          {sessionCopy[type].label}
+        </button>
+      ))}
+      <InfoTip title="Focus & Break Modes" position="bottom">
+        <p style={{ margin: '0 0 4px' }}><b>Focus:</b> 25m uninterrupted deep work round.</p>
+        <p style={{ margin: '0 0 4px' }}><b>Short Break:</b> 5m restorative breath recharge.</p>
+        <p style={{ margin: 0 }}><b>Long Break:</b> 15-20m deep reset every 4 rounds.</p>
+      </InfoTip>
+    </div>
+  );
+
+  const renderPrimaryButton = () => (
+    <div className="k-dock-primary-row">
+      <button
+        onClick={toggleTimer}
+        className={`k-btn-hero ${isActive ? 'is-active' : ''}`}
+        aria-label={isActive ? 'Pause timer' : 'Start timer'}
+      >
+        <span className="k-hero-btn-icon">
+          {isActive ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" rx="1.5" />
+              <rect x="14" y="4" width="4" height="16" rx="1.5" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 4.5v15l12-7.5-12-7.5z" />
+            </svg>
+          )}
+        </span>
+        <span className="k-hero-btn-label">
+          {isActive
+            ? 'Pause'
+            : sessionType === 'focus'
+            ? 'Start Focus'
+            : 'Start Break'}
+        </span>
+        <kbd className="k-hero-kbd">Space</kbd>
+      </button>
+    </div>
+  );
+
+  const renderSecondaryControls = () => (
+    <div className="k-dock-secondary-row">
+      {sessionType !== 'focus' && (
+        <button onClick={skipBreak} className="k-btn-secondary" aria-label="Skip break">
+          <span>Skip break</span>
+          <kbd>S</kbd>
+        </button>
+      )}
+
+      <button onClick={resetTimer} className="k-btn-secondary" aria-label="Reset timer">
+        <span>Reset</span>
+        <kbd>R</kbd>
+      </button>
+
+      {sessionType === 'focus' && (
+        <button onClick={extendTimer} className="k-btn-secondary" aria-label="Extend 5 minutes">
+          <span>+5m</span>
+          <kbd>E</kbd>
+        </button>
+      )}
+    </div>
+  );
+
+  const renderToast = () => (
+    completionMessage ? (
+      <div ref={toastRef} className="k-completion-toast" role="status">
+        <span className="k-completion-dot" aria-hidden="true" />
+        <span className="k-completion-text">{completionMessage}</span>
+        <button
+          type="button"
+          className="k-completion-dismiss"
+          onClick={() => setCompletionMessage('')}
+          aria-label="Dismiss message"
+        >
+          ×
+        </button>
+      </div>
+    ) : null
+  );
+
+  const renderTargetContext = () => (
+    <div className="k-target-container">
+      <div className="k-target-badge">
+        <span className="k-target-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <circle cx="8" cy="8" r="6" />
+            <circle cx="8" cy="8" r="2" fill="currentColor" />
+          </svg>
+        </span>
+        <span className="k-target-text" title={targetLabel}>
+          {targetLabel}
+        </span>
+        {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
+          <span
+            className={`k-target-pomo-chip ${activeDoneRounds! >= activeTargetRounds ? 'is-complete' : ''}`}
+            title={`Pomodoro Target: ${activeDoneRounds} of ${activeTargetRounds} completed (${activePomoLen}m each)`}
+          >
+            🍅 {activeDoneRounds}/{activeTargetRounds} <small>({activePomoLen}m)</small>
+          </span>
+        )}
+        {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
+          <span
+            className="k-target-finish-pill"
+            title={`Finish at ~${activeTaskFinish.finishTimeFormatted} (${activeTaskFinish.hoursFormatted} remaining incl. breaks)`}
+          >
+            Finish ~{activeTaskFinish.finishTimeFormatted}
+          </span>
+        )}
+        {activeTarget?.kind === 'task' && !isActive && (
+          <button
+            type="button"
+            className="k-target-start-btn"
+            onClick={toggleTimer}
+            title="Start countdown on this task now"
+            aria-label="Start focus countdown on this task"
+          >
+            ▶ Start
+          </button>
+        )}
+        {activeTarget?.kind === 'task' && isActive && (
+          <span className="k-target-active-pill" title="Clock is actively counting down on this task">
+            <span className="k-target-live-dot" aria-hidden="true" />
+            <span>Counting down</span>
+          </span>
+        )}
+        {!activeTarget && <span className="k-target-hint">Untracked</span>}
+      </div>
+
+      {sessionType === 'focus' && (
+        <div className="k-intention-zen">
+          <span className="k-intention-prefix">Goal</span>
+          <input
+            type="text"
+            value={isActive ? sessionIntentionRef.current : intention}
+            onChange={e => setIntention(e.target.value)}
+            disabled={isActive}
+            placeholder="What is your single focus for this session?"
+            maxLength={200}
+            aria-label="Session intention"
+          />
+          {!isActive && intention.trim().length > 2 && (
+            <button
+              type="button"
+              className={`k-ai-sharpen-btn ${isSharpening ? 'is-loading' : ''}`}
+              onClick={handleSharpenIntention}
+              disabled={isSharpening}
+              title="Sharpen this intention into an actionable 25-min goal (Chrome Gemini Nano or Cloud)"
+              aria-label="Sharpen intention with AI"
+            >
+              {isSharpening ? (
+                <span className="k-ai-spinner" aria-hidden="true" />
+              ) : (
+                <span className="k-ai-sparkle" aria-hidden="true">✨</span>
+              )}
+              <span>{isSharpening ? 'Sharpening...' : 'Sharpen'}</span>
+            </button>
+          )}
+          {onOpenCapsule && !isActive && (
+            <button
+              type="button"
+              className="k-intention-capsule-btn"
+              onClick={onOpenCapsule}
+              title="Seal a message and reward treat for your future self"
+              aria-label="Time Capsule treat"
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" />
+                <path d="M2 5l6 4 6-4" />
+              </svg>
+              <span>Treat</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {nextReward && onOpenCapsule && (
+        <button
+          type="button"
+          className="k-stage-reward-pill"
+          onClick={onOpenCapsule}
+          title="Time Capsule active — click to inspect sealed reward"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="7" width="10" height="7" rx="1.5" />
+            <path d="M5 7V4.5a3 3 0 016 0V7" />
+          </svg>
+          <span>Treat waiting: <b>{nextReward}</b></span>
+        </button>
+      )}
+    </div>
+  );
+
+  const renderMetaStrip = () => (
+    <div className="k-dock-meta-strip">
+      <div className="k-meta-group">
+        <span className="k-meta-subtle-label">Break:</span>
+        <div className="k-chips-compact" role="group" aria-label="Break duration">
+          {breakChoices.map(choice => (
+            <button
+              key={choice.min}
+              className={`k-chip-compact ${settings.shortBreakDuration === choice.min ? 'active' : ''}`}
+              aria-pressed={settings.shortBreakDuration === choice.min}
+              onClick={() => {
+                updateDuration('shortBreakDuration', choice.min);
+                if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
+                  setTimeLeft(choice.min * 60);
+                }
+              }}
+            >
+              {choice.label}
+            </button>
+          ))}
+
+          <div className="k-break-stepper" title="Custom break duration stepper">
+            <button
+              type="button"
+              className="k-break-stepper-btn"
+              disabled={isActive || settings.shortBreakDuration <= 1}
+              onClick={() => {
+                const next = Math.max(1, settings.shortBreakDuration - 1);
+                updateDuration('shortBreakDuration', next);
+                if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
+                  setTimeLeft(next * 60);
+                }
+              }}
+              aria-label="Decrease break duration by 1 minute"
+            >
+              -
+            </button>
+            <span className="k-break-stepper-value" title="Custom break duration">
+              {settings.shortBreakDuration}m
+            </span>
+            <button
+              type="button"
+              className="k-break-stepper-btn"
+              disabled={isActive || settings.shortBreakDuration >= 60}
+              onClick={() => {
+                const next = Math.min(60, settings.shortBreakDuration + 1);
+                updateDuration('shortBreakDuration', next);
+                if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
+                  setTimeLeft(next * 60);
+                }
+              }}
+              aria-label="Increase break duration by 1 minute"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="k-meta-divider" aria-hidden="true" />
+
+      <button
+        className="k-toggle-compact"
+        aria-pressed={settings.autoStartBreaks}
+        onClick={() => setSettings({ ...settings, autoStartBreaks: !settings.autoStartBreaks })}
+      >
+        <span className="k-toggle-track" aria-hidden="true" />
+        <span>Auto-start breaks</span>
+      </button>
+
+      <div className="k-meta-divider" aria-hidden="true" />
+
+      <div className="k-momentum-stat">
+        <span className="k-momentum-dot" />
+        <span>
+          Today: <b>{todaySummary?.sessions ?? 0}</b>{' '}
+          {(todaySummary?.sessions ?? 0) === 1 ? 'session' : 'sessions'} ({todaySummary?.minutes ?? 0}m)
+        </span>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="k-stage-zen">
+    <div className={`k-stage-zen is-variation-${layoutVariation}`}>
       {/* 1. Recovery Banner if unsaved/interrupted session exists */}
       {recoverySession && (
         <div className="k-recovery-banner" role="alert">
@@ -632,310 +989,199 @@ export const Stage: React.FC<StageProps> = ({
         </div>
       )}
 
-      {/* 2. Mode Selector Pill Bar */}
-      <div className="k-mode-pill-bar" role="tablist" aria-label="Session mode">
-        {(['focus', 'shortBreak', 'longBreak'] as const).map(type => (
-          <button
-            key={type}
-            role="tab"
-            aria-selected={sessionType === type}
-            disabled={isActive}
-            className={`k-mode-pill ${sessionType === type ? 'active' : ''}`}
-            onClick={() => selectSession(type)}
-          >
-            {sessionCopy[type].label}
-          </button>
-        ))}
-        <InfoTip title="Focus & Break Modes" position="bottom">
-          <p style={{ margin: '0 0 4px' }}><b>Focus:</b> 25m uninterrupted deep work round.</p>
-          <p style={{ margin: '0 0 4px' }}><b>Short Break:</b> 5m restorative breath recharge.</p>
-          <p style={{ margin: 0 }}><b>Long Break:</b> 15-20m deep reset every 4 rounds.</p>
-        </InfoTip>
-      </div>
-
-      {/* 2. Target Context & Intention */}
-      <div className="k-target-container">
-        <div className="k-target-badge">
-          <span className="k-target-icon">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <circle cx="8" cy="8" r="6" />
-              <circle cx="8" cy="8" r="2" fill="currentColor" />
-            </svg>
-          </span>
-          <span className="k-target-text" title={targetLabel}>
-            {targetLabel}
-          </span>
-          {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
-            <span
-              className={`k-target-pomo-chip ${activeDoneRounds! >= activeTargetRounds ? 'is-complete' : ''}`}
-              title={`Pomodoro Target: ${activeDoneRounds} of ${activeTargetRounds} completed (${activePomoLen}m each)`}
-            >
-              🍅 {activeDoneRounds}/{activeTargetRounds} <small>({activePomoLen}m)</small>
-            </span>
-          )}
-          {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
-            <span
-              className="k-target-finish-pill"
-              title={`Finish at ~${activeTaskFinish.finishTimeFormatted} (${activeTaskFinish.hoursFormatted} remaining incl. breaks)`}
-            >
-              Finish ~{activeTaskFinish.finishTimeFormatted}
-            </span>
-          )}
-          {activeTarget?.kind === 'task' && !isActive && (
-            <button
-              type="button"
-              className="k-target-start-btn"
-              onClick={toggleTimer}
-              title="Start countdown on this task now"
-              aria-label="Start focus countdown on this task"
-            >
-              ▶ Start
-            </button>
-          )}
-          {activeTarget?.kind === 'task' && isActive && (
-            <span className="k-target-active-pill" title="Clock is actively counting down on this task">
-              <span className="k-target-live-dot" aria-hidden="true" />
-              <span>Counting down</span>
-            </span>
-          )}
-          {!activeTarget && <span className="k-target-hint">Untracked</span>}
-        </div>
-
-        {sessionType === 'focus' && (
-          <div className="k-intention-zen">
-            <span className="k-intention-prefix">Goal</span>
-            <input
-              type="text"
-              value={isActive ? sessionIntentionRef.current : intention}
-              onChange={e => setIntention(e.target.value)}
-              disabled={isActive}
-              placeholder="What is your single focus for this session?"
-              maxLength={200}
-              aria-label="Session intention"
-            />
-            {!isActive && intention.trim().length > 2 && (
-              <button
-                type="button"
-                className={`k-ai-sharpen-btn ${isSharpening ? 'is-loading' : ''}`}
-                onClick={handleSharpenIntention}
-                disabled={isSharpening}
-                title="Sharpen this intention into an actionable 25-min goal (Chrome Gemini Nano or Cloud)"
-                aria-label="Sharpen intention with AI"
-              >
-                {isSharpening ? (
-                  <span className="k-ai-spinner" aria-hidden="true" />
-                ) : (
-                  <span className="k-ai-sparkle" aria-hidden="true">✨</span>
-                )}
-                <span>{isSharpening ? 'Sharpening...' : 'Sharpen'}</span>
-              </button>
-            )}
-            {onOpenCapsule && !isActive && (
-              <button
-                type="button"
-                className="k-intention-capsule-btn"
-                onClick={onOpenCapsule}
-                title="Seal a message and reward treat for your future self"
-                aria-label="Time Capsule treat"
-              >
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" />
-                  <path d="M2 5l6 4 6-4" />
-                </svg>
-                <span>Treat</span>
-              </button>
-            )}
-          </div>
-        )}
-
-        {nextReward && onOpenCapsule && (
+      {/* Stage Toolbar: 3 Focus Layout Variations Switcher */}
+      <div className="k-stage-toolbar">
+        <div className="k-stage-variation-switcher" role="radiogroup" aria-label="Focus layout variation">
           <button
             type="button"
-            className="k-stage-reward-pill"
-            onClick={onOpenCapsule}
-            title="Time Capsule active — click to inspect sealed reward"
+            role="radio"
+            aria-checked={layoutVariation === 'zen'}
+            className={`k-var-btn ${layoutVariation === 'zen' ? 'is-active' : ''}`}
+            onClick={() => handleVariationChange('zen')}
+            title="Zen Mode: Pure analog dial, minimal distractions"
           >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="7" width="10" height="7" rx="1.5" />
-              <path d="M5 7V4.5a3 3 0 016 0V7" />
-            </svg>
-            <span>Treat waiting: <b>{nextReward}</b></span>
+            <span className="k-var-icon">☯</span>
+            <span className="k-var-label">Zen</span>
           </button>
-        )}
-      </div>
-
-      {/* 3. Hero Analog Dial */}
-      <div className="k-hero-dial-wrapper">
-        <AnalogDial
-          totalTime={totalTime}
-          timeLeft={timeLeft}
-          formatted={formattedTime}
-          isActive={isActive}
-          disabled={isActive || Boolean(startedAtRef.current)}
-          completionTimestamp={completionTimestamp}
-          label={sessionType === 'focus' ? 'Focus duration' : sessionType === 'shortBreak' ? 'Short break duration' : 'Long break duration'}
-          onTick={playTickCue}
-          onSet={mins => {
-            const seconds = Math.max(60, mins * 60);
-            setTimeLeft(seconds);
-            if (sessionType === 'focus') {
-              updateDuration('focusDuration', Math.min(180, Math.max(1, Math.round(seconds / 60))));
-            } else if (sessionType === 'shortBreak') {
-              updateDuration('shortBreakDuration', Math.min(60, Math.max(1, Math.round(seconds / 60))));
-            } else if (sessionType === 'longBreak') {
-              updateDuration('longBreakDuration', Math.min(120, Math.max(1, Math.round(seconds / 60))));
-            }
-          }}
-        />
-      </div>
-
-      {/* 4. Unified Ergonomic Control Dock */}
-      <div className="k-control-dock">
-        {completionMessage && (
-          <div ref={toastRef} className="k-completion-toast" role="status">
-            <span className="k-completion-dot" aria-hidden="true" />
-            <span className="k-completion-text">{completionMessage}</span>
-            <button
-              type="button"
-              className="k-completion-dismiss"
-              onClick={() => setCompletionMessage('')}
-              aria-label="Dismiss message"
-            >
-              ×
-            </button>
-          </div>
-        )}
-        <div className="k-dock-primary-row">
           <button
-            onClick={toggleTimer}
-            className={`k-btn-hero ${isActive ? 'is-active' : ''}`}
-            aria-label={isActive ? 'Pause timer' : 'Start timer'}
+            type="button"
+            role="radio"
+            aria-checked={layoutVariation === 'classic'}
+            className={`k-var-btn ${layoutVariation === 'classic' ? 'is-active' : ''}`}
+            onClick={() => handleVariationChange('classic')}
+            title="Classic Mode: Balanced daily driver with mode tabs & task dock"
           >
-            <span className="k-hero-btn-icon">
-              {isActive ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="6" y="4" width="4" height="16" rx="1.5" />
-                  <rect x="14" y="4" width="4" height="16" rx="1.5" />
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 4.5v15l12-7.5-12-7.5z" />
-                </svg>
-              )}
-            </span>
-            <span className="k-hero-btn-label">
-              {isActive
-                ? 'Pause'
-                : sessionType === 'focus'
-                ? 'Start Focus'
-                : 'Start Break'}
-            </span>
-            <kbd className="k-hero-kbd">Space</kbd>
+            <span className="k-var-icon">⛩</span>
+            <span className="k-var-label">Classic</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={layoutVariation === 'cockpit'}
+            className={`k-var-btn ${layoutVariation === 'cockpit' ? 'is-active' : ''}`}
+            onClick={() => handleVariationChange('cockpit')}
+            title="Cockpit Mode: High-information deck with live subtasks & pacing"
+          >
+            <span className="k-var-icon">☵</span>
+            <span className="k-var-label">Cockpit</span>
           </button>
         </div>
+      </div>
 
-        <div className="k-dock-secondary-row">
-          {sessionType !== 'focus' && (
-            <button onClick={skipBreak} className="k-btn-secondary" aria-label="Skip break">
-              <span>Skip break</span>
-              <kbd>S</kbd>
+      {/* VARIATION 1: ZEN (Minimalist Pure Analog Focus) */}
+      {layoutVariation === 'zen' && (
+        <>
+          <div className="k-zen-focus-pill">
+            <span className="k-zen-mode-tag">{sessionCopy[sessionType].label}</span>
+            <span className="k-zen-sep">•</span>
+            <span className="k-zen-target-title" title={targetLabel}>{targetLabel}</span>
+            {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
+              <span className="k-zen-pomo-dot" title={`Pomodoro ${activeDoneRounds}/${activeTargetRounds}`}>
+                🍅 {activeDoneRounds}/{activeTargetRounds}
+              </span>
+            )}
+            {nextReward && onOpenCapsule && (
+              <button
+                type="button"
+                className="k-zen-reward-btn"
+                onClick={onOpenCapsule}
+                title={`Treat sealed: ${nextReward}`}
+              >
+                🎁
+              </button>
+            )}
+          </div>
+
+          {renderDial()}
+          {renderToast()}
+
+          <div className="k-zen-controls">
+            {renderPrimaryButton()}
+            <button onClick={resetTimer} className="k-btn-secondary" aria-label="Reset timer">
+              <span>Reset</span>
+              <kbd>R</kbd>
             </button>
-          )}
+            {sessionType !== 'focus' && (
+              <button onClick={skipBreak} className="k-btn-secondary" aria-label="Skip break">
+                <span>Skip</span>
+                <kbd>S</kbd>
+              </button>
+            )}
+          </div>
+        </>
+      )}
 
-          <button onClick={resetTimer} className="k-btn-secondary" aria-label="Reset timer">
-            <span>Reset</span>
-            <kbd>R</kbd>
-          </button>
+      {/* VARIATION 2: CLASSIC (Harmonious Workstation) */}
+      {layoutVariation === 'classic' && (
+        <>
+          {renderModePills()}
+          {renderTargetContext()}
+          {renderDial()}
+          <div className="k-control-dock">
+            {renderToast()}
+            {renderPrimaryButton()}
+            {renderSecondaryControls()}
+            {renderMetaStrip()}
+          </div>
+        </>
+      )}
 
-          {sessionType === 'focus' && (
-            <button onClick={extendTimer} className="k-btn-secondary" aria-label="Extend 5 minutes">
-              <span>+5m</span>
-              <kbd>E</kbd>
-            </button>
-          )}
-        </div>
-
-        {/* 5. Subtle Settings Strip */}
-        <div className="k-dock-meta-strip">
-          <div className="k-meta-group">
-            <span className="k-meta-subtle-label">Break:</span>
-            <div className="k-chips-compact" role="group" aria-label="Break duration">
-              {breakChoices.map(choice => (
-                <button
-                  key={choice.min}
-                  className={`k-chip-compact ${settings.shortBreakDuration === choice.min ? 'active' : ''}`}
-                  aria-pressed={settings.shortBreakDuration === choice.min}
-                  onClick={() => {
-                    updateDuration('shortBreakDuration', choice.min);
-                    if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
-                      setTimeLeft(choice.min * 60);
-                    }
-                  }}
-                >
-                  {choice.label}
-                </button>
-              ))}
-
-              <div className="k-break-stepper" title="Custom break duration stepper">
-                <button
-                  type="button"
-                  className="k-break-stepper-btn"
-                  disabled={isActive || settings.shortBreakDuration <= 1}
-                  onClick={() => {
-                    const next = Math.max(1, settings.shortBreakDuration - 1);
-                    updateDuration('shortBreakDuration', next);
-                    if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
-                      setTimeLeft(next * 60);
-                    }
-                  }}
-                  aria-label="Decrease break duration by 1 minute"
-                >
-                  -
-                </button>
-                <span className="k-break-stepper-value" title="Custom break duration">
-                  {settings.shortBreakDuration}m
-                </span>
-                <button
-                  type="button"
-                  className="k-break-stepper-btn"
-                  disabled={isActive || settings.shortBreakDuration >= 60}
-                  onClick={() => {
-                    const next = Math.min(60, settings.shortBreakDuration + 1);
-                    updateDuration('shortBreakDuration', next);
-                    if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) {
-                      setTimeLeft(next * 60);
-                    }
-                  }}
-                  aria-label="Increase break duration by 1 minute"
-                >
-                  +
-                </button>
+      {/* VARIATION 3: COCKPIT (Deep Study / High-Information Deck) */}
+      {layoutVariation === 'cockpit' && (
+        <div className="k-cockpit-grid">
+          {/* Left Column: Target Intelligence */}
+          <div className="k-cockpit-card k-cockpit-left">
+            <div className="k-cockpit-card-title">
+              <span>Target Intelligence</span>
+              {activeTarget?.kind === 'task' && <span className="k-target-live-dot" />}
+            </div>
+            <div className="k-cockpit-target-name">{targetLabel}</div>
+            {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
+              <div className="k-cockpit-pacing-pill">
+                🍅 {activeDoneRounds} / {activeTargetRounds} completed ({activePomoLen}m)
               </div>
+            )}
+            {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
+              <div className="k-cockpit-pacing-pill">
+                ⏱ Finish ~{activeTaskFinish.finishTimeFormatted} ({activeTaskFinish.hoursFormatted} left)
+              </div>
+            )}
+
+            {/* Subtask checklist preview */}
+            {activeTarget?.kind === 'task' && activeTarget.subTasks && activeTarget.subTasks.length > 0 && (
+              <div className="k-cockpit-subtasks-preview custom-scrollbar">
+                <span className="k-cockpit-sub-title">Subtasks:</span>
+                {activeTarget.subTasks.map(st => (
+                  <label key={st.id} className={`k-cockpit-subtask-item ${st.completed ? 'is-done' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={st.completed}
+                      onChange={() => onToggleSubtask?.(st.id)}
+                    />
+                    <span className="k-cockpit-subtask-text">{st.name}</span>
+                    {st.estimatedMinutes && <small className="k-cockpit-sub-est">{st.estimatedMinutes}m</small>}
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {/* Intention in cockpit */}
+            {sessionType === 'focus' && (
+              <div className="k-cockpit-intention-row">
+                <span className="k-intention-prefix">Goal:</span>
+                <input
+                  type="text"
+                  value={isActive ? sessionIntentionRef.current : intention}
+                  onChange={e => setIntention(e.target.value)}
+                  disabled={isActive}
+                  placeholder="Session focus..."
+                  maxLength={200}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Center Column: Hero Dial & Primary Transport */}
+          <div className="k-cockpit-center">
+            {renderModePills()}
+            {renderDial()}
+            {renderToast()}
+            {renderPrimaryButton()}
+          </div>
+
+          {/* Right Column: Telemetry & Secondary Controls */}
+          <div className="k-cockpit-card k-cockpit-right">
+            <div className="k-cockpit-card-title">
+              <span>Focus Telemetry</span>
+              <span>📊</span>
+            </div>
+            <div className="k-cockpit-stat-item">
+              <b>{todaySummary?.minutes ?? 0}m</b> focused today
+            </div>
+            <div className="k-cockpit-stat-item">
+              <b>{todaySummary?.streak ?? 0}</b> day streak 🔥
+            </div>
+            <div className="k-cockpit-stat-item">
+              <b>{totalPomodoros}</b> total pomodoros banked
+            </div>
+
+            {nextReward && onOpenCapsule && (
+              <button
+                type="button"
+                className="k-stage-reward-pill"
+                onClick={onOpenCapsule}
+                title="Time Capsule active"
+              >
+                🎁 <b>{nextReward}</b>
+              </button>
+            )}
+
+            <div className="k-cockpit-sec-actions">
+              {renderSecondaryControls()}
             </div>
           </div>
-
-          <div className="k-meta-divider" aria-hidden="true" />
-
-          <button
-            className="k-toggle-compact"
-            aria-pressed={settings.autoStartBreaks}
-            onClick={() => setSettings({ ...settings, autoStartBreaks: !settings.autoStartBreaks })}
-          >
-            <span className="k-toggle-track" aria-hidden="true" />
-            <span>Auto-start breaks</span>
-          </button>
-
-          <div className="k-meta-divider" aria-hidden="true" />
-
-          <div className="k-momentum-stat">
-            <span className="k-momentum-dot" />
-            <span>
-              Today: <b>{todaySummary?.sessions ?? 0}</b>{' '}
-              {(todaySummary?.sessions ?? 0) === 1 ? 'session' : 'sessions'} ({todaySummary?.minutes ?? 0}m)
-            </span>
-          </div>
         </div>
-      </div>
+      )}
 
       <p className="sr-only" role="status" aria-live="polite">
         {completionMessage}

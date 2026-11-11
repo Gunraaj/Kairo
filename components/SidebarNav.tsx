@@ -266,7 +266,12 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
               ...p,
               tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
                 t.id === taskId
-                  ? { ...t, subTasks: [...(Array.isArray(t.subTasks) ? t.subTasks : []), subTask] }
+                  ? {
+                      ...t,
+                      completed: false,
+                      status: 'todo' as const,
+                      subTasks: [...(Array.isArray(t.subTasks) ? t.subTasks : []), subTask],
+                    }
                   : t,
               ),
             }
@@ -295,8 +300,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                 const allDone = updatedSubs.length > 0 && updatedSubs.every(st => st.completed);
                 return {
                   ...t,
-                  completed: allDone ? true : t.completed,
-                  status: (allDone ? 'done' : t.status) as 'todo' | 'done',
+                  completed: allDone,
+                  status: (allDone ? 'done' : 'todo') as 'todo' | 'done',
                   subTasks: updatedSubs,
                 };
               }),
@@ -312,14 +317,16 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         p.id === projectId
           ? {
               ...p,
-              tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t =>
-                t.id === taskId
-                  ? {
-                      ...t,
-                      subTasks: (Array.isArray(t.subTasks) ? t.subTasks : []).filter(st => st.id !== subTaskId),
-                    }
-                  : t,
-              ),
+              tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
+                if (t.id !== taskId) return t;
+                const remainingSubs = (Array.isArray(t.subTasks) ? t.subTasks : []).filter(st => st.id !== subTaskId);
+                const allDone = remainingSubs.length > 0 && remainingSubs.every(st => st.completed);
+                return {
+                  ...t,
+                  subTasks: remainingSubs,
+                  ...(remainingSubs.length > 0 ? { completed: allDone, status: (allDone ? 'done' : 'todo') as 'todo' | 'done' } : {}),
+                };
+              }),
             }
           : p,
       ),

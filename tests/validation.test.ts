@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   normalizeActiveTaskId,
+  normalizePalette,
   normalizeProjects,
   normalizeSessions,
   normalizeSettings,
@@ -98,4 +99,32 @@ test('normalizes and bounds time capsules securely', () => {
   assert.equal(capsules[0]?.completedRoundsAtCreation, 0); // clamped to >= 0
   assert.equal(capsules[1]?.targetTime, '18:30');
   assert.equal(capsules[1]?.isUnlocked, true);
+});
+
+test('normalizePalette preserves valid palettes', () => {
+  assert.equal(normalizePalette('obsidian'), 'obsidian');
+  assert.equal(normalizePalette('zen'), 'zen');
+  assert.equal(normalizePalette('indigo'), 'indigo');
+  assert.equal(normalizePalette('washi'), 'washi');
+});
+
+test('normalizePalette trims whitespace and normalizes case', () => {
+  assert.equal(normalizePalette('  ZEN  '), 'zen');
+  assert.equal(normalizePalette('Obsidian'), 'obsidian');
+  assert.equal(normalizePalette('  INDIGO '), 'indigo');
+  assert.equal(normalizePalette('WaShI'), 'washi');
+});
+
+test('normalizePalette falls back to obsidian for unknown or legacy palettes', () => {
+  assert.equal(normalizePalette('sumi'), 'obsidian');
+  assert.equal(normalizePalette('matcha'), 'obsidian');
+  assert.equal(normalizePalette('sakura'), 'obsidian');
+  assert.equal(normalizePalette('shinrin'), 'obsidian');
+  assert.equal(normalizePalette('terracotta'), 'obsidian');
+  assert.equal(normalizePalette(''), 'obsidian');
+  assert.equal(normalizePalette('   '), 'obsidian');
+  assert.equal(normalizePalette(null), 'obsidian');
+  assert.equal(normalizePalette(undefined), 'obsidian');
+  assert.equal(normalizePalette(123), 'obsidian');
+  assert.equal(normalizePalette({}), 'obsidian');
 });

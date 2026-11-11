@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import type { AudioSettings, SavedFocusStream } from '../types';
 import { Icon } from './Icon';
+import { Modal } from './Modal';
 import moodistSounds from '../moodist_sounds_utf8.json';
 import { isTrustedAmbientUrl, parseMediaEmbed } from '../utils/embed';
 import { getCachedAudioUrl } from '../utils/audioCache';
@@ -480,6 +481,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onClose,
 }) => {
   const [tab, setTab] = useState<'sounds' | 'beats' | 'lofi'>('sounds');
+  const [isLibraryModalOpen, setIsLibraryModalOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<'quick' | 'full'>('quick');
   const [category, setCategory] = useState('Featured');
   const [query, setQuery] = useState('');
   const [activeSounds, setActiveSounds] = useState<Record<string, number>>({});
@@ -725,6 +728,24 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     setIsSavingStream(true);
   };
 
+  const cleanupAudioPlayer = (player: HTMLAudioElement) => {
+    try {
+      player.pause();
+    } catch {
+      // Ignore pause errors
+    }
+    player.onerror = null;
+    const currentSrc = player.src;
+    if (currentSrc && currentSrc.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(currentSrc);
+      } catch {
+        // Ignore revocation errors
+      }
+    }
+    player.src = '';
+  };
+
   const players = useRef(new Map<string, HTMLAudioElement>());
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -735,12 +756,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
   useEffect(() => {
     masterRef.current = masterVolume;
-    players.current.forEach(player => {
-      const url = player.src;
-      if (mutedSoundUrls.has(url)) {
+    players.current.forEach((player, soundUrl) => {
+      if (mutedSoundUrls.has(soundUrl)) {
         player.volume = 0;
       } else {
-        const layer = activeSoundsRef.current[url] ?? 0.5;
+        const layer = activeSoundsRef.current[soundUrl] ?? 0.5;
         player.volume = Math.min(1, Math.max(0, layer * masterVolume));
       }
     });
@@ -778,9 +798,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
   useEffect(() => () => {
     players.current.forEach(player => {
-      player.pause();
-      player.onerror = null;
-      player.src = '';
+      cleanupAudioPlayer(player);
     });
     players.current.clear();
   }, []);
@@ -788,9 +806,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   const toggleAmbient = async (sound: Sound) => {
     const existing = players.current.get(sound.url);
     if (existing) {
-      existing.pause();
-      existing.onerror = null;
-      existing.src = '';
+      cleanupAudioPlayer(existing);
       players.current.delete(sound.url);
       setActiveSounds(previous => {
         const next = { ...previous };
@@ -813,6 +829,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     setAmbientError('');
     player.onerror = () => {
       players.current.delete(sound.url);
+      cleanupAudioPlayer(player);
       setActiveSounds(previous => {
         const next = { ...previous };
         delete next[sound.url];
@@ -833,7 +850,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       await player.play();
     } catch {
       players.current.delete(sound.url);
-      player.onerror = null;
+      cleanupAudioPlayer(player);
       setActiveSounds(previous => {
         const next = { ...previous };
         delete next[sound.url];
@@ -902,9 +919,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
   const clearAmbient = () => {
     players.current.forEach(player => {
-      player.pause();
-      player.onerror = null;
-      player.src = '';
+      cleanupAudioPlayer(player);
     });
     players.current.clear();
     setActiveSounds({});
@@ -954,18 +969,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (e.key.toLowerCase() === 'm' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        toggleMute();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [masterVolume]);
+
 
   const applyBeat = (preset: BeatPreset) => {
     setAudioSettings(previous => ({
@@ -1086,239 +1090,14 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     return 'Idle';
   }, [audioSettings.isPlaying, audioSettings.mode, audioSettings.beatFrequency, audioSettings.noiseType, brainwaveBand.name, ambientCount, embedUrl]);
 
-  return (
-    <section className="k-sl-inner" data-audio-mode={audioSettings.mode}>
-      {/* 1. Unified Header */}
-      <header className="k-sl-head">
-        <div className="k-sl-header-top">
-          <div className="k-sl-title-group">
-            <h2>Sound Studio</h2>
-            <span className={`k-sl-status-pill ${isPlayingAny ? 'is-active' : ''}`} title={`Audio status: ${activeStatusText}`}>
-              <span className="k-sl-status-dot" aria-hidden="true" />
-              <span>{activeStatusText}</span>
-            </span>
-          </div>
-          {onClose && (
-            <button className="k-sl-close-btn" onClick={onClose} aria-label="Close sound library" title="Close (Esc)">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M4 4l8 8M12 4l-8 8" />
-              </svg>
-            </button>
-          )}
-        </div>
-
-        {/* 2. Master Controller & Live Mixer Rack */}
-        <div className={`k-mixer-console ${totalActiveChannels > 0 ? 'has-active' : 'is-standby'}`}>
-          <div className="k-mixer-master-bar">
-            <button
-              type="button"
-              onClick={toggleMute}
-              className={`k-mixer-icon-btn ${masterVolume === 0 ? 'is-muted' : ''}`}
-              aria-label={masterVolume === 0 ? 'Unmute (M)' : 'Mute (M)'}
-              title={masterVolume === 0 ? 'Unmute (M)' : 'Mute (M)'}
-            >
-              <Icon name={masterVolume === 0 ? 'volumeOff' : 'volumeUp'} className="h-3.5 w-3.5" />
-            </button>
-
-            <div className="k-mixer-master-slider" title={`Master volume ${Math.round(masterVolume * 100)}%`}>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={masterVolume}
-                onChange={event => update('masterVolume', Number(event.target.value))}
-                aria-label={`Master volume ${Math.round(masterVolume * 100)} percent`}
-              />
-            </div>
-            <span className="k-mixer-vol-val">{Math.round(masterVolume * 100)}%</span>
-
-            <div className="k-mixer-master-actions">
-              {totalActiveChannels > 0 && (
-                <>
-                  <button
-                    type="button"
-                    className={`k-mixer-btn-action ${allPaused ? 'is-paused' : ''}`}
-                    onClick={toggleAllPlayback}
-                    title={allPaused ? 'Resume all active audio' : 'Pause all active audio'}
-                    aria-label={allPaused ? 'Resume all' : 'Pause all'}
-                  >
-                    <Icon name={allPaused ? 'play' : 'pause'} className="h-3 w-3" />
-                    <span>{allPaused ? 'Resume' : 'Pause'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="k-mixer-btn-action is-danger"
-                    onClick={clearAllAudioSources}
-                    title="Stop & clear all active sound layers"
-                    aria-label="Clear all sounds"
-                  >
-                    Clear
-                  </button>
-                </>
-              )}
-
-              {totalActiveChannels > 0 ? (
-                <button
-                  type="button"
-                  className={`k-mixer-collapse-toggle ${isMixerExpanded ? 'expanded' : ''}`}
-                  onClick={() => setIsMixerExpanded(v => !v)}
-                  title={isMixerExpanded ? 'Collapse channel rack' : 'Expand channel rack'}
-                  aria-label={isMixerExpanded ? 'Collapse mixer rack' : 'Expand mixer rack'}
-                >
-                  <span className="k-mixer-channel-count-badge">
-                    {totalActiveChannels} active
-                  </span>
-                  <span className="k-mixer-toggle-arrow" aria-hidden="true">{isMixerExpanded ? '▴' : '▾'}</span>
-                </button>
-              ) : (
-                <span className="k-mixer-standby-pill" title="No active audio layers">
-                  Idle
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Dynamic Active Channel Strips (Expands when channels active) */}
-          {isMixerExpanded && totalActiveChannels > 0 && (
-            <div className="k-mixer-rack custom-scrollbar">
-              <div className="k-mixer-channels-list">
-                {/* Active Ambient Layers */}
-                {activeAmbientItems.map(({ sound, volume, isMuted }) => (
-                  <AmbientChannelStrip
-                    key={sound.url}
-                    sound={sound}
-                    volume={volume}
-                    isMuted={isMuted}
-                    label={labelFor(sound.name)}
-                    onVolumeChange={val => setLayerVolume(sound.url, val)}
-                    onToggleMute={() => toggleSoundMute(sound.url)}
-                    onRemove={() => toggleAmbient(sound)}
-                  />
-                ))}
-
-                  {/* Active Brainwaves Synthesizer Layer */}
-                  {audioSettings.isPlaying && (
-                    <div className="k-channel-strip is-synth">
-                      <div className="k-channel-info">
-                        <span className="k-channel-thumb synth-icon" aria-hidden="true">🧠</span>
-                        <span className="k-channel-name">
-                          {audioSettings.mode === 'noise'
-                            ? `${audioSettings.noiseType.toUpperCase()} Noise`
-                            : `${audioSettings.mode === 'binaural' ? 'Binaural' : 'Isochronic'} ${audioSettings.beatFrequency}Hz`}
-                        </span>
-                        <span className="k-channel-type-tag synth">
-                          {audioSettings.mode === 'noise' ? 'Noise' : brainwaveBand.name}
-                        </span>
-                      </div>
-
-                      <div className="k-channel-fader-wrap">
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={synthVolume}
-                          onChange={event => setSynthVolumeNormalized(Number(event.target.value))}
-                          aria-label="Synthesizer tone volume"
-                        />
-                        <span className="k-channel-vol-readout">{Math.round(synthVolume * 100)}%</span>
-                      </div>
-
-                      <div className="k-channel-actions">
-                        <button
-                          type="button"
-                          className="k-channel-remove-btn"
-                          onClick={() => setAudioSettings(previous => ({ ...previous, isPlaying: false }))}
-                          title="Stop brainwave generator"
-                          aria-label="Stop brainwave generator"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Active Lofi Stream Layer */}
-                  {embedUrl && (
-                    <div className="k-channel-strip is-lofi">
-                      <div className="k-channel-info">
-                        <span className="k-channel-thumb lofi-icon" aria-hidden="true">📻</span>
-                        <span className="k-channel-name" title={activeLofiName}>
-                          {activeLofiName}
-                        </span>
-                        <span className="k-channel-type-tag lofi">Lofi</span>
-                      </div>
-
-                      <div className="k-channel-wave-indicator" aria-hidden="true" title="Playing stream">
-                        <span /><span /><span />
-                      </div>
-
-                      <div className="k-channel-actions">
-                        <button
-                          type="button"
-                          className="k-channel-remove-btn"
-                          onClick={() => setEmbedUrl('')}
-                          title="Stop Lofi stream"
-                          aria-label="Stop Lofi stream"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quick Save Atmosphere Action inside Mixer */}
-                  {ambientCount > 0 && !isSavingMix && (
-                    <button
-                      type="button"
-                      className="k-mixer-save-mix-trigger"
-                      onClick={() => setIsSavingMix(true)}
-                      title="Save this mix into your custom atmospheres"
-                    >
-                      <span>✨ Save current layers as custom Atmosphere</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-        </div>
-
-        {/* Tactile Tab Selector (Sound Chooser Library Tabs) */}
-        <div className="k-sl-tabs" role="tablist" aria-label="Sound modes">
-          {soundTabs.map((item, index) => (
-            <button
-              key={item.key}
-              ref={element => { tabRefs.current[index] = element; }}
-              id={`tab-${item.key}`}
-              role="tab"
-              aria-selected={tab === item.key}
-              aria-controls={`panel-${item.key}`}
-              tabIndex={tab === item.key ? 0 : -1}
-              onKeyDown={event => handleTabKeyDown(event, index)}
-              onClick={() => setTab(item.key)}
-              className="k-sl-tab"
-            >
-              <span>{item.label}</span>
-              {item.key === 'sounds' && ambientCount > 0 && (
-                <span className="k-tab-count">{ambientCount}</span>
-              )}
-              {item.key === 'beats' && audioSettings.isPlaying && (
-                <span className="k-tab-dot" />
-              )}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* 2. Scrollable Body Content */}
-      <div className="k-sl-body custom-scrollbar">
-        {/* TAB 1: AMBIENT SOUNDS */}
-        {tab === 'sounds' && (
-          <div id="panel-sounds" className="k-sl-tab-panel" role="tabpanel" aria-labelledby="tab-sounds" tabIndex={0}>
-            {/* Search Bar - Sized appropriately with crisp vector icon */}
-            <div className="k-search">
-              <svg className="k-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  const renderSoundCatalogContent = () => (
+    <>
+            {/* TAB 1: AMBIENT SOUNDS */}
+            {tab === 'sounds' && (
+              <div id="panel-sounds" className="k-sl-tab-panel" role="tabpanel" aria-labelledby="tab-sounds" tabIndex={0}>
+                {/* Search Bar - Sized appropriately with crisp vector icon */}
+                <div className="k-search">
+                  <svg className="k-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
               </svg>
@@ -2229,9 +2008,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 )}
                 <iframe
                   src={embedUrl}
-                  title="Lofi player"
+                  title="Lofi focus stream player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   loading="lazy"
                   allowFullScreen
                 />
@@ -2289,7 +2068,579 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           </div>
         )}
+    </>
+  );
+
+  return (
+    <section className="k-sl-inner" data-audio-mode={audioSettings.mode}>
+      {/* 1. Unified Header */}
+      <header className="k-sl-head">
+        <div className="k-sl-header-top">
+          <div className="k-sl-title-group">
+            <h2>Sound Studio</h2>
+            <span className={`k-sl-status-pill ${isPlayingAny ? 'is-active' : ''}`} title={`Audio status: ${activeStatusText}`}>
+              <span className="k-sl-status-dot" aria-hidden="true" />
+              <span>{activeStatusText}</span>
+            </span>
+          </div>
+          {onClose && (
+            <button className="k-sl-close-btn" onClick={onClose} aria-label="Close sound library" title="Close (Esc)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M4 4l8 8M12 4l-8 8" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* 2. Master Controller & Live Mixer Rack */}
+        <div className={`k-mixer-console ${totalActiveChannels > 0 ? 'has-active' : 'is-standby'}`}>
+          <div className="k-mixer-master-bar">
+            <button
+              type="button"
+              onClick={toggleMute}
+              className={`k-mixer-icon-btn ${masterVolume === 0 ? 'is-muted' : ''}`}
+              aria-label={masterVolume === 0 ? 'Unmute (M)' : 'Mute (M)'}
+              title={masterVolume === 0 ? 'Unmute (M)' : 'Mute (M)'}
+            >
+              <Icon name={masterVolume === 0 ? 'volumeOff' : 'volumeUp'} className="h-3.5 w-3.5" />
+            </button>
+
+            <div className="k-mixer-master-slider" title={`Master volume ${Math.round(masterVolume * 100)}%`}>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={masterVolume}
+                onChange={event => update('masterVolume', Number(event.target.value))}
+                aria-label={`Master volume ${Math.round(masterVolume * 100)} percent`}
+              />
+            </div>
+            <span className="k-mixer-vol-val">{Math.round(masterVolume * 100)}%</span>
+
+            <div className="k-mixer-master-actions">
+              {totalActiveChannels > 0 && (
+                <>
+                  <button
+                    type="button"
+                    className={`k-mixer-btn-action ${allPaused ? 'is-paused' : ''}`}
+                    onClick={toggleAllPlayback}
+                    title={allPaused ? 'Resume all active audio' : 'Pause all active audio'}
+                    aria-label={allPaused ? 'Resume all' : 'Pause all'}
+                  >
+                    <Icon name={allPaused ? 'play' : 'pause'} className="h-3 w-3" />
+                    <span>{allPaused ? 'Resume' : 'Pause'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="k-mixer-btn-action is-danger"
+                    onClick={clearAllAudioSources}
+                    title="Stop & clear all active sound layers"
+                    aria-label="Clear all sounds"
+                  >
+                    Clear
+                  </button>
+                </>
+              )}
+
+              {totalActiveChannels > 0 ? (
+                <button
+                  type="button"
+                  className={`k-mixer-collapse-toggle ${isMixerExpanded ? 'expanded' : ''}`}
+                  onClick={() => setIsMixerExpanded(v => !v)}
+                  title={isMixerExpanded ? 'Collapse channel rack' : 'Expand channel rack'}
+                  aria-label={isMixerExpanded ? 'Collapse mixer rack' : 'Expand mixer rack'}
+                >
+                  <span className="k-mixer-channel-count-badge">
+                    {totalActiveChannels} active
+                  </span>
+                  <span className="k-mixer-toggle-arrow" aria-hidden="true">{isMixerExpanded ? '▴' : '▾'}</span>
+                </button>
+              ) : (
+                <span className="k-mixer-standby-pill" title="No active audio layers">
+                  Idle
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Dynamic Active Channel Strips (Expands when channels active) */}
+          {isMixerExpanded && totalActiveChannels > 0 && (
+            <div className="k-mixer-rack custom-scrollbar">
+              <div className="k-mixer-channels-list">
+                {/* Active Ambient Layers */}
+                {activeAmbientItems.map(({ sound, volume, isMuted }) => (
+                  <AmbientChannelStrip
+                    key={sound.url}
+                    sound={sound}
+                    volume={volume}
+                    isMuted={isMuted}
+                    label={labelFor(sound.name)}
+                    onVolumeChange={val => setLayerVolume(sound.url, val)}
+                    onToggleMute={() => toggleSoundMute(sound.url)}
+                    onRemove={() => toggleAmbient(sound)}
+                  />
+                ))}
+
+                  {/* Active Brainwaves Synthesizer Layer */}
+                  {audioSettings.isPlaying && (
+                    <div className="k-channel-strip is-synth">
+                      <div className="k-channel-info">
+                        <span className="k-channel-thumb synth-icon" aria-hidden="true">🧠</span>
+                        <span className="k-channel-name">
+                          {audioSettings.mode === 'noise'
+                            ? `${audioSettings.noiseType.toUpperCase()} Noise`
+                            : `${audioSettings.mode === 'binaural' ? 'Binaural' : 'Isochronic'} ${audioSettings.beatFrequency}Hz`}
+                        </span>
+                        <span className="k-channel-type-tag synth">
+                          {audioSettings.mode === 'noise' ? 'Noise' : brainwaveBand.name}
+                        </span>
+                      </div>
+
+                      <div className="k-channel-fader-wrap">
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={synthVolume}
+                          onChange={event => setSynthVolumeNormalized(Number(event.target.value))}
+                          aria-label="Synthesizer tone volume"
+                        />
+                        <span className="k-channel-vol-readout">{Math.round(synthVolume * 100)}%</span>
+                      </div>
+
+                      <div className="k-channel-actions">
+                        <button
+                          type="button"
+                          className="k-channel-remove-btn"
+                          onClick={() => setAudioSettings(previous => ({ ...previous, isPlaying: false }))}
+                          title="Stop brainwave generator"
+                          aria-label="Stop brainwave generator"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Lofi Stream Layer */}
+                  {embedUrl && (
+                    <div className="k-channel-strip is-lofi">
+                      <div className="k-channel-info">
+                        <span className="k-channel-thumb lofi-icon" aria-hidden="true">📻</span>
+                        <span className="k-channel-name" title={activeLofiName}>
+                          {activeLofiName}
+                        </span>
+                        <span className="k-channel-type-tag lofi">Lofi</span>
+                      </div>
+
+                      <div className="k-channel-wave-indicator" aria-hidden="true" title="Playing stream">
+                        <span /><span /><span />
+                      </div>
+
+                      <div className="k-channel-actions">
+                        <button
+                          type="button"
+                          className="k-channel-remove-btn"
+                          onClick={() => setEmbedUrl('')}
+                          title="Stop Lofi stream"
+                          aria-label="Stop Lofi stream"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick Save Atmosphere Action inside Mixer */}
+                  {ambientCount > 0 && !isSavingMix && (
+                    <button
+                      type="button"
+                      className="k-mixer-save-mix-trigger"
+                      onClick={() => setIsSavingMix(true)}
+                      title="Save this mix into your custom atmospheres"
+                    >
+                      <span>✨ Save current layers as custom Atmosphere</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+        </div>
+
+        {/* Tactile Tab Selector (Sound Chooser Library Tabs) - only in full drawer mode */}
+        {drawerMode === 'full' && (
+          <div className="k-sl-tabs" role="tablist" aria-label="Sound modes">
+            {soundTabs.map((item, index) => (
+              <button
+                key={item.key}
+                ref={element => { tabRefs.current[index] = element; }}
+                id={`tab-${item.key}`}
+                role="tab"
+                aria-selected={tab === item.key}
+                aria-controls={`panel-${item.key}`}
+                tabIndex={tab === item.key ? 0 : -1}
+                onKeyDown={event => handleTabKeyDown(event, index)}
+                onClick={() => setTab(item.key)}
+                className="k-sl-tab"
+              >
+                <span>{item.label}</span>
+                {item.key === 'sounds' && ambientCount > 0 && (
+                  <span className="k-tab-count">{ambientCount}</span>
+                )}
+                {item.key === 'beats' && audioSettings.isPlaying && (
+                  <span className="k-tab-dot" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </header>
+
+      {/* 2. Scrollable Body Content */}
+      <div className="k-sl-body custom-scrollbar">
+        {drawerMode === 'quick' ? (
+          <div className="k-sl-quick-deck custom-scrollbar">
+            {/* Standby Banner if no channels active */}
+            {totalActiveChannels === 0 && (
+              <div className="k-sl-standby-banner">
+                <span className="k-sl-standby-icon">🌿</span>
+                <div className="k-sl-standby-text">
+                  <b>Quiet Studio</b>
+                  <span>No audio layers playing. Pick a 1-click atmosphere below or browse the full library.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Quick 1-Click Atmosphere Presets */}
+            <div className="k-atmosphere-section">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span className="k-section-eyebrow">1-Click Atmospheres</span>
+                {ambientCount > 0 && !isSavingMix && (
+                  <button
+                    type="button"
+                    className="k-btn-secondary k-btn-xs"
+                    onClick={() => setIsSavingMix(true)}
+                    title="Save current active sound layers as a custom atmosphere preset"
+                  >
+                    + Save Current Mix
+                  </button>
+                )}
+              </div>
+
+              {isSavingMix && (
+                <div className="k-save-mix-dialog">
+                  <div className="k-emoji-trigger-wrap">
+                    <button
+                      type="button"
+                      className="k-emoji-trigger-btn"
+                      onClick={() => setEditingEmojiForId(editingEmojiForId === 'new' ? null : 'new')}
+                      title="Click to choose mix emoji"
+                      aria-label="Choose mix emoji"
+                    >
+                      <span>{newMixEmoji}</span>
+                      <span className="k-emoji-caret">▾</span>
+                    </button>
+
+                    {editingEmojiForId === 'new' && (
+                      <div className="k-emoji-popover">
+                        <div className="k-emoji-grid">
+                          {ATMOSPHERE_EMOJIS.map(emoji => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              className={`k-emoji-cell ${newMixEmoji === emoji ? 'is-selected' : ''}`}
+                              onClick={() => {
+                                setNewMixEmoji(emoji);
+                                setEditingEmojiForId(null);
+                              }}
+                              title={`Select ${emoji}`}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="Name your mix (e.g. Kyoto Night Rain)..."
+                    value={newMixName}
+                    onChange={e => setNewMixName(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') saveCustomMix();
+                      if (e.key === 'Escape') {
+                        setIsSavingMix(false);
+                        setEditingEmojiForId(null);
+                      }
+                    }}
+                    maxLength={32}
+                    autoFocus
+                  />
+
+                  <button
+                    type="button"
+                    className="k-btn-primary k-btn-xs"
+                    onClick={saveCustomMix}
+                    disabled={!newMixName.trim()}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="k-btn-secondary k-btn-xs"
+                    onClick={() => {
+                      setIsSavingMix(false);
+                      setEditingEmojiForId(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              <div className="k-atmosphere-chips k-quick-atmo-grid">
+                {[...DEFAULT_ATMOSPHERE_PRESETS, ...customAtmospheres].map(preset => (
+                  <div key={preset.id} className="k-atmo-chip-wrap">
+                    <button
+                      type="button"
+                      className="k-atmosphere-chip"
+                      onClick={() => void loadAtmosphere(preset.sounds)}
+                      title={`${preset.name}: ${preset.subtitle}`}
+                    >
+                      {preset.isCustom ? (
+                        <span
+                          className="k-atmo-icon is-clickable"
+                          onClick={e => {
+                            e.stopPropagation();
+                            setEditingEmojiForId(editingEmojiForId === preset.id ? null : preset.id);
+                          }}
+                          title="Click to change emoji"
+                          aria-label={`Change emoji for ${preset.name}`}
+                        >
+                          {preset.icon}
+                          <span className="k-emoji-edit-badge" aria-hidden="true">✎</span>
+                        </span>
+                      ) : (
+                        <span className="k-atmo-icon">{preset.icon}</span>
+                      )}
+                      <span>{preset.name}</span>
+                      {preset.isCustom && (
+                        <span
+                          className="k-atm-del-btn"
+                          onClick={e => deleteCustomMix(preset.id, e)}
+                          title="Delete custom mix"
+                          aria-label={`Delete ${preset.name}`}
+                        >
+                          ✕
+                        </span>
+                      )}
+                    </button>
+
+                    {editingEmojiForId === preset.id && (
+                      <div className="k-emoji-popover k-emoji-popover-chip">
+                        <div className="k-emoji-grid">
+                          {ATMOSPHERE_EMOJIS.map(emoji => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              className={`k-emoji-cell ${preset.icon === emoji ? 'is-selected' : ''}`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                updateCustomMixEmoji(preset.id, emoji);
+                              }}
+                              title={`Select ${emoji}`}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Instrument Shortcuts */}
+            <div className="k-quick-instruments-section">
+              <span className="k-section-eyebrow">Quick Instruments</span>
+              <div className="k-quick-instruments-row">
+                <button
+                  type="button"
+                  className={`k-quick-inst-pill ${embedUrl.includes('jfKfPfyJRdk') ? 'is-active' : ''}`}
+                  onClick={() => {
+                    if (embedUrl.includes('jfKfPfyJRdk')) {
+                      setEmbedUrl('');
+                    } else {
+                      setEmbedUrl('https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1');
+                      setMediaError('');
+                    }
+                  }}
+                  title="Toggle Lofi Girl 24/7 stream"
+                >
+                  <span>🎧</span>
+                  <span>Lofi Girl</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`k-quick-inst-pill ${embedUrl.includes('4xDzrJKXOOY') ? 'is-active' : ''}`}
+                  onClick={() => {
+                    if (embedUrl.includes('4xDzrJKXOOY')) {
+                      setEmbedUrl('');
+                    } else {
+                      setEmbedUrl('https://www.youtube-nocookie.com/embed/4xDzrJKXOOY?autoplay=1');
+                      setMediaError('');
+                    }
+                  }}
+                  title="Toggle Synthwave Radio stream"
+                >
+                  <span>📻</span>
+                  <span>Synthwave</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`k-quick-inst-pill ${audioSettings.isPlaying && audioSettings.mode === 'noise' && audioSettings.noiseType === 'brown' ? 'is-active' : ''}`}
+                  onClick={() => {
+                    if (audioSettings.isPlaying && audioSettings.mode === 'noise' && audioSettings.noiseType === 'brown') {
+                      setAudioSettings(prev => ({ ...prev, isPlaying: false }));
+                    } else {
+                      setAudioSettings(prev => ({ ...prev, isPlaying: true, mode: 'noise', noiseType: 'brown', noiseVolume: 0.6 }));
+                      void resumeAudio();
+                    }
+                  }}
+                  title="Toggle Brown Noise generator"
+                >
+                  <span>🌊</span>
+                  <span>Brown Noise</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`k-quick-inst-pill ${audioSettings.isPlaying && audioSettings.mode === 'binaural' && Math.round(audioSettings.beatFrequency) === 10 ? 'is-active' : ''}`}
+                  onClick={() => {
+                    if (audioSettings.isPlaying && audioSettings.mode === 'binaural' && Math.round(audioSettings.beatFrequency) === 10) {
+                      setAudioSettings(prev => ({ ...prev, isPlaying: false }));
+                    } else {
+                      setAudioSettings(prev => ({ ...prev, isPlaying: true, mode: 'binaural', beatFrequency: 10, binauralVolume: 0.65 }));
+                      void resumeAudio();
+                    }
+                  }}
+                  title="Toggle 10Hz Alpha Binaural Beat for flow state"
+                >
+                  <span>🧠</span>
+                  <span>Alpha 10Hz</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Expansive Library Trigger Card */}
+            <div className="k-sl-library-trigger-card">
+              <button
+                type="button"
+                className="k-sl-open-modal-btn"
+                onClick={() => setIsLibraryModalOpen(true)}
+                aria-label="Open full sound library"
+              >
+                <span className="k-sl-open-modal-icon">🎧</span>
+                <div className="k-sl-open-modal-text">
+                  <b>Browse Sound Library</b>
+                  <small>80+ ambient soundscapes, brainwaves & lofi radio</small>
+                </div>
+                <span className="k-sl-open-modal-arrow">↗</span>
+              </button>
+            </div>
+
+            {/* In-drawer sound browser expander */}
+            <div className="k-sl-drawer-mode-toggle">
+              <button
+                type="button"
+                className="k-sl-toggle-drawer-btn"
+                onClick={() => setDrawerMode('full')}
+              >
+                <span>▾ In-drawer sound browser</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="k-sl-collapse-bar">
+              <button
+                type="button"
+                className="k-sl-toggle-drawer-btn is-back"
+                onClick={() => setDrawerMode('quick')}
+              >
+                <span>▴ Back to Quick Live Mixer</span>
+              </button>
+            </div>
+            {renderSoundCatalogContent()}
+          </>
+        )}
       </div>
+
+      {/* 3. Expansive Sound Library & Focus Instruments Modal */}
+      {isLibraryModalOpen && (
+        <Modal
+          titleId="sound-library-modal-title"
+          onClose={() => setIsLibraryModalOpen(false)}
+          className="k-sound-library-dialog"
+        >
+          <header className="k-modal-header">
+            <div>
+              <h2 id="sound-library-modal-title">Sound Library & Focus Instruments</h2>
+              <p className="k-modal-sub">Explore 80+ natural soundscapes, brainwave generators, and 24/7 focus radio streams.</p>
+            </div>
+            <button className="k-modal-close" onClick={() => setIsLibraryModalOpen(false)} aria-label="Close sound library">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                <path d="M4 4l8 8M12 4l-8 8" />
+              </svg>
+            </button>
+          </header>
+
+          <div className="k-sl-tabs k-modal-sl-tabs" role="tablist" aria-label="Sound modes">
+            {soundTabs.map(item => (
+              <button
+                key={item.key}
+                id={`modal-tab-${item.key}`}
+                role="tab"
+                aria-selected={tab === item.key}
+                onClick={() => setTab(item.key)}
+                className={`k-sl-tab ${tab === item.key ? 'is-active' : ''}`}
+              >
+                <span>{item.label}</span>
+                {item.key === 'sounds' && ambientCount > 0 && (
+                  <span className="k-tab-count">{ambientCount}</span>
+                )}
+                {item.key === 'beats' && audioSettings.isPlaying && (
+                  <span className="k-tab-dot" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="k-modal-sound-catalog-wrap custom-scrollbar">
+            {renderSoundCatalogContent()}
+          </div>
+
+          <footer className="k-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+            <span style={{ fontSize: 12, color: 'var(--sumi-3)', fontFamily: 'var(--mono)' }}>
+              {totalActiveChannels > 0 ? `${totalActiveChannels} active audio layers playing in background` : 'Select any sound to layer into your focus mix'}
+            </span>
+            <button
+              type="button"
+              className="k-btn-primary"
+              onClick={() => setIsLibraryModalOpen(false)}
+            >
+              Done (Esc)
+            </button>
+          </footer>
+        </Modal>
+      )}
 
     </section>
   );

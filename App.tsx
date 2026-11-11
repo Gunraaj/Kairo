@@ -10,15 +10,17 @@ import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
 import { PomodoroScienceModal } from './components/PomodoroScienceModal';
 import { BrandLogo, getLogoSvgDataUri, type LogoVariant } from './components/BrandLogo';
-import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule } from './types';
+import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule, Palette } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
 import {
+  ALLOWED_PALETTES,
   DEFAULT_SETTINGS,
   normalizeActiveTaskId,
+  normalizePalette,
   normalizeProjects,
   normalizeSessions,
   normalizeSettings,
@@ -166,15 +168,12 @@ const App: React.FC = () => {
     'dark',
     { version: 1, normalize: v => (v === 'light' ? 'light' : 'dark') },
   );
-  const [palette, setPalette] = useLocalStorage<'obsidian' | 'zen' | 'indigo' | 'washi'>(
+  const [palette, setPalette] = useLocalStorage<Palette>(
     'kairo_palette',
     'obsidian',
     {
       version: 1,
-      normalize: v =>
-        typeof v === 'string' && ['obsidian', 'zen', 'indigo', 'washi'].includes(v)
-          ? (v as 'obsidian' | 'zen' | 'indigo' | 'washi')
-          : 'obsidian',
+      normalize: normalizePalette,
     },
   );
   const [logoVariant, setLogoVariant] = useLocalStorage<LogoVariant>(
@@ -226,17 +225,40 @@ const App: React.FC = () => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [zenMode]);
 
+  const lastVolumeRef = useRef<number>(audioSettings.masterVolume > 0 ? audioSettings.masterVolume : 0.7);
+
+  const toggleMasterMute = useCallback(() => {
+    setAudioSettings(prev => {
+      if (prev.masterVolume > 0) {
+        lastVolumeRef.current = prev.masterVolume;
+        announceToast('Master audio muted (M)');
+        return { ...prev, masterVolume: 0 };
+      } else {
+        const restored = lastVolumeRef.current || 0.7;
+        announceToast('Master audio unmuted (M)');
+        return { ...prev, masterVolume: restored };
+      }
+    });
+  }, [announceToast]);
+
   // Global key listener for shortcuts and Zen mode
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.isContentEditable) return;
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
       if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setShowShortcuts(v => !v);
       } else if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         toggleZenMode();
+      } else if ((e.key === 'm' || e.key === 'M') && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        toggleMasterMute();
       } else if (e.key === 'Escape' && zenMode) {
         e.preventDefault();
         setZenMode(false);
@@ -245,7 +267,7 @@ const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [toggleZenMode, zenMode]);
+  }, [toggleZenMode, toggleMasterMute, zenMode]);
 
   // Reflect the theme & atmospheric palette choice onto <html data-theme data-palette>
   useEffect(() => {
@@ -254,8 +276,9 @@ const App: React.FC = () => {
     const paramTheme = params.get('theme');
     const activeTheme = paramTheme === 'light' || paramTheme === 'dark' ? paramTheme : theme;
     const paramPalette = params.get('palette');
-    const validPalettes = ['obsidian', 'zen', 'indigo', 'washi'];
-    const activePalette = validPalettes.includes(paramPalette || '') ? paramPalette : palette;
+    const activePalette = (ALLOWED_PALETTES as readonly string[]).includes(paramPalette || '')
+      ? (paramPalette as Palette)
+      : palette;
 
     const root = document.documentElement;
     root.setAttribute('data-theme', activeTheme);
@@ -711,6 +734,29 @@ const App: React.FC = () => {
             nextReward={nextReward}
             startSessionTrigger={startSessionTrigger}
             toggleSessionTrigger={toggleSessionTrigger}
+            onToggleSubtask={subtaskId => {
+              if (activeTarget?.kind === 'task') {
+                setProjects(prev =>
+                  prev.map(p => ({
+                    ...p,
+                    tasks: p.tasks.map(t => {
+                      if (t.id !== activeTarget.id) return t;
+                      const currentSubs = t.subTasks || [];
+                      const updatedSubs = currentSubs.map(st =>
+                        st.id === subtaskId ? { ...st, completed: !st.completed } : st,
+                      );
+                      const allDone = updatedSubs.length > 0 && updatedSubs.every(st => st.completed);
+                      return {
+                        ...t,
+                        completed: allDone,
+                        status: (allDone ? 'done' : 'todo') as 'todo' | 'done',
+                        subTasks: updatedSubs,
+                      };
+                    }),
+                  })),
+                );
+              }
+            }}
           />
         </section>
 

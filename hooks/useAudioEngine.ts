@@ -372,8 +372,15 @@ export const useAudioEngine = (settings: AudioSettings) => {
           0,
           settings.mode === 'noise' ? Math.max(settings.noiseVolume, 0.18) : settings.noiseVolume,
         ));
+        const effectiveNoiseTarget = (preset === 'ocean' || preset === 'fireplace')
+          ? noiseTarget * (preset === 'ocean' ? 0.65 : 0.8)
+          : noiseTarget;
+
         gain.gain.setValueAtTime(0.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, noiseTarget), context.currentTime + 0.06);
+        gain.gain.exponentialRampToValueAtTime(
+          Math.max(0.0001, effectiveNoiseTarget),
+          context.currentTime + 0.06,
+        );
 
         if (preset === 'rain') {
           filter.type = 'highpass';
@@ -402,8 +409,12 @@ export const useAudioEngine = (settings: AudioSettings) => {
           const movementDepth = context.createGain();
           movement.type = preset === 'ocean' ? 'sine' : 'triangle';
           movement.frequency.value = preset === 'ocean' ? 0.09 : 2.4;
-          movementDepth.gain.value = gain.gain.value * (preset === 'ocean' ? 0.55 : 0.24);
-          gain.gain.value *= preset === 'ocean' ? 0.65 : 0.8;
+          const depthTarget = effectiveNoiseTarget * (preset === 'ocean' ? 0.55 : 0.24);
+          movementDepth.gain.setValueAtTime(0.0001, context.currentTime);
+          movementDepth.gain.exponentialRampToValueAtTime(
+            Math.max(0.0001, depthTarget),
+            context.currentTime + 0.06,
+          );
           movement.connect(movementDepth).connect(gain.gain);
           movement.start();
           graph.sources.push(movement);

@@ -188,3 +188,100 @@ test('calculateFinishEstimate compiles Pomofocus-style total pomodoros and finis
   assert.equal(doneRes.remainingPomos, 0);
   assert.equal(doneRes.totalMinutes, 0);
 });
+
+test('calculateFinishEstimate supports settings.sessionsPerRound alongside longBreakInterval', () => {
+  const tasks = [
+    { targetRounds: 4, timeSpent: 0, completed: false },
+  ];
+  // 4 pomodoros with sessionsPerRound = 2:
+  // Breaks between 4 sessions = 3 breaks
+  // Long breaks: Math.floor(3 / 2) = 1 (1 * 15m = 15m)
+  // Short breaks: 3 - 1 = 2 (2 * 5m = 10m)
+  // Break minutes = 25m
+  // Focus minutes = 4 * 25 = 100m
+  // Total = 125m
+  const settings = { focusDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, sessionsPerRound: 2 };
+  const mockNow = new Date('2026-10-25T10:00:00.000Z');
+  const res = calculateFinishEstimate(tasks, settings, mockNow);
+  assert.equal(res.totalMinutes, 125);
+});
+
+test('calculateFinishEstimate factors custom task pomodoroLength into remaining focus minutes', () => {
+  const tasks = [
+    { targetRounds: 2, pomodoroLength: 50, timeSpent: 0, completed: false }, // 2 * 50 = 100m
+    { targetRounds: 2, pomodoroLength: 25, timeSpent: 0, completed: false }, // 2 * 25 = 50m
+  ];
+  // Total pomos = 4, done = 0, remaining = 4
+  // Focus minutes = 100 + 50 = 150m (instead of 4 * 25 = 100m)
+  // Breaks = 3 (3 short breaks = 15m with longBreakInterval = 4)
+  // Total = 165m
+  const settings = { focusDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, sessionsPerRound: 4 };
+  const mockNow = new Date('2026-10-25T10:00:00.000Z');
+  const res = calculateFinishEstimate(tasks, settings, mockNow);
+  assert.equal(res.totalPomos, 4);
+  assert.equal(res.remainingPomos, 4);
+  assert.equal(res.totalMinutes, 165);
+});
+
+test('calculateFinishEstimate infers pomodoros from subtasks when targetRounds is omitted', () => {
+  const tasks = [
+    {
+      pomodoroLength: 25,
+      completed: false,
+      subTasks: [
+        { id: 'st1', name: 'Part 1', completed: false, estimatedMinutes: 25 },
+        { id: 'st2', name: 'Part 2', completed: false, estimatedMinutes: 25 },
+      ],
+    },
+  ];
+  const settings = { focusDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, sessionsPerRound: 4 };
+  const mockNow = new Date('2026-10-25T10:00:00.000Z');
+  const res = calculateFinishEstimate(tasks, settings, mockNow);
+  assert.equal(res.totalPomos, 2);
+  assert.equal(res.remainingPomos, 2);
+  // 2 pomos * 25 = 50m focus + 1 short break (5m) = 55m
+  assert.equal(res.totalMinutes, 55);
+});
+
+test('Subtask completion reversion: unchecking any subtask reverts parent task to todo and incomplete', () => {
+  const task: Task = {
+    id: 't1',
+    name: 'Research Paper',
+    completed: true,
+    timeSpent: 50,
+    status: 'done',
+    subTasks: [
+      { id: 'st1', name: 'Draft Abstract', completed: true },
+      { id: 'st2', name: 'Methodology', completed: true },
+    ],
+  };
+
+  // Simulating toggleSubTaskDone when unchecking st2
+  const updatedSubs = (task.subTasks || []).map(st =>
+    st.id === 'st2' ? { ...st, completed: !st.completed } : st,
+  );
+  const allDone = updatedSubs.length > 0 && updatedSubs.every(st => st.completed);
+  const updatedTask: Task = {
+    ...task,
+    completed: allDone,
+    status: (allDone ? 'done' : 'todo') as 'todo' | 'done',
+    subTasks: updatedSubs,
+  };
+
+  assert.equal(updatedTask.completed, false);
+  assert.equal(updatedTask.status, 'todo');
+  assert.equal(updatedTask.subTasks?.[1]?.completed, false);
+  assert.equal(updatedTask.subTasks?.[0]?.completed, true);
+
+  // Simulating adding a new incomplete subtask to an otherwise done task
+  const newSub = { id: 'st3', name: 'Conclusion', completed: false };
+  const taskWithNewSub: Task = {
+    ...updatedTask,
+    completed: false,
+    status: 'todo',
+    subTasks: [...(updatedTask.subTasks || []), newSub],
+  };
+  assert.equal(taskWithNewSub.completed, false);
+  assert.equal(taskWithNewSub.status, 'todo');
+  assert.equal(taskWithNewSub.subTasks?.length, 3);
+});
