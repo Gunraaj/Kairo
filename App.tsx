@@ -15,6 +15,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, updateSubtaskMinutes } from './utils/subtaskTime';
+import { calculateTodaySummary } from './utils/analytics';
 import {
   DEFAULT_SETTINGS,
   normalizeActiveTaskId,
@@ -356,28 +357,7 @@ const App: React.FC = () => {
     .filter(s => s.type === 'focus' && s.completed)
     .reduce((total, s) => total + s.duration, 0);
 
-  const todaySummary = useMemo(() => {
-    const focusSessions = sessions.filter(s => s.type === 'focus' && s.completed);
-    const dayKey = (value: string | number | Date) => {
-      const d = new Date(value);
-      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    };
-    const today = dayKey(Date.now());
-    const todays = focusSessions.filter(s => dayKey(s.date) === today);
-    const days = new Set(focusSessions.map(s => dayKey(s.date)));
-    let streak = 0;
-    const cursor = new Date();
-    if (!days.has(dayKey(cursor))) cursor.setDate(cursor.getDate() - 1);
-    while (days.has(dayKey(cursor))) {
-      streak += 1;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    return {
-      minutes: todays.reduce((total, s) => total + s.duration, 0),
-      sessions: todays.length,
-      streak,
-    };
-  }, [sessions]);
+  const todaySummary = useMemo(() => calculateTodaySummary(sessions), [sessions]);
 
   useEffect(() => {
     if (!Array.isArray(projects)) return;

@@ -160,7 +160,9 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ sessions, onClos
         <section className="k-progress-section">
           <h3 className="k-progress-section-title">
             Focus activity
-            <span className="k-progress-section-note">{stats.sessionCount} sessions · past year</span>
+            <span className="k-progress-section-note">
+              {stats.sessionCount} {stats.sessionCount === 1 ? 'session' : 'sessions'} · past year
+            </span>
           </h3>
           <YearHeatmap
             weeks={stats.year.weeks}

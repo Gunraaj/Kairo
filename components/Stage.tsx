@@ -889,7 +889,8 @@ export const Stage: React.FC<StageProps> = ({
           <div className="k-momentum-stat">
             <span className="k-momentum-dot" />
             <span>
-              Today: <b>{todaySummary?.sessions ?? 0}</b> sessions ({todaySummary?.minutes ?? 0}m)
+              Today: <b>{todaySummary?.sessions ?? 0}</b>{' '}
+              {(todaySummary?.sessions ?? 0) === 1 ? 'session' : 'sessions'} ({todaySummary?.minutes ?? 0}m)
             </span>
           </div>
         </div>

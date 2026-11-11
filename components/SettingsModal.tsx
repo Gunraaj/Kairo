@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Settings } from '../types';
 import { Modal } from './Modal';
-import { normalizeSettings } from '../data/validation';
+import {
+  normalizeActiveTaskId,
+  normalizePalette,
+  normalizeProjects,
+  normalizeSavedStreams,
+  normalizeSessions,
+  normalizeSettings,
+  normalizeTheme,
+} from '../data/validation';
 import {
   checkAiCapability,
   getAiConfig,
@@ -97,17 +105,64 @@ const getSnapshotPayload = (): Record<string, unknown> => {
   return payload;
 };
 
+const unwrapStoredData = (value: unknown): unknown => {
+  if (value && typeof value === 'object' && !Array.isArray(value) && 'data' in value) {
+    return (value as { data: unknown }).data;
+  }
+  return value;
+};
+
 const importSnapshot = (text: string): number => {
-  const parsed = JSON.parse(text) as { data?: Record<string, unknown> };
-  const data = parsed.data;
-  if (!data || typeof data !== 'object') throw new Error('Not a Kairo snapshot');
+  const parsed = JSON.parse(text) as Record<string, unknown>;
+  if (!parsed || typeof parsed !== 'object') throw new Error('Not a valid Kairo snapshot');
+  const source = (parsed.data && typeof parsed.data === 'object' && !Array.isArray(parsed.data)
+    ? parsed.data
+    : parsed) as Record<string, unknown>;
+
   let count = 0;
-  KAIRO_KEYS.forEach(k => {
-    if (k in data) {
-      localStorage.setItem(k, JSON.stringify(data[k]));
+  const safeKeys = new Set(KAIRO_KEYS);
+
+  for (const [key, rawVal] of Object.entries(source)) {
+    if (!safeKeys.has(key) || key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue;
+    }
+    const val = unwrapStoredData(rawVal);
+
+    if (key === 'kairo_projects') {
+      const normalized = normalizeProjects(val);
+      localStorage.setItem(key, JSON.stringify({ version: 2, data: normalized }));
+      count += 1;
+    } else if (key === 'kairo_sessions') {
+      const normalized = normalizeSessions(val);
+      localStorage.setItem(key, JSON.stringify({ version: 2, data: normalized }));
+      count += 1;
+    } else if (key === 'kairo_settings') {
+      const normalized = normalizeSettings(val);
+      localStorage.setItem(key, JSON.stringify({ version: 2, data: normalized }));
+      count += 1;
+    } else if (key === 'kairo_active_task') {
+      const normalized = normalizeActiveTaskId(val);
+      localStorage.setItem(key, JSON.stringify({ version: 1, data: normalized }));
+      count += 1;
+    } else if (key === 'kairo_theme') {
+      const normalized = normalizeTheme(val);
+      localStorage.setItem(key, normalized);
+      count += 1;
+    } else if (key === 'kairo_palette') {
+      const normalized = normalizePalette(val);
+      localStorage.setItem(key, normalized);
+      count += 1;
+    } else if (key === 'kairo_saved_streams') {
+      const normalized = normalizeSavedStreams(val);
+      localStorage.setItem(key, JSON.stringify({ version: 1, data: normalized }));
+      count += 1;
+    } else {
+      localStorage.setItem(key, JSON.stringify(val));
       count += 1;
     }
-  });
+  }
+
+  if (count === 0) throw new Error('Snapshot contained no recognizable Kairo data');
   return count;
 };
 

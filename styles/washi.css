@@ -7051,7 +7051,7 @@ input[type="range"]::-moz-range-thumb:hover {
   gap: 4px;
 }
 
-.k-capsule-field label {
+.k-capsule-field label:not(.k-trigger-card) {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -7060,7 +7060,7 @@ input[type="range"]::-moz-range-thumb:hover {
   color: var(--sumi);
 }
 
-.k-capsule-field label small {
+.k-capsule-field label:not(.k-trigger-card) small {
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 400;
@@ -7122,6 +7122,8 @@ input[type="range"]::-moz-range-thumb:hover {
 .k-trigger-card {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  text-align: left;
   gap: 12px;
   padding: 8px 12px;
   border-radius: var(--r-md);
@@ -7129,6 +7131,16 @@ input[type="range"]::-moz-range-thumb:hover {
   background: var(--washi-card);
   cursor: pointer;
   transition: all 140ms ease;
+  font-size: 13px;
+  font-weight: normal;
+  width: 100%;
+}
+
+.k-trigger-card input[type="radio"] {
+  accent-color: var(--shu);
+  flex-shrink: 0;
+  cursor: pointer;
+  margin: 0;
 }
 
 .k-trigger-card:hover {
@@ -7144,6 +7156,8 @@ input[type="range"]::-moz-range-thumb:hover {
 .k-trigger-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
   gap: 2px;
 }
 

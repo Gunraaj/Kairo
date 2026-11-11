@@ -1,4 +1,4 @@
-import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings } from '../types';
+import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream } from '../types';
 
 const MAX_PROJECTS = 100;
 const MAX_TASKS_PER_PROJECT = 500;
@@ -37,6 +37,12 @@ const normalizeSubTask = (value: unknown): SubTask | null => {
       : 0,
     estimatedMinutes: typeof source.estimatedMinutes === 'number'
       ? Math.round(boundedNumber(source.estimatedMinutes, 25, 1, 10_000))
+      : undefined,
+    targetRounds: typeof source.targetRounds === 'number'
+      ? Math.round(boundedNumber(source.targetRounds, 1, 1, 24))
+      : undefined,
+    pomodoroLength: typeof source.pomodoroLength === 'number'
+      ? Math.round(boundedNumber(source.pomodoroLength, 25, 1, 180))
       : undefined,
   };
 };
@@ -157,3 +163,43 @@ export const sanitizeName = (value: string, maxLength: number) =>
 
 export const normalizeActiveTaskId = (value: unknown): string | null =>
   typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value) ? value : null;
+
+export const normalizeTheme = (value: unknown): 'light' | 'dark' =>
+  value === 'light' ? 'light' : 'dark';
+
+export const normalizePalette = (value: unknown): string => {
+  const allowed = ['sumi', 'washi', 'matcha', 'sakura', 'indigo', 'shinrin', 'terracotta'];
+  return typeof value === 'string' && allowed.includes(value.toLowerCase().trim())
+    ? value.toLowerCase().trim()
+    : 'sumi';
+};
+
+export const normalizeSavedStreams = (value: unknown): SavedFocusStream[] => {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 50).flatMap(item => {
+    const source = objectValue(item);
+    if (!source) return [];
+    const provider = source.provider === 'spotify' ? 'spotify' : 'youtube';
+    const embed = typeof source.embedUrl === 'string' ? source.embedUrl.trim() : '';
+    const orig = typeof source.originalUrl === 'string' ? source.originalUrl.trim() : '';
+    if (!embed) return [];
+    const createdAt = typeof source.createdAt === 'number' && Number.isFinite(source.createdAt)
+      ? source.createdAt
+      : Date.now();
+    const badge = typeof source.badge === 'string'
+      ? text(source.badge, provider === 'spotify' ? 'Spotify' : 'Lofi', 20)
+      : (provider === 'spotify' ? 'Spotify' : 'Lofi');
+    const emoji = typeof source.emoji === 'string' ? text(source.emoji, '', 8) : undefined;
+    return [{
+      id: id(source.id),
+      name: text(source.name, 'Focus Stream', 80),
+      subtitle: typeof source.subtitle === 'string' ? text(source.subtitle, '', 80) : undefined,
+      provider,
+      originalUrl: orig,
+      embedUrl: embed,
+      badge,
+      emoji,
+      createdAt,
+    }];
+  });
+};

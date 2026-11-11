@@ -154,3 +154,52 @@ export const calculateFocusStats = (sessions: KairoSession[], referenceDate: Dat
     recentIntentions,
   };
 };
+
+export interface TodaySummary {
+  minutes: number;
+  sessions: number;
+  streak: number;
+}
+
+export const calculateTodaySummary = (
+  sessions: KairoSession[],
+  referenceDate: Date = new Date(),
+): TodaySummary => {
+  const focus = sessions.filter(s => s.type === 'focus' && s.completed);
+  const ref = new Date(referenceDate);
+  ref.setHours(0, 0, 0, 0);
+  const refMidnight = ref.getTime();
+
+  const todays = focus.filter(s => {
+    const sd = new Date(s.date);
+    if (Number.isNaN(sd.getTime())) return false;
+    sd.setHours(0, 0, 0, 0);
+    return sd.getTime() === refMidnight;
+  });
+
+  const activeDayKeys = new Set(
+    focus
+      .map(s => {
+        const sd = new Date(s.date);
+        if (Number.isNaN(sd.getTime())) return '';
+        return dayKey(sd);
+      })
+      .filter(Boolean),
+  );
+
+  let streak = 0;
+  const cursor = new Date(ref);
+  if (!activeDayKeys.has(dayKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  while (activeDayKeys.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return {
+    minutes: todays.reduce((acc, s) => acc + (Number.isFinite(s.duration) ? s.duration : 0), 0),
+    sessions: todays.length,
+    streak,
+  };
+};

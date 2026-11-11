@@ -65,3 +65,14 @@ test('encodeSyncToken and decodeSyncToken work symmetrically', () => {
   assert.equal(decodeSyncToken('invalid_garbage_token'), null);
   assert.equal(decodeSyncToken(''), null);
 });
+
+test('testSupabaseConnection sanitizes CRLF in anonKey and requires valid URL', async () => {
+  // Test rejecting whitespace-only or invalid URLs
+  const r1 = await testSupabaseConnection('not a url', 'key');
+  assert.equal(r1.ok, false);
+
+  // Test that CRLF anonKey is rejected when empty after stripping
+  const r2 = await testSupabaseConnection('https://xyz.supabase.co', '\r\n\t  \n');
+  assert.equal(r2.ok, false);
+  assert.match(r2.message, /Anon API Key/);
+});

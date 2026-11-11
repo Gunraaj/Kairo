@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   buildYearGrid,
   calculateFocusStats,
+  calculateTodaySummary,
   dayKey,
   intensityLevel,
 } from '../utils/analytics.ts';
@@ -79,4 +80,38 @@ test('calculateFocusStats aggregates total minutes, top tasks, and streaks', () 
   assert.equal(stats.topTasks[0].mins, 75);
   assert.equal(stats.recentIntentions.length, 2);
   assert.equal(stats.recentIntentions[0].intention, 'Write clean code');
+});
+
+test('calculateTodaySummary computes exact today focus minutes and session counts', () => {
+  const today = new Date('2026-10-24T14:30:00.000Z');
+  const todayEarlier = new Date('2026-10-24T09:15:00.000Z');
+  const yesterday = new Date('2026-10-23T16:00:00.000Z');
+
+  const sessions: KairoSession[] = [
+    { id: 's1', date: todayEarlier.toISOString(), duration: 25, completed: true, type: 'focus' },
+    { id: 's2', date: today.toISOString(), duration: 30, completed: true, type: 'focus' },
+    { id: 's3', date: today.toISOString(), duration: 5, completed: true, type: 'shortBreak' }, // break ignored
+    { id: 's4', date: today.toISOString(), duration: 15, completed: false, type: 'focus' }, // incomplete ignored
+    { id: 's5', date: yesterday.toISOString(), duration: 45, completed: true, type: 'focus' },
+    { id: 's6', date: 'invalid-date', duration: 25, completed: true, type: 'focus' }, // invalid date ignored
+  ];
+
+  const summary = calculateTodaySummary(sessions, today);
+  assert.equal(summary.sessions, 2);
+  assert.equal(summary.minutes, 55);
+  assert.equal(summary.streak, 2);
+});
+
+test('calculateTodaySummary handles zero sessions today with streak from yesterday', () => {
+  const today = new Date('2026-10-24T14:30:00.000Z');
+  const yesterday = new Date('2026-10-23T16:00:00.000Z');
+
+  const sessions: KairoSession[] = [
+    { id: 's1', date: yesterday.toISOString(), duration: 25, completed: true, type: 'focus' },
+  ];
+
+  const summary = calculateTodaySummary(sessions, today);
+  assert.equal(summary.sessions, 0);
+  assert.equal(summary.minutes, 0);
+  assert.equal(summary.streak, 1);
 });

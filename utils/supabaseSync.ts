@@ -61,12 +61,30 @@ export const saveSupabaseConfig = (cfg: Partial<SupabaseConfig>): SupabaseConfig
   return next;
 };
 
+const sanitizeApiKey = (key: string): string => {
+  return key.replace(/[\r\n]/g, '').trim();
+};
+
 const normalizeBaseUrl = (url: string): string => {
   let cleaned = url.trim().replace(/\/+$/, '');
-  if (cleaned && !cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+  if (!cleaned) return '';
+  if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
     cleaned = `https://${cleaned}`;
   }
-  return cleaned;
+  try {
+    const parsed = new URL(cleaned);
+    const isLocalhost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    if (parsed.protocol === 'http:' && !isLocalhost) {
+      // Force HTTPS for non-localhost endpoints to prevent transmitting anon key & user data in plaintext
+      parsed.protocol = 'https:';
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return '';
+    }
+    return parsed.origin;
+  } catch {
+    return '';
+  }
 };
 
 /**
@@ -77,8 +95,9 @@ export const testSupabaseConnection = async (
   anonKey: string,
 ): Promise<{ ok: boolean; message: string }> => {
   const base = normalizeBaseUrl(url);
+  const cleanKey = sanitizeApiKey(anonKey);
   if (!base) return { ok: false, message: 'Please enter your Supabase Project URL' };
-  if (!anonKey.trim()) return { ok: false, message: 'Please enter your Supabase Anon API Key' };
+  if (!cleanKey) return { ok: false, message: 'Please enter your Supabase Anon API Key' };
 
   try {
     const controller = new AbortController();
@@ -87,8 +106,8 @@ export const testSupabaseConnection = async (
     const res = await fetch(`${base}/rest/v1/`, {
       method: 'GET',
       headers: {
-        apikey: anonKey.trim(),
-        Authorization: `Bearer ${anonKey.trim()}`,
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
       },
       signal: controller.signal,
     });
@@ -120,7 +139,8 @@ export const backupToSupabase = async (
   data: Record<string, unknown>,
 ): Promise<{ ok: boolean; message: string }> => {
   const base = normalizeBaseUrl(url);
-  if (!base || !anonKey.trim()) {
+  const cleanKey = sanitizeApiKey(anonKey);
+  if (!base || !cleanKey) {
     return { ok: false, message: 'Supabase URL or API Key missing.' };
   }
 
@@ -138,8 +158,8 @@ export const backupToSupabase = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        apikey: anonKey.trim(),
-        Authorization: `Bearer ${anonKey.trim()}`,
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
         Prefer: 'resolution=merge-duplicates',
       },
       body: JSON.stringify(payload),
@@ -177,7 +197,8 @@ export const restoreFromSupabase = async (
   anonKey: string,
 ): Promise<{ ok: boolean; data?: Record<string, unknown>; message: string }> => {
   const base = normalizeBaseUrl(url);
-  if (!base || !anonKey.trim()) {
+  const cleanKey = sanitizeApiKey(anonKey);
+  if (!base || !cleanKey) {
     return { ok: false, message: 'Supabase URL or API Key missing.' };
   }
 
@@ -188,8 +209,8 @@ export const restoreFromSupabase = async (
     const res = await fetch(`${base}/rest/v1/kairo_backups?id=eq.kairo_primary_backup&select=payload,updated_at`, {
       method: 'GET',
       headers: {
-        apikey: anonKey.trim(),
-        Authorization: `Bearer ${anonKey.trim()}`,
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
       },
       signal: controller.signal,
     });
