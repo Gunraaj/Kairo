@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 
 interface ModalProps {
   titleId: string;
@@ -17,7 +18,32 @@ const FOCUSABLE = [
 ].join(',');
 
 export const Modal: React.FC<ModalProps> = ({ titleId, onClose, className = '', children }) => {
+  const backdropRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      if (backdropRef.current) {
+        gsap.fromTo(
+          backdropRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.22, ease: 'power2.out' },
+        );
+      }
+      if (dialogRef.current) {
+        gsap.fromTo(
+          dialogRef.current,
+          { opacity: 0, y: 14, scale: 0.97 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: 'back.out(1.2)' },
+        );
+      }
+    }, backdropRef);
+
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const previouslyFocused = document.activeElement instanceof HTMLElement
@@ -56,6 +82,7 @@ export const Modal: React.FC<ModalProps> = ({ titleId, onClose, className = '', 
 
   return (
     <div
+      ref={backdropRef}
       className="modal-backdrop"
       role="presentation"
       onMouseDown={event => event.target === event.currentTarget && onClose()}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { gsap } from 'gsap';
 import type { Project, SubTask, Task, UserSettings } from '../types';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import { InfoTip } from './InfoTip';
@@ -789,7 +790,17 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                         >
                           <button
                             className={`k-task-check ${task.completed ? 'checked' : ''}`}
-                            onClick={() => toggleTaskDone(task.id)}
+                            onClick={e => {
+                              const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                              if (!prefersReduced) {
+                                gsap.fromTo(
+                                  e.currentTarget,
+                                  { scale: 0.78 },
+                                  { scale: 1, duration: 0.26, ease: 'back.out(2.2)' },
+                                );
+                              }
+                              toggleTaskDone(task.id);
+                            }}
                             aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
                           >
                             {task.completed && <NavIcon name="check" />}
@@ -1094,7 +1105,17 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                   >
                                     <button
                                       className={`k-subtask-check ${st.completed ? 'checked' : ''}`}
-                                      onClick={() => toggleSubTaskDone(project.id, task.id, st.id)}
+                                      onClick={e => {
+                                        const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                                        if (!prefersReduced) {
+                                          gsap.fromTo(
+                                            e.currentTarget,
+                                            { scale: 0.78 },
+                                            { scale: 1, duration: 0.26, ease: 'back.out(2.2)' },
+                                          );
+                                        }
+                                        toggleSubTaskDone(project.id, task.id, st.id);
+                                      }}
                                       aria-label={st.completed ? 'Mark subtask incomplete' : 'Mark subtask complete'}
                                     >
                                       {st.completed && <NavIcon name="check" />}

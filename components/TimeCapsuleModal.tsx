@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import type { TimeCapsule } from '../types';
 import { Modal } from './Modal';
 
@@ -46,6 +47,23 @@ export const TimeCapsuleModal: React.FC<TimeCapsuleModalProps> = ({
   const [triggerType, setTriggerType] = useState<'rounds' | 'tomorrow' | 'time'>('rounds');
   const [targetRounds, setTargetRounds] = useState(4);
   const [targetTime, setTargetTime] = useState('18:00');
+  const unsealedHeroRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!activeUnsealed || !unsealedHeroRef.current) return;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        unsealedHeroRef.current,
+        { scale: 0.94, opacity: 0, y: 12 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.5)' },
+      );
+    }, unsealedHeroRef);
+
+    return () => ctx.revert();
+  }, [activeUnsealed]);
 
   const handleSeal = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +106,7 @@ export const TimeCapsuleModal: React.FC<TimeCapsuleModalProps> = ({
 
       {/* Unsealed Banner / Active Celebration Ceremony */}
       {activeUnsealed && (
-        <div className="k-capsule-unsealed-hero">
+        <div ref={unsealedHeroRef} className="k-capsule-unsealed-hero">
           <div className="k-capsule-unsealed-badge">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 1l1.8 4.7L14.5 7.5l-4.7 1.8L8 14l-1.8-4.7L1.5 7.5l4.7-1.8L8 1z" />
