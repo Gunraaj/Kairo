@@ -15,11 +15,18 @@
   --washi-3:        #E6DED3;
   --washi-card:     #FFFFFF;
   --washi-sidebar:  #F4EFE6;
+  --washi-hover:    #EBE4D8;
+  --bg-card:        #FFFFFF;
 
   --sumi:           #181614;
+  --sumi-1:         #181614;
   --sumi-2:         #3E3A34;
   --sumi-3:         #6E685E;
+  --sumi-4:         #8A8275;
+  --sumi-muted:     #78716C;
+  --sumi-shadow:    rgba(24, 22, 20, 0.12);
   --stone:          #9C9486;
+  --stone-1:        #EDE6D8;
   --stone-2:        #DCD4C5;
   --stone-3:        #EAE2D3;
 
@@ -32,12 +39,18 @@
   --shu:            #C9382A;
   --shu-hover:      #B52F22;
   --shu-soft:       rgba(201, 56, 42, 0.08);
+  --shu-subtle:     rgba(201, 56, 42, 0.06);
+  --shu-light:      rgba(201, 56, 42, 0.12);
   --shu-line:       rgba(201, 56, 42, 0.28);
+  --shu-ring:       rgba(201, 56, 42, 0.35);
   --shu-glow:       rgba(201, 56, 42, 0.25);
 
   --ambient-radial-glow: rgba(201, 56, 42, 0.03);
   --dial-disc-light: #FFFFFF;
   --dial-disc-dark: #F5EFE6;
+
+  /* Layout */
+  --sidebar-w:      240px;
 
   /* Geometry & Typography */
   --unit:           4px;
@@ -49,10 +62,12 @@
   --sans:           "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --jp:             "Noto Sans JP", "Inter", sans-serif;
   --mono:           "IBM Plex Mono", "SF Mono", monospace;
+  --serif:          "Newsreader", "Playfair Display", "Noto Serif JP", Georgia, serif;
 
   /* Shadows */
   --shadow-sm:      0 1px 2px rgba(28, 27, 24, 0.04);
   --shadow-lift:    0 2px 4px rgba(28, 27, 24, 0.04), 0 10px 28px rgba(28, 27, 24, 0.06);
+  --shadow-lg:      0 10px 25px -5px rgba(28, 27, 24, 0.08), 0 8px 10px -6px rgba(28, 27, 24, 0.06);
   --shadow-deep:    0 6px 16px rgba(28, 27, 24, 0.08), 0 24px 64px rgba(28, 27, 24, 0.12);
 }
 
@@ -65,18 +80,28 @@
   --washi-3:        #18181F;
   --washi-card:     #121217;
   --washi-sidebar:  #0C0C10;
+  --washi-hover:    #1F1F26;
+  --bg-card:        #121217;
 
   --sumi:           #F4F4F6;
+  --sumi-1:         #F4F4F6;
   --sumi-2:         #D1D1D6;
   --sumi-3:         #82828C;
+  --sumi-4:         #A1A1AA;
+  --sumi-muted:     #71717A;
+  --sumi-shadow:    rgba(0, 0, 0, 0.45);
   --stone:          #52525C;
+  --stone-1:        #2E2E36;
   --stone-2:        #24242A;
   --stone-3:        #1A1A20;
 
   --shu:            #FF453A;
   --shu-hover:      #FF5D53;
   --shu-soft:       rgba(255, 69, 58, 0.12);
+  --shu-subtle:     rgba(255, 69, 58, 0.08);
+  --shu-light:      rgba(255, 69, 58, 0.16);
   --shu-line:       rgba(255, 69, 58, 0.35);
+  --shu-ring:       rgba(255, 69, 58, 0.4);
   --shu-glow:       rgba(255, 69, 58, 0.45);
 
   --ambient-radial-glow: rgba(255, 69, 58, 0.05);
@@ -85,6 +110,7 @@
 
   --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-lift:    0 2px 6px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.7);
+  --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
   --shadow-deep:    0 8px 24px rgba(0, 0, 0, 0.7), 0 32px 72px rgba(0, 0, 0, 0.85);
 }
 
@@ -8339,7 +8365,8 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 /* --- Document & Syllabus Breakdown Modal -------------------------------- */
-.k-doc-breakdown-modal .modal-content {
+.modal-card.k-doc-breakdown-modal,
+.k-doc-breakdown-modal {
   max-width: 860px;
   width: 95vw;
   max-height: 90vh;
