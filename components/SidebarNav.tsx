@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import type { Project, SubTask, Task, UserSettings } from '../types';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import { InfoTip } from './InfoTip';
+import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
 import {
   calculateDonePomodoros,
   calculateEffectiveTaskTime,
@@ -34,7 +35,8 @@ export const NavIcon: React.FC<{
     | 'sound'
     | 'keyboard'
     | 'mail'
-    | 'book';
+    | 'book'
+    | 'sparkles';
 }> = ({ name }) => {
   const shared = {
     className: 'k-nav-icon',
@@ -86,6 +88,12 @@ export const NavIcon: React.FC<{
       return (
         <svg {...shared}>
           <path d="M2 3.5A1.5 1.5 0 013.5 2H7v12H3.5A1.5 1.5 0 012 12.5v-9zM14 3.5A1.5 1.5 0 0012.5 2H9v12h3.5a1.5 1.5 0 001.5-1.5v-9z" />
+        </svg>
+      );
+    case 'sparkles':
+      return (
+        <svg {...shared}>
+          <path d="M8 1.5l1.2 3.3 3.3 1.2-3.3 1.2L8 10.5l-1.2-3.3L3.5 6l3.3-1.2L8 1.5zM12.5 10.5l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6.6-1.7z" />
         </svg>
       );
   }
@@ -173,6 +181,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [editingSubTaskId, setEditingSubTaskId] = useState<string | null>(null);
   const [editSubTaskName, setEditSubTaskName] = useState('');
   const [isDocBreakdownOpen, setIsDocBreakdownOpen] = useState(false);
+  const [slicingProjectId, setSlicingProjectId] = useState<string | null>(null);
+  const [slicingTaskId, setSlicingTaskId] = useState<string | null>(null);
   const [docBreakdownTargetProjectId, setDocBreakdownTargetProjectId] = useState<string | null>(null);
 
   const handleImportDocPlan = (imported: {
@@ -549,6 +559,78 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     (document.activeElement as HTMLElement)?.blur?.();
   };
 
+  const handleAiSliceProject = async (projectId: string, projectName: string) => {
+    if (slicingProjectId) return;
+    setSlicingProjectId(projectId);
+    try {
+      const sliced = await breakdownProjectTasks(projectName);
+      if (Array.isArray(sliced) && sliced.length > 0) {
+        setProjects(prev =>
+          (Array.isArray(prev) ? prev : []).map(p => {
+            if (p.id !== projectId) return p;
+            const currentTasks = Array.isArray(p.tasks) ? p.tasks : [];
+            const generatedTasks: Task[] = sliced.map(t => ({
+              id: crypto.randomUUID(),
+              name: t.name,
+              targetRounds: t.targetRounds || 4,
+              pomodoroLength: settings?.focusDuration || 25,
+              completed: false,
+              status: 'todo' as const,
+              timeSpent: 0,
+              subTasks: [],
+            }));
+            return {
+              ...p,
+              tasks: [...currentTasks, ...generatedTasks],
+              isExpanded: true,
+            };
+          }),
+        );
+        setExpanded(prev => new Set(prev).add(projectId));
+      }
+    } catch (err) {
+      console.error('Failed to AI slice project:', err);
+    } finally {
+      setSlicingProjectId(null);
+    }
+  };
+
+  const handleAiSliceTask = async (projectId: string, taskId: string, taskName: string) => {
+    if (slicingTaskId) return;
+    setSlicingTaskId(taskId);
+    try {
+      const slicedSubs = await breakdownSubtasks(taskName);
+      if (Array.isArray(slicedSubs) && slicedSubs.length > 0) {
+        setProjects(prev =>
+          (Array.isArray(prev) ? prev : []).map(p => {
+            if (p.id !== projectId) return p;
+            return {
+              ...p,
+              tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
+                if (t.id !== taskId) return t;
+                const currentSubs = Array.isArray(t.subTasks) ? t.subTasks : [];
+                const newSubs: SubTask[] = slicedSubs.map(stName => ({
+                  id: crypto.randomUUID(),
+                  name: stName,
+                  completed: false,
+                }));
+                return {
+                  ...t,
+                  subTasks: [...currentSubs, ...newSubs],
+                };
+              }),
+            };
+          }),
+        );
+        setExpandedTasks(prev => new Set(prev).add(taskId));
+      }
+    } catch (err) {
+      console.error('Failed to AI slice task:', err);
+    } finally {
+      setSlicingTaskId(null);
+    }
+  };
+
   const addTask = (projectId: string) => {
     const name = newTaskName.trim().slice(0, 160);
     if (!name) return;
@@ -761,14 +843,29 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                     </button>
                   </div>
                 ) : (
-                  <button
-                    className="k-tree-icon-btn"
-                    onClick={() => deleteProject(project.id)}
-                    aria-label={`Delete ${project.name}`}
-                    title="Delete project"
-                  >
-                    <NavIcon name="trash" />
-                  </button>
+                  <div className="k-project-actions">
+                    <button
+                      type="button"
+                      className={`k-tree-icon-btn k-project-slice-btn ${slicingProjectId === project.id ? 'is-slicing' : ''}`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleAiSliceProject(project.id, project.name);
+                      }}
+                      disabled={Boolean(slicingProjectId)}
+                      aria-label={`AI Slice Project: generate tasks for ${project.name}`}
+                      title={slicingProjectId === project.id ? 'Generating tasks with AI...' : `✨ AI Slice ${project.name} into tasks`}
+                    >
+                      <NavIcon name="sparkles" />
+                    </button>
+                    <button
+                      className="k-tree-icon-btn"
+                      onClick={() => deleteProject(project.id)}
+                      aria-label={`Delete ${project.name}`}
+                      title="Delete project"
+                    >
+                      <NavIcon name="trash" />
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -893,6 +990,19 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               aria-label={isTaskActive && isSessionActive ? 'Pause focus' : `Start focus on ${task.name}`}
                             >
                               {isTaskActive && isSessionActive ? '⏸' : '▶'}
+                            </button>
+                            <button
+                              type="button"
+                              className={`k-tree-icon-btn k-task-ai-slice-btn ${slicingTaskId === task.id ? 'is-slicing' : ''}`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleAiSliceTask(project.id, task.id, task.name);
+                              }}
+                              disabled={Boolean(slicingTaskId)}
+                              aria-label={`AI Slice Task: generate subtasks for ${task.name}`}
+                              title={slicingTaskId === task.id ? 'Generating subtasks with AI...' : `✨ AI Slice ${task.name} into subtasks`}
+                            >
+                              <NavIcon name="sparkles" />
                             </button>
                             <button
                               className="k-tree-icon-btn k-task-add-subtask-btn"

@@ -872,6 +872,33 @@ a {
   color: var(--shu) !important;
 }
 
+.k-project-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.k-project-slice-btn,
+.k-task-ai-slice-btn {
+  color: var(--sumi-3);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.k-project-slice-btn:hover,
+.k-task-ai-slice-btn:hover {
+  color: var(--shu) !important;
+  background: var(--shu-subtle) !important;
+  transform: scale(1.08);
+}
+.k-project-slice-btn.is-slicing,
+.k-task-ai-slice-btn.is-slicing {
+  color: var(--shu) !important;
+  animation: k-ai-spin 1.2s infinite linear;
+  pointer-events: none;
+}
+@keyframes k-ai-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .k-delete-confirm-group {
   display: flex;
   align-items: center;
@@ -8442,6 +8469,204 @@ input[type="range"]::-moz-range-thumb:hover {
   background: var(--washi-2);
   color: var(--sumi);
   border-color: var(--stone-2);
+}
+
+/* AI Engine & Privacy Selector Card (Feature 20) */
+.k-doc-engine-card {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.k-doc-engine-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.k-doc-engine-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sumi);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.k-doc-engine-icon {
+  color: var(--shu);
+  font-size: 15px;
+}
+
+.k-doc-engine-label {
+  letter-spacing: -0.01em;
+}
+
+.k-doc-engine-faq-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-full);
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-doc-engine-faq-toggle:hover {
+  background: var(--washi-card);
+  color: var(--shu);
+  border-color: var(--shu-subtle);
+}
+
+.k-doc-engine-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.k-doc-engine-chip {
+  flex: 1 1 calc(16.666% - 6px);
+  min-width: 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 140ms ease;
+  text-align: center;
+  gap: 2px;
+}
+
+.k-doc-engine-chip:hover {
+  border-color: var(--stone-1);
+  transform: translateY(-1px);
+}
+
+.k-doc-engine-chip.active {
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.k-engine-chip-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+
+.k-engine-chip-badge {
+  font-size: 10px;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.k-doc-engine-chip.active .k-engine-chip-label {
+  color: var(--shu);
+}
+
+.k-doc-engine-chip.active .k-engine-chip-badge {
+  color: var(--shu);
+  opacity: 0.85;
+}
+
+.k-doc-faq-drawer {
+  margin-top: 6px;
+  padding: 12px 14px;
+  background: var(--washi-card);
+  border: 1px dashed var(--stone-2);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--sumi-2);
+}
+
+.k-doc-faq-row b {
+  color: var(--sumi);
+  font-size: 12px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.k-doc-faq-row p {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.k-doc-faq-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--washi-2);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+}
+
+.k-doc-faq-code-bar code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--sumi);
+}
+
+.k-doc-faq-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-doc-faq-copy-btn:hover {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+}
+
+.k-diff-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.k-diff-indicator.intensive {
+  background: #A855F7;
+}
+
+.k-diff-indicator.standard {
+  background: #EAB308;
+}
+
+.k-diff-indicator.light {
+  background: #22C55E;
 }
 
 /* Step 1: Input Ingestion View */

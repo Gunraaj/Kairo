@@ -93,44 +93,71 @@ server.listen(0, '127.0.0.1', async () => {
     await soundBtn.click();
     await page.waitForTimeout(400);
 
-    // Activate "Wind In Trees"
-    const searchInput = page.locator('.k-search input');
-    await searchInput.fill('wind in trees');
-    await page.waitForTimeout(200);
-    const windInTrees = page.locator('.k-sound-card-header:has-text("Wind In Trees")').first();
-    if (await windInTrees.count() > 0) await windInTrees.click();
-
-    // Activate "Wind Chimes"
-    await searchInput.fill('wind chimes');
-    await page.waitForTimeout(200);
-    const windChimes = page.locator('.k-sound-card-header:has-text("Wind Chimes")').first();
-    if (await windChimes.count() > 0) await windChimes.click();
-
-    // Activate "Temple"
-    await searchInput.fill('temple');
-    await page.waitForTimeout(200);
-    const temple = page.locator('.k-sound-card-header:has-text("Temple")').first();
-    if (await temple.count() > 0) await temple.click();
-
-    // Clear search
-    await searchInput.fill('');
-    await page.waitForTimeout(200);
-
-    // Switch to Brainwaves tab and toggle tone
-    const beatsTab = page.locator('#tab-beats');
-    await beatsTab.click();
-    await page.waitForTimeout(300);
-
-    const startToneBtn = page.locator('.k-btn-synth-toggle, button:has-text("Start Tone"), button:has-text("Play")').first();
-    if (await startToneBtn.count() > 0) {
-      await startToneBtn.click();
+    // Open Sound Library Modal if using 2-tier architecture
+    const openLibraryCard = page.locator('.k-open-library-card');
+    if (await openLibraryCard.count() > 0) {
+      await openLibraryCard.click();
       await page.waitForTimeout(300);
     }
 
-    // Switch back to Ambient tab to see the unified mixer rack
+    // Activate "Wind In Trees"
+    const searchInput = page.locator('.k-search input');
+    if (await searchInput.count() > 0) {
+      await searchInput.fill('wind in trees');
+      await page.waitForTimeout(200);
+      const windInTrees = page.locator('.k-sound-card-header:has-text("Wind In Trees")').first();
+      if (await windInTrees.count() > 0) await windInTrees.click();
+
+      // Activate "Wind Chimes"
+      await searchInput.fill('wind chimes');
+      await page.waitForTimeout(200);
+      const windChimes = page.locator('.k-sound-card-header:has-text("Wind Chimes")').first();
+      if (await windChimes.count() > 0) await windChimes.click();
+
+      // Activate "Temple"
+      await searchInput.fill('temple');
+      await page.waitForTimeout(200);
+      const temple = page.locator('.k-sound-card-header:has-text("Temple")').first();
+      if (await temple.count() > 0) await temple.click();
+
+      // Clear search
+      await searchInput.fill('');
+      await page.waitForTimeout(200);
+
+      // Switch to Brainwaves tab and toggle tone
+      const beatsTab = page.locator('#tab-beats, button:has-text("Brainwaves")').first();
+      if (await beatsTab.count() > 0) {
+        await beatsTab.click();
+        await page.waitForTimeout(300);
+
+        const startToneBtn = page.locator('.k-btn-synth-toggle, button:has-text("Start Tone"), button:has-text("Play")').first();
+        if (await startToneBtn.count() > 0) {
+          await startToneBtn.click();
+          await page.waitForTimeout(300);
+        }
+      }
+
+      // Close Sound Library modal to return to sidebar mixer rack
+      const closeLibraryBtn = page.locator('.k-sound-library-close, .k-sound-library-dialog button[aria-label="Close"]').first();
+      if (await closeLibraryBtn.count() > 0) {
+        await closeLibraryBtn.click();
+        await page.waitForTimeout(400);
+      }
+    } else {
+      // Direct atmosphere preset activation in sidebar
+      const atmoPill = page.locator('.k-sidebar-atmo-pill').first();
+      if (await atmoPill.count() > 0) {
+        await atmoPill.click();
+        await page.waitForTimeout(400);
+      }
+    }
+
+    // Switch back to Ambient tab if tabs exist
     const soundsTab = page.locator('#tab-sounds');
-    await soundsTab.click();
-    await page.waitForTimeout(400);
+    if (await soundsTab.count() > 0) {
+      await soundsTab.click();
+      await page.waitForTimeout(400);
+    }
 
     // Ensure rack is open
     const mixerToggle = page.locator('.k-mixer-collapse-toggle');

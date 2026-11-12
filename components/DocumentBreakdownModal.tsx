@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Modal } from './Modal';
+import { Icon } from './Icon';
 import {
   BreakdownPlan,
   ProposedModule,
@@ -13,6 +14,7 @@ import {
 import { PresetCategory, SLICE_PRESETS } from '../utils/slicePresets';
 import { Project } from '../types';
 import { formatDurationCompact } from '../utils/subtaskTime';
+import { getAiConfig, saveAiConfig, AiProviderType } from '../utils/geminiAi';
 
 interface DocumentBreakdownModalProps {
   onClose: () => void;
@@ -62,6 +64,22 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
   );
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedTaskSubs, setExpandedTaskSubs] = useState<Set<string>>(new Set());
+
+  // Provider switcher & guidance state (Feature 20)
+  const [aiConfig, setAiConfig] = useState(() => getAiConfig());
+  const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [copiedCmd, setCopiedCmd] = useState(false);
+
+  const handleSwitchProvider = (provider: AiProviderType) => {
+    saveAiConfig({ provider });
+    setAiConfig(getAiConfig());
+  };
+
+  const handleCopyOllamaCmd = () => {
+    navigator.clipboard?.writeText?.('OLLAMA_ORIGINS="*" ollama serve');
+    setCopiedCmd(true);
+    setTimeout(() => setCopiedCmd(false), 2000);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -280,7 +298,9 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
         {/* Header */}
         <div className="k-doc-modal-head">
           <div className="k-doc-head-title">
-            <span className="k-doc-head-icon" aria-hidden="true">📄</span>
+            <span className="k-doc-head-icon" aria-hidden="true">
+              <Icon name="document" />
+            </span>
             <div>
               <h2 id="kairo-doc-breakdown-title" className="k-doc-title">
                 {step === 'input' ? 'Document & Syllabus Breakdown' : 'Curriculum Review & Staging'}
@@ -298,6 +318,80 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
         {/* STEP 1: INPUT INGESTION */}
         {step === 'input' && (
           <div className="k-doc-input-view">
+            {/* AI Engine & Privacy Selector (Feature 20) */}
+            <div className="k-doc-engine-card">
+              <div className="k-doc-engine-header">
+                <div className="k-doc-engine-title-group">
+                  <Icon name="brain" className="k-doc-engine-icon" />
+                  <span className="k-doc-engine-label">AI Breakdown Engine</span>
+                </div>
+                <button
+                  type="button"
+                  className="k-doc-engine-faq-toggle"
+                  onClick={() => setIsFaqOpen(!isFaqOpen)}
+                  aria-expanded={isFaqOpen}
+                >
+                  <Icon name="settings" />
+                  <span>{isFaqOpen ? 'Close Guide' : 'Ollama & API Guide'}</span>
+                </button>
+              </div>
+
+              <div className="k-doc-engine-chips" role="radiogroup" aria-label="AI Engine">
+                {[
+                  { id: 'gemini', label: 'Gemini Flash', badge: 'Free' },
+                  { id: 'anthropic', label: 'Claude 3.5', badge: 'Smart' },
+                  { id: 'openai', label: 'GPT-4o Mini', badge: 'Fast' },
+                  { id: 'openrouter', label: 'OpenRouter', badge: 'Open' },
+                  { id: 'local', label: 'Ollama', badge: 'Localhost' },
+                  { id: 'offline', label: 'Offline AST', badge: '100% Private' },
+                ].map(prov => {
+                  const isProvActive = aiConfig.provider === prov.id;
+                  return (
+                    <button
+                      key={prov.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={isProvActive}
+                      className={`k-doc-engine-chip ${isProvActive ? 'active' : ''}`}
+                      onClick={() => handleSwitchProvider(prov.id as AiProviderType)}
+                    >
+                      <span className="k-engine-chip-label">{prov.label}</span>
+                      <span className="k-engine-chip-badge">{prov.badge}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {isFaqOpen && (
+                <div className="k-doc-faq-drawer">
+                  <div className="k-doc-faq-row">
+                    <b>Localhost Ollama (100% Private & Free):</b>
+                    <p>To allow your browser to connect to local Ollama, start the server with CORS enabled:</p>
+                    <div className="k-doc-faq-code-bar">
+                      <code>OLLAMA_ORIGINS="*" ollama serve</code>
+                      <button
+                        type="button"
+                        className="k-doc-faq-copy-btn"
+                        onClick={handleCopyOllamaCmd}
+                        title="Copy command to clipboard"
+                      >
+                        <Icon name="copy" />
+                        <span>{copiedCmd ? 'Copied!' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="k-doc-faq-row">
+                    <b>Cloud AI Providers:</b>
+                    <p>Google Gemini Free Tier provides 15 req/min at zero cost. Claude and OpenAI require API keys configured in App Settings.</p>
+                  </div>
+                  <div className="k-doc-faq-row">
+                    <b>Offline Deterministic AST:</b>
+                    <p>Requires no API key or server connection. Parses outline structures directly in the browser with cognitive weighting.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Mode Switcher */}
             <div className="k-doc-tab-row">
               <button
@@ -305,14 +399,16 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                 className={`k-doc-tab-btn ${inputMode === 'text' ? 'active' : ''}`}
                 onClick={() => setInputMode('text')}
               >
-                ✏️ Paste Topic Outline / Syllabus
+                <Icon name="edit" />
+                <span>Paste Topic Outline / Syllabus</span>
               </button>
               <button
                 type="button"
                 className={`k-doc-tab-btn ${inputMode === 'file' ? 'active' : ''}`}
                 onClick={() => setInputMode('file')}
               >
-                📎 Upload File (.pdf, .txt, .md)
+                <Icon name="paperclip" />
+                <span>Upload File (.pdf, .txt, .md)</span>
               </button>
             </div>
 
@@ -323,6 +419,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                 {(['study', 'learning', 'working', 'writing'] as PresetCategory[]).map(cat => {
                   const preset = SLICE_PRESETS[cat];
                   const isActive = archetype === cat;
+                  const iconName = cat === 'study' ? 'school' : cat === 'learning' ? 'brain' : cat === 'working' ? 'briefcase' : 'edit';
                   return (
                     <button
                       key={cat}
@@ -330,7 +427,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                       className={`k-doc-archetype-pill ${isActive ? 'active' : ''}`}
                       onClick={() => setArchetype(cat)}
                     >
-                      <span className="k-pill-emoji">{preset.emoji}</span>
+                      <span className="k-pill-icon"><Icon name={iconName} /></span>
                       <div className="k-pill-text">
                         <b>{preset.name}</b>
                         <small>{cat === 'study' ? 'Active Recall & Exams' : cat === 'learning' ? 'Feynman & Sandbox' : cat === 'working' ? 'Spec & TDD Sprint' : 'Zero-Draft & Edits'}</small>
@@ -364,13 +461,16 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                   <div className="k-doc-templates-row">
                     <span className="k-templates-caption">Sample Starters:</span>
                     <button type="button" onClick={() => loadSample('calculus')} className="k-template-btn">
-                      🎓 Calculus
+                      <Icon name="school" />
+                      <span>Calculus</span>
                     </button>
                     <button type="button" onClick={() => loadSample('prd')} className="k-template-btn">
-                      💼 Eng PRD
+                      <Icon name="briefcase" />
+                      <span>Eng PRD</span>
                     </button>
                     <button type="button" onClick={() => loadSample('language')} className="k-template-btn">
-                      📚 Japanese N4
+                      <Icon name="book" />
+                      <span>Japanese N4</span>
                     </button>
                   </div>
                 </div>
@@ -414,7 +514,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                   />
                   {selectedFile ? (
                     <div className="k-dropzone-selected">
-                      <span className="k-dropzone-icon">📄</span>
+                      <span className="k-dropzone-icon"><Icon name="document" /></span>
                       <div className="k-dropzone-meta">
                         <b>{selectedFile.name}</b>
                         <span>{selectedFile.size} · {selectedFile.mimeType}</span>
@@ -432,7 +532,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                     </div>
                   ) : (
                     <div className="k-dropzone-prompt">
-                      <span className="k-dropzone-icon">📎</span>
+                      <span className="k-dropzone-icon"><Icon name="upload" /></span>
                       <b>Click to browse or drop course PDF / text file</b>
                       <span>Supports syllabi PDFs, course outlines, and markdown notes</span>
                     </div>
@@ -444,7 +544,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
             {analysisError && (
               <div className="k-doc-clarification-card">
                 <div className="k-doc-clarification-head">
-                  <span className="k-doc-clarification-icon">💡</span>
+                  <span className="k-doc-clarification-icon"><Icon name="bulb" /></span>
                   <b>More Context Needed to Avoid Generic Guessing</b>
                 </div>
                 <p className="k-doc-clarification-msg">{analysisError}</p>
@@ -476,7 +576,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <span>✨</span>
+                    <Icon name="sparkles" />
                     <span>Analyze & Stage Plan</span>
                   </>
                 )}
@@ -591,11 +691,14 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                                 <div className="k-task-controls">
                                   {/* Difficulty pill */}
                                   <span className={`k-diff-badge ${task.difficulty}`}>
-                                    {task.difficulty === 'intensive'
-                                      ? '🟣 Deep'
-                                      : task.difficulty === 'light'
-                                      ? '🟢 Light'
-                                      : '🟡 Standard'}
+                                    <span className={`k-diff-indicator ${task.difficulty}`} />
+                                    <span>
+                                      {task.difficulty === 'intensive'
+                                        ? 'Deep'
+                                        : task.difficulty === 'light'
+                                        ? 'Light'
+                                        : 'Standard'}
+                                    </span>
                                   </span>
 
                                   {/* Round Stepper */}
@@ -669,7 +772,8 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                 onClick={handleCommitImport}
                 disabled={selectedCount === 0}
               >
-                <span>🚀 Import into Kairo ({selectedCount} tasks · {plan.totalRounds} rounds)</span>
+                <Icon name="rocket" />
+                <span>Import into Kairo ({selectedCount} tasks · {plan.totalRounds} rounds)</span>
               </button>
             </div>
           </div>

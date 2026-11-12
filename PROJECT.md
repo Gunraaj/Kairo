@@ -45,10 +45,10 @@ Kairo is a client-side deep-work and study companion application with an authent
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| 1 | Production-Grade Codebase Audit & High-Value TODOs | Features 1–9: Shortcuts (M, 1/2/3), subtask uncheck revert, time capsule tomorrow rollover, finish estimate parameters, timer reset duration, audio modulation gain, palette normalization, URL object revocation, text audit embedded server | none | IN_PROGRESS (sub_orch: 2bdd320a) |
-| 2 | Multi-Provider AI Architecture & Offline Heuristics | Features 10–16: Modular `utils/ai/` architecture, Claude adapter, OpenAI & Custom, Ollama & OpenRouter, client-side PDF text extraction, deterministic offline AST parser, backward compatibility | M1 | PLANNED |
-| 3 | Washi/Sumi UI/UX Polish, Accessibility & Modal Overhaul | Features 17–22: CSS variable fixes in washi.css, modal 860px width fix, WCAG AA contrast elevation, in-modal provider switcher & FAQ drawer, SVG icon cleanup, sidebar AI triggers | M2 | PLANNED |
-| 4 | Final E2E Test Suite & Adversarial Hardening | Features 23–24: Execute 100% E2E tests, Playwright verifications, audit text placement, npm run check verification, adversarial coverage hardening | M3 | PLANNED (E2E Track: 7ec0d7e2) |
+| 1 | Production-Grade Codebase Audit & High-Value TODOs | Features 1–9: Shortcuts (M, 1/2/3), subtask uncheck revert, time capsule tomorrow rollover, finish estimate parameters, timer reset duration, audio modulation gain, palette normalization, URL object revocation, text audit embedded server | none | COMPLETED |
+| 2 | Multi-Provider AI Architecture & Offline Heuristics | Features 10–16: Modular `utils/ai/` architecture, Claude adapter, OpenAI & Custom, Ollama & OpenRouter, client-side PDF text extraction, deterministic offline AST parser, backward compatibility | M1 | COMPLETED |
+| 3 | Washi/Sumi UI/UX Polish, Accessibility & Modal Overhaul | Features 17–22: CSS variable fixes in washi.css, modal 860px width fix, WCAG AA contrast elevation, in-modal provider switcher & FAQ drawer, SVG icon cleanup, sidebar AI triggers | M2 | COMPLETED |
+| 4 | Final E2E Test Suite & Adversarial Hardening | Features 23–24: Execute 100% E2E tests, Playwright verifications, audit text placement, npm run check verification, adversarial coverage hardening | M3 | COMPLETED |
 
 ---
 
