@@ -14,6 +14,8 @@ import { detectPresetCategory } from './slicePresets';
 
 export type AiProviderType =
   | 'gemini'
+  | 'anthropic'
+  | 'openai'
   | 'openrouter'
   | 'local'
   | 'openai_custom'
@@ -45,6 +47,18 @@ export const DEFAULT_AI_CONFIGS: Record<
     model: 'gemini-2.0-flash',
     placeholderKey: 'AIzaSy...',
     label: 'Google Gemini',
+  },
+  anthropic: {
+    baseUrl: 'https://api.anthropic.com/v1',
+    model: 'claude-3-5-sonnet-latest',
+    placeholderKey: 'sk-ant-api03-...',
+    label: 'Anthropic Claude',
+  },
+  openai: {
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-4o-mini',
+    placeholderKey: 'sk-proj-...',
+    label: 'OpenAI',
   },
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
@@ -80,6 +94,16 @@ export const POPULAR_MODELS: Record<
     { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Recommended, Free Tier)', free: true },
     { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Fast, Free Tier)', free: true },
     { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Deep Reasoning, Free Tier)', free: true },
+  ],
+  anthropic: [
+    { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (State-of-the-Art)' },
+    { id: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku (Fast & Precise)' },
+    { id: 'claude-3-opus-latest', label: 'Claude 3 Opus (Deep Analysis)' },
+  ],
+  openai: [
+    { id: 'gpt-4o-mini', label: 'GPT-4o Mini (Fast & Cost-Effective)' },
+    { id: 'gpt-4o', label: 'GPT-4o (Omni Reasoning)' },
+    { id: 'o3-mini', label: 'o3-mini (STEM Reasoning)' },
   ],
   openrouter: [
     { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B (Free)', free: true },
@@ -273,6 +297,10 @@ export const checkAiCapability = async (): Promise<AiCapabilityStatus> => {
   let providerName = 'Offline Heuristics';
   if (config.provider === 'gemini') {
     providerName = config.apiKey ? `Gemini (${config.model || '2.0 Flash'})` : 'Gemini (Key needed)';
+  } else if (config.provider === 'anthropic') {
+    providerName = config.apiKey ? `Claude (${config.model || '3.5 Sonnet'})` : 'Claude (Key needed)';
+  } else if (config.provider === 'openai') {
+    providerName = config.apiKey ? `OpenAI (${config.model || 'gpt-4o-mini'})` : 'OpenAI (Key needed)';
   } else if (config.provider === 'openrouter') {
     providerName = config.apiKey ? `OpenRouter (${config.model})` : 'OpenRouter (Key needed)';
   } else if (config.provider === 'local') {
@@ -363,8 +391,58 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
     return text.trim();
   }
 
-  // 4. OpenAI-Compatible Providers (OpenRouter, Localhost / Ollama, Custom OpenAI endpoint)
-  if (config.provider === 'openrouter' || config.provider === 'local' || config.provider === 'openai_custom') {
+  // 3b. Anthropic Claude Native Messages API
+  if (config.provider === 'anthropic') {
+    const apiKey = config.apiKey.trim();
+    if (!apiKey) {
+      throw new Error('Anthropic Claude API key is missing. Add your key in Settings.');
+    }
+    const baseUrl = (config.baseUrl || DEFAULT_AI_CONFIGS.anthropic.baseUrl).replace(/\/+$/, '');
+    const endpoint = baseUrl.endsWith('/messages') ? baseUrl : `${baseUrl}/messages`;
+    const model = config.model.trim() || DEFAULT_AI_CONFIGS.anthropic.model;
+
+    const payload: Record<string, unknown> = {
+      model,
+      max_tokens: 2500,
+      messages: [{ role: 'user', content: prompt }],
+    };
+    if (systemInstruction) {
+      payload.system = systemInstruction;
+    }
+    if (typeof config.temperature === 'number') {
+      payload.temperature = config.temperature;
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const message = (errData as any)?.error?.message || `HTTP ${response.status}`;
+      throw new Error(`Anthropic API: ${message}`);
+    }
+
+    const data = await response.json();
+    const text = data?.content?.[0]?.text;
+    if (!text) throw new Error('Anthropic Claude returned an empty response.');
+    return text.trim();
+  }
+
+  // 4. OpenAI-Compatible Providers (OpenAI, OpenRouter, Localhost / Ollama, Custom OpenAI endpoint)
+  if (
+    config.provider === 'openai' ||
+    config.provider === 'openrouter' ||
+    config.provider === 'local' ||
+    config.provider === 'openai_custom'
+  ) {
     const baseUrl = (config.baseUrl || DEFAULT_AI_CONFIGS[config.provider].baseUrl).replace(/\/+$/, '');
     const endpoint = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
     const model = config.model.trim() || DEFAULT_AI_CONFIGS[config.provider].model;
@@ -482,6 +560,47 @@ export const testAiConnection = async (
       return {
         success: true,
         message: `Connected to Gemini (${model}) in ${elapsed}ms!`,
+        latencyMs: elapsed,
+        model,
+      };
+    }
+
+    // 1b. If Anthropic Claude
+    if (config.provider === 'anthropic') {
+      if (!config.apiKey.trim()) {
+        return { success: false, message: 'Anthropic Claude API key is required.' };
+      }
+      const model = config.model.trim() || DEFAULT_AI_CONFIGS.anthropic.model;
+      const baseUrl = (config.baseUrl || DEFAULT_AI_CONFIGS.anthropic.baseUrl).replace(/\/+$/, '');
+      const endpoint = baseUrl.endsWith('/messages') ? baseUrl : `${baseUrl}/messages`;
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': config.apiKey.trim(),
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 10,
+          messages: [{ role: 'user', content: "Reply with the single word 'ready'." }],
+        }),
+      });
+
+      const elapsed = Math.round(performance.now() - start);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return {
+          success: false,
+          message: (err as any)?.error?.message || `HTTP ${res.status}: Failed to connect to Anthropic`,
+          latencyMs: elapsed,
+        };
+      }
+      return {
+        success: true,
+        message: `Connected to Claude (${model}) in ${elapsed}ms!`,
         latencyMs: elapsed,
         model,
       };

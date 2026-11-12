@@ -91,6 +91,30 @@ test('getAiConfig and saveAiConfig support OpenRouter, Ollama, and Custom endpoi
     const offlineConfig = getAiConfig();
     assert.equal(offlineConfig.provider, 'offline');
 
+    // 4b. Configure Anthropic Claude
+    saveAiConfig({
+      provider: 'anthropic',
+      apiKey: 'sk-ant-test-key-1234',
+      model: 'claude-3-5-sonnet-latest',
+    });
+    const anthropicConfig = getAiConfig();
+    assert.equal(anthropicConfig.provider, 'anthropic');
+    assert.equal(anthropicConfig.apiKey, 'sk-ant-test-key-1234');
+    assert.equal(anthropicConfig.model, 'claude-3-5-sonnet-latest');
+    assert.equal(anthropicConfig.baseUrl, DEFAULT_AI_CONFIGS.anthropic.baseUrl);
+
+    // 4c. Configure OpenAI
+    saveAiConfig({
+      provider: 'openai',
+      apiKey: 'sk-proj-test-key-5678',
+      model: 'gpt-4o-mini',
+    });
+    const openaiConfig = getAiConfig();
+    assert.equal(openaiConfig.provider, 'openai');
+    assert.equal(openaiConfig.apiKey, 'sk-proj-test-key-5678');
+    assert.equal(openaiConfig.model, 'gpt-4o-mini');
+    assert.equal(openaiConfig.baseUrl, DEFAULT_AI_CONFIGS.openai.baseUrl);
+
     // 5. Security: CRLF injection in apiKey & unsafe baseUrl protocols
     saveAiConfig({
       provider: 'gemini',

@@ -498,9 +498,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="k-ai-provider-grid">
             {[
               { id: 'gemini', label: 'Google Gemini', badge: 'Free tier', icon: '⚡' },
+              { id: 'anthropic', label: 'Anthropic Claude', badge: 'Sonnet / Opus', icon: '🧠' },
+              { id: 'openai', label: 'OpenAI', badge: 'GPT-4o / Mini', icon: '✨' },
               { id: 'openrouter', label: 'OpenRouter', badge: 'Free & Open', icon: '🌐' },
               { id: 'local', label: 'Local (Ollama)', badge: 'Private Offline', icon: '💻' },
-              { id: 'openai_custom', label: 'Custom Endpoint', badge: 'OpenAI / Groq', icon: '⚙️' },
+              { id: 'openai_custom', label: 'Custom Endpoint', badge: 'Groq / Mistral', icon: '⚙️' },
               { id: 'offline', label: 'Offline Engine', badge: 'No API / Zero Cost', icon: '📴' },
             ].map(p => (
               <button
@@ -538,6 +540,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <b>
                     {aiConfig.provider === 'gemini'
                       ? 'Google Gemini API Key'
+                      : aiConfig.provider === 'anthropic'
+                      ? 'Anthropic Claude API Key'
+                      : aiConfig.provider === 'openai'
+                      ? 'OpenAI API Key'
                       : aiConfig.provider === 'openrouter'
                       ? 'OpenRouter API Key'
                       : aiConfig.provider === 'local'
@@ -555,6 +561,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           style={{ textDecoration: 'underline', color: 'var(--shu)' }}
                         >
                           Google AI Studio (1,500 req/day free)
+                        </a>
+                      </>
+                    )}
+                    {aiConfig.provider === 'anthropic' && (
+                      <>
+                        Key from{' '}
+                        <a
+                          href="https://console.anthropic.com/settings/keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ textDecoration: 'underline', color: 'var(--shu)' }}
+                        >
+                          Anthropic Console
+                        </a>
+                      </>
+                    )}
+                    {aiConfig.provider === 'openai' && (
+                      <>
+                        Key from{' '}
+                        <a
+                          href="https://platform.openai.com/api-keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ textDecoration: 'underline', color: 'var(--shu)' }}
+                        >
+                          OpenAI Platform
                         </a>
                       </>
                     )}
