@@ -719,7 +719,7 @@ a {
 }
 
 .k-nav-eyebrow {
-  color: var(--stone);
+  color: var(--sumi-3);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -824,7 +824,7 @@ a {
   place-items: center;
   width: 20px;
   height: 20px;
-  color: var(--stone);
+  color: var(--sumi-3);
   border-radius: 4px;
 }
 .k-tree-toggle:hover {
@@ -865,7 +865,7 @@ a {
 }
 .k-tree-project-row:hover .k-tree-icon-btn,
 .k-tree-task:hover .k-tree-icon-btn {
-  color: var(--stone);
+  color: var(--sumi-3);
 }
 .k-tree-icon-btn:hover {
   background: var(--washi-3);
@@ -3200,7 +3200,7 @@ a {
 
 .k-meta-subtle-label {
   font-size: 11px;
-  color: var(--stone);
+  color: var(--sumi-3);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -3662,7 +3662,7 @@ a {
 .k-search svg.k-search-icon {
   width: 14px;
   height: 14px;
-  color: var(--stone);
+  color: var(--sumi-3);
   flex-shrink: 0;
 }
 
@@ -3683,7 +3683,7 @@ a {
 .k-search-clear {
   border: none;
   background: transparent;
-  color: var(--stone);
+  color: var(--sumi-3);
   font-size: 11px;
   cursor: pointer;
   padding: 2px 4px;
@@ -5558,7 +5558,7 @@ a {
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: var(--stone);
+  color: var(--sumi-3);
   flex: 1;
 }
 
@@ -5614,7 +5614,7 @@ a {
 }
 
 .channel-op {
-  color: var(--stone);
+  color: var(--sumi-3);
   font-family: var(--mono);
   font-size: 13px;
   font-weight: 600;
