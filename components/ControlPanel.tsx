@@ -362,7 +362,7 @@ const CURATED_LOFI_STATIONS: LofiStation[] = [
     name: 'Coffee Shop Jazz',
     subtitle: 'Smooth Bossa & Rainy Jazz',
     genre: 'Acoustic Jazz',
-    youtubeId: '-5KAN9_CzSA',
+    youtubeId: 'Dx5qFachd3A',
     badge: 'WARM CAFE',
   },
   {
@@ -2011,6 +2011,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                   title="Lofi focus stream player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                   loading="lazy"
                   allowFullScreen
                 />

@@ -36,7 +36,8 @@ export const NavIcon: React.FC<{
     | 'keyboard'
     | 'mail'
     | 'book'
-    | 'sparkles';
+    | 'sparkles'
+    | 'help';
 }> = ({ name }) => {
   const shared = {
     className: 'k-nav-icon',
@@ -90,6 +91,8 @@ export const NavIcon: React.FC<{
           <path d="M2 3.5A1.5 1.5 0 013.5 2H7v12H3.5A1.5 1.5 0 012 12.5v-9zM14 3.5A1.5 1.5 0 0012.5 2H9v12h3.5a1.5 1.5 0 001.5-1.5v-9z" />
         </svg>
       );
+    case 'help':
+      return <svg {...shared}><circle cx="8" cy="8" r="6" /><path d="M6.2 6.3a1.9 1.9 0 013.6.7c0 1.3-1.8 1.4-1.8 2.6M8 11.6v.1" /></svg>;
     case 'sparkles':
       return (
         <svg {...shared}>
@@ -113,6 +116,7 @@ export interface SidebarNavProps {
   onTimeCapsule?: () => void;
   capsuleCount?: number;
   onScience?: () => void;
+  onHelp?: () => void;
   isSessionActive?: boolean;
   onStartTaskFocus?: (taskId: string) => void;
   onToggleTimer?: () => void;
@@ -132,6 +136,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   onTimeCapsule,
   capsuleCount,
   onScience,
+  onHelp,
   isSessionActive,
   onStartTaskFocus,
   onToggleTimer,
@@ -1597,6 +1602,13 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         <button className="k-nav-item" onClick={onScience} title="Focus Science & Pomodoro Guide">
           <NavIcon name="book" />
           <span className="k-nav-label">Focus Guide</span>
+        </button>
+      )}
+
+      {onHelp && (
+        <button className="k-nav-item" onClick={onHelp} title="Help & FAQ: AI, Supabase and setup guides">
+          <NavIcon name="help" />
+          <span className="k-nav-label">Help &amp; FAQ</span>
         </button>
       )}
 

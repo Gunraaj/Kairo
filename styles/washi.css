@@ -9497,3 +9497,75 @@ input[type="range"]::-moz-range-thumb:hover {
   margin-top: 2px;
   white-space: normal;
 }
+
+/* Help & FAQ */
+.faq-dialog { width: min(760px, 94vw); }
+.k-faq { display: flex; flex-direction: column; gap: 14px; }
+.k-faq-search {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2);
+  background: var(--washi);
+  color: var(--sumi);
+}
+.k-faq-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.k-faq-tab {
+  padding: 6px 12px;
+  min-height: 32px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--stone-2);
+  background: transparent;
+  color: var(--sumi-2);
+  cursor: pointer;
+}
+.k-faq-tab.is-active { background: var(--shu); border-color: var(--shu); color: #fff; }
+.k-faq-heading {
+  margin: 8px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sumi-3);
+}
+.k-faq-item {
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  margin-bottom: 6px;
+}
+.k-faq-item summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+.k-faq-answer { padding: 0 12px 12px; font-size: 13px; line-height: 1.6; color: var(--sumi-2); }
+.k-faq-answer p { margin: 0 0 8px; }
+.k-faq-answer ul, .k-faq-steps { margin: 0 0 8px; padding-left: 20px; }
+.k-faq-answer li { margin-bottom: 4px; }
+.k-faq-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+}
+.k-faq-sql { margin-top: 8px; }
+.k-faq-sql pre {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi);
+}
+.k-faq-empty, .k-faq-footer { font-size: 13px; color: var(--sumi-2); }

@@ -5,6 +5,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
+import { FaqModal } from './components/FaqModal';
 import { Modal } from './components/Modal';
 import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
@@ -73,6 +74,7 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showFaq, setShowFaq] = useState(false);
   const [showScience, setShowScience] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -633,6 +635,10 @@ const App: React.FC = () => {
             setMobileNavOpen(false);
             setShowScience(true);
           }}
+          onHelp={() => {
+            setMobileNavOpen(false);
+            setShowFaq(true);
+          }}
         />
 
         {!sidebarCollapsed && (
@@ -835,6 +841,16 @@ const App: React.FC = () => {
 
       {showShortcuts && (
         <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {showFaq && (
+        <FaqModal
+          onClose={() => setShowFaq(false)}
+          onOpenSettings={() => {
+            setShowFaq(false);
+            setShowSettings(true);
+          }}
+        />
       )}
 
       {showCapsuleModal && (
