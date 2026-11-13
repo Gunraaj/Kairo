@@ -128,6 +128,13 @@ const SECTIONS: FaqSection[] = [
           <li>Test connection. If it fails, Ollama is not running or CORS is not enabled.</li>
         </Steps>
       )),
+      item('Ollama works locally but not on the hosted site', 'ollama hosted netlify cors 403 local network access permission origins', (
+        <ul>
+          <li>Ollama only trusts localhost pages by default. Allow the site: <Code>OLLAMA_ORIGINS="https://makekairo.netlify.app"</Code> (or <Code>"*"</Code>), then restart Ollama.</li>
+          <li>Chrome asks before a website can reach your own computer. When the "local network access" prompt appears, choose Allow.</li>
+          <li>If Ollama runs on another machine, forward its port to this one (for example <Code>ssh -L 11434:127.0.0.1:11434 your-server</Code>) so Kairo can use <Code>localhost:11434</Code>.</li>
+        </ul>
+      )),
       item('Can I use Groq, Mistral or another OpenAI-compatible service?', 'custom endpoint groq mistral openai_custom csp base url', (
         <>
           <p>
