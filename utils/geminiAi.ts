@@ -358,7 +358,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
     }
     const model = config.model.trim() || 'gemini-2.0-flash';
     const baseUrl = (config.baseUrl || DEFAULT_AI_CONFIGS.gemini.baseUrl).replace(/\/+$/, '');
-    const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent`;
 
     const body: Record<string, unknown> = {
       contents: [{ parts: [{ text: prompt }] }],
@@ -375,7 +375,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify(body),
     });
 
@@ -460,7 +460,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
     }
 
     if (config.provider === 'openrouter') {
-      headers['HTTP-Referer'] = 'https://makekairo.netlify.app';
+      headers['HTTP-Referer'] = typeof location !== 'undefined' ? location.origin : 'https://makekairo.netlify.app';
       headers['X-Title'] = 'Kairo Focus Workspace';
     }
 
@@ -484,13 +484,14 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
         headers,
         body: JSON.stringify(payload),
       });
-    } catch (fetchErr: any) {
+    } catch (fetchErr: unknown) {
       if (config.provider === 'local') {
         throw new Error(
           `Unable to reach local server at ${baseUrl}. Ensure Ollama or LM Studio is running. If using Ollama, ensure CORS is enabled: OLLAMA_ORIGINS="*" ollama serve`
         );
       }
-      throw new Error(`Network error connecting to ${baseUrl}: ${fetchErr?.message || 'Check your connection'}`);
+      const detail = fetchErr instanceof Error ? fetchErr.message : '';
+      throw new Error(`Network error connecting to ${baseUrl}: ${detail || 'Check your connection'}`);
     }
 
     if (!response.ok) {
@@ -537,11 +538,11 @@ export const testAiConnection = async (
       }
       const model = config.model.trim() || 'gemini-2.0-flash';
       const baseUrl = (config.baseUrl || DEFAULT_AI_CONFIGS.gemini.baseUrl).replace(/\/+$/, '');
-      const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(config.apiKey.trim())}`;
+      const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent`;
 
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.apiKey.trim() },
         body: JSON.stringify({
           contents: [{ parts: [{ text: "Reply with the single word 'ready'." }] }],
           generationConfig: { maxOutputTokens: 10, temperature: 0 },
@@ -623,7 +624,7 @@ export const testAiConnection = async (
     }
 
     if (config.provider === 'openrouter') {
-      headers['HTTP-Referer'] = 'https://makekairo.netlify.app';
+      headers['HTTP-Referer'] = typeof location !== 'undefined' ? location.origin : 'https://makekairo.netlify.app';
       headers['X-Title'] = 'Kairo Focus Workspace';
     }
 

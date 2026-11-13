@@ -32,26 +32,29 @@ export const useLocalStorage = <T,>(
     return readValue(window.localStorage.getItem(key));
   });
 
+  const latestRef = useRef(storedValue);
+
   const setValue = useCallback<Dispatch<SetStateAction<T>>>((value) => {
-    setStoredValue(previous => {
-      const next = value instanceof Function ? value(previous) : value;
-      const valueToStore = optionsRef.current.normalize(next);
-      try {
-        window.localStorage.setItem(key, JSON.stringify({
-          version: optionsRef.current.version,
-          data: valueToStore,
-        }));
-      } catch {
-        // Keep the in-memory state usable when storage is unavailable or full.
-      }
-      return valueToStore;
-    });
-  }, []);
+    const next = value instanceof Function ? value(latestRef.current) : value;
+    const valueToStore = optionsRef.current.normalize(next);
+    latestRef.current = valueToStore;
+    setStoredValue(valueToStore);
+    try {
+      window.localStorage.setItem(key, JSON.stringify({
+        version: optionsRef.current.version,
+        data: valueToStore,
+      }));
+    } catch {
+      // Keep the in-memory state usable when storage is unavailable or full.
+    }
+  }, [key]);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === key) {
-        setStoredValue(readValue(e.newValue));
+        const incoming = readValue(e.newValue);
+        latestRef.current = incoming;
+        setStoredValue(incoming);
       }
     };
 

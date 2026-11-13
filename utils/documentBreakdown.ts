@@ -409,11 +409,11 @@ Do NOT include markdown backticks like \`\`\`json. Output raw JSON only.`;
 
       const baseUrl = (config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/+$/, '');
       const model = config.model || 'gemini-2.0-flash';
-      const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`;
+      const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent`;
 
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.apiKey },
         body: JSON.stringify({
           contents: [{ parts }],
           systemInstruction: { parts: [{ text: systemInstruction }] },

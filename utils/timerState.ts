@@ -1,6 +1,7 @@
 import type { FocusTarget, SessionType } from '../types';
 
 export const TIMER_STORAGE_KEY = 'kairo_active_timer';
+const MAX_TIMER_SECONDS = 10_800;
 
 export type TimerSnapshot = {
   version: 1;
@@ -48,11 +49,13 @@ export const parseTimerSnapshot = (raw: string | null): TimerSnapshot | null => 
       || typeof snapshot.timeLeft !== 'number'
       || !Number.isFinite(snapshot.timeLeft)
       || snapshot.timeLeft < 0
-      || snapshot.timeLeft > 10_800
+      || snapshot.timeLeft > MAX_TIMER_SECONDS
       || typeof snapshot.isActive !== 'boolean'
       || !optionalFiniteNumber(snapshot.deadline)
       || !optionalFiniteNumber(snapshot.startedAt)
       || !optionalFiniteNumber(snapshot.sessionDuration)
+      || (typeof snapshot.sessionDuration === 'number' && (snapshot.sessionDuration < 0 || snapshot.sessionDuration > MAX_TIMER_SECONDS))
+      || (typeof snapshot.deadline === 'number' && typeof snapshot.startedAt === 'number' && snapshot.deadline < snapshot.startedAt)
       || !optionalFiniteNumber(snapshot.lastSavedAt)
       || !optionalString(snapshot.intention)
       || !isTarget(snapshot.target)
@@ -65,7 +68,7 @@ export const parseTimerSnapshot = (raw: string | null): TimerSnapshot | null => 
 
 export const remainingSeconds = (snapshot: TimerSnapshot, now = Date.now()) =>
   snapshot.isActive && snapshot.deadline
-    ? Math.max(0, Math.ceil((snapshot.deadline - now) / 1000))
+    ? Math.min(MAX_TIMER_SECONDS, Math.max(0, Math.ceil((snapshot.deadline - now) / 1000)))
     : snapshot.timeLeft;
 
 export const calculateElapsedSeconds = (snapshot: TimerSnapshot, now = Date.now()): number => {

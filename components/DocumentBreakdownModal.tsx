@@ -88,6 +88,12 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      setAnalysisError('That file is larger than 5 MB. Please choose a smaller document.');
+      e.target.value = '';
+      return;
+    }
+
     const sizeStr = file.size > 1024 * 1024 
       ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` 
       : `${Math.round(file.size / 1024)} KB`;

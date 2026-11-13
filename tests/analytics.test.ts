@@ -115,3 +115,23 @@ test('calculateTodaySummary handles zero sessions today with streak from yesterd
   assert.equal(summary.minutes, 0);
   assert.equal(summary.streak, 1);
 });
+
+test('calculateFocusStats ignores invalid sessions and computes streaks consistently', async () => {
+  const { calculateFocusStats } = await import('../utils/analytics.ts');
+  const ref = new Date(2026, 5, 15, 12);
+  const day = (offset: number) => new Date(2026, 5, 15 - offset, 10).toISOString();
+  const mk = (offset: number, duration = 25) =>
+    ({ id: `s${offset}-${duration}`, type: 'focus', completed: true, date: day(offset), duration, taskName: 'T' }) as never;
+  const sessions = [
+    mk(0), mk(1), mk(2),
+    mk(400), mk(401), mk(402), mk(403), mk(404),
+    { id: 'bad1', type: 'focus', completed: true, date: 'not-a-date', duration: 25 } as never,
+    { id: 'bad2', type: 'focus', completed: true, date: day(5), duration: Number.NaN } as never,
+  ];
+  const stats = calculateFocusStats(sessions, ref);
+  assert.equal(stats.currentStreak, 3);
+  assert.equal(stats.longestStreak, 5);
+  assert.equal(stats.activeDays, 8);
+  assert.equal(Number.isFinite(stats.totalMins), true);
+  assert.equal(stats.sessionCount, 8);
+});

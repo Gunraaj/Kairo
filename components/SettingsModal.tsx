@@ -27,7 +27,9 @@ import {
   getSupabaseConfig,
   restoreFromSupabase,
   saveSupabaseConfig,
+  signInSupabase,
   testSupabaseConnection,
+  type SupabaseSession,
 } from '../utils/supabaseSync';
 import { BrandLogo, LOGO_VARIANTS, type LogoVariant } from './BrandLogo';
 
@@ -90,6 +92,8 @@ const KAIRO_KEYS = [
   'kairo_time_capsules',
   'kairo_logo_variant',
 ];
+
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 
 const exportSnapshot = (): string => {
   return JSON.stringify(getSnapshotPayload(), null, 2);
@@ -219,6 +223,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   });
   const [supabaseUrl, setSupabaseUrl] = useState(() => getSupabaseConfig().url);
   const [supabaseKey, setSupabaseKey] = useState(() => getSupabaseConfig().anonKey);
+  const [supabaseEmail, setSupabaseEmail] = useState('');
+  const [supabasePassword, setSupabasePassword] = useState('');
+  const [supabaseSession, setSupabaseSession] = useState<SupabaseSession | null>(null);
   const [supabaseStatus, setSupabaseStatus] = useState<string | null>(null);
   const [isTestingSupabase, setIsTestingSupabase] = useState(false);
   const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
@@ -240,6 +247,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setSupabaseStatus(res.message);
   };
 
+  const ensureSupabaseSession = async (): Promise<SupabaseSession | null> => {
+    if (supabaseSession) return supabaseSession;
+    const res = await signInSupabase(supabaseUrl, supabaseKey, supabaseEmail, supabasePassword);
+    if (!res.ok || !res.session) {
+      setSupabaseStatus(res.message);
+      return null;
+    }
+    setSupabaseSession(res.session);
+    return res.session;
+  };
+
   const handleBackupSupabase = async () => {
     if (!supabaseUrl.trim() || !supabaseKey.trim()) {
       setSupabaseStatus('Please enter Supabase URL and Anon Key first');
@@ -247,8 +265,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
     setIsSyncingSupabase(true);
     setSupabaseStatus('Uploading backup...');
+    const session = await ensureSupabaseSession();
+    if (!session) {
+      setIsSyncingSupabase(false);
+      return;
+    }
     const payload = getSnapshotPayload();
-    const res = await backupToSupabase(supabaseUrl, supabaseKey, payload);
+    let res = await backupToSupabase(supabaseUrl, supabaseKey, payload, session);
+    if (res.conflict && window.confirm(res.message)) {
+      res = await backupToSupabase(supabaseUrl, supabaseKey, payload, session, true);
+    }
     setIsSyncingSupabase(false);
     setSupabaseStatus(res.message);
     if (res.ok) onToast?.('Cloud backup uploaded to Supabase');
@@ -261,36 +287,55 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
     setIsSyncingSupabase(true);
     setSupabaseStatus('Retrieving cloud backup...');
-    const res = await restoreFromSupabase(supabaseUrl, supabaseKey);
+    const session = await ensureSupabaseSession();
+    if (!session) {
+      setIsSyncingSupabase(false);
+      return;
+    }
+    const res = await restoreFromSupabase(supabaseUrl, supabaseKey, session);
     setIsSyncingSupabase(false);
     if (res.ok && res.data) {
+      if (!window.confirm('Restoring replaces your local data with the cloud backup. A copy of your current data will be downloaded first. Continue?')) {
+        setSupabaseStatus('Restore cancelled.');
+        return;
+      }
       try {
+        downloadSnapshot('kairo-pre-restore');
         const count = importSnapshot(JSON.stringify(res.data));
+        saveSupabaseConfig({ lastSyncedAt: new Date().toISOString() });
         onToast?.(`Restored ${count} records from Supabase — reloading`);
         window.setTimeout(() => window.location.reload(), 600);
-      } catch {
-        setSupabaseStatus('Could not parse restored data');
+      } catch (err) {
+        setSupabaseStatus(`Could not apply restored data: ${err instanceof Error ? err.message : 'unknown error'}`);
       }
     } else {
       setSupabaseStatus(res.message);
     }
   };
 
-  const handleExport = () => {
+  const downloadSnapshot = (prefix: string) => {
     const blob = new Blob([exportSnapshot()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const stamp = new Date().toISOString().slice(0, 10);
     a.href = url;
-    a.download = `kairo-${stamp}.json`;
+    a.download = `${prefix}-${stamp}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExport = () => {
+    downloadSnapshot('kairo');
     onToast?.('Snapshot exported');
   };
 
   const handleImportFile = async (file: File) => {
+    if (file.size > MAX_IMPORT_BYTES) {
+      onToast?.('Import failed: file is larger than 5 MB');
+      return;
+    }
     try {
       const text = await file.text();
       const count = importSnapshot(text);
@@ -900,6 +945,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 color: 'var(--sumi)',
                 width: 200,
               }}
+            />
+          </div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Supabase account email</b>
+              <small>Backups are private to this account (never stored)</small>
+            </div>
+            <input
+              type="email"
+              autoComplete="email"
+              value={supabaseEmail}
+              onChange={e => { setSupabaseEmail(e.target.value); setSupabaseSession(null); }}
+              placeholder="you@example.com"
+              style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
+            />
+          </div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Supabase account password</b>
+              <small>Create the user in Supabase Auth first</small>
+            </div>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={supabasePassword}
+              onChange={e => { setSupabasePassword(e.target.value); setSupabaseSession(null); }}
+              style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
             />
           </div>
           <div className="k-settings-row" style={{ flexWrap: 'wrap', gap: 8 }}>

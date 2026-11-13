@@ -71,8 +71,16 @@ export interface FocusAnalyticsStats {
   recentIntentions: Array<{ id: string; date: string; intention: string; task: string; mins: number }>;
 }
 
+const dayIndex = (d: Date): number =>
+  Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86_400_000);
+
 export const calculateFocusStats = (sessions: KairoSession[], referenceDate: Date = new Date()): FocusAnalyticsStats => {
-  const focus = sessions.filter(s => s.type === 'focus' && s.completed);
+  const focus = sessions.filter(s =>
+    s.type === 'focus'
+    && s.completed
+    && Number.isFinite(s.duration)
+    && s.duration >= 0
+    && !Number.isNaN(new Date(s.date).getTime()));
 
   const today = new Date(referenceDate);
   today.setHours(0, 0, 0, 0);
@@ -106,28 +114,25 @@ export const calculateFocusStats = (sessions: KairoSession[], referenceDate: Dat
 
   const year = buildYearGrid(focus, referenceDate);
 
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let runStreak = 0;
-  const todayKey = dayKey(today);
-  const cursor = new Date(today);
-  if (!year.dayTotals.has(todayKey)) cursor.setDate(cursor.getDate() - 1);
-  while (year.dayTotals.has(dayKey(cursor))) {
-    currentStreak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
+  const activeIdx = Array.from(new Set(focus.map(s => dayIndex(new Date(s.date))))).sort((a, b) => a - b);
+  const activeSet = new Set(activeIdx);
 
-  const allDays = year.weeks.flatMap(w => w.days).filter((d): d is NonNullable<typeof d> => !!d);
-  allDays.forEach(d => {
-    if (year.dayTotals.has(d.key)) {
-      runStreak += 1;
-      if (runStreak > longestStreak) longestStreak = runStreak;
-    } else {
-      runStreak = 0;
-    }
+  let longestStreak = 0;
+  let run = 0;
+  activeIdx.forEach((idx, i) => {
+    run = i > 0 && idx === activeIdx[i - 1]! + 1 ? run + 1 : 1;
+    if (run > longestStreak) longestStreak = run;
   });
 
-  const activeDays = year.dayTotals.size;
+  let currentStreak = 0;
+  let cursorIdx = dayIndex(today);
+  if (!activeSet.has(cursorIdx)) cursorIdx -= 1;
+  while (activeSet.has(cursorIdx)) {
+    currentStreak += 1;
+    cursorIdx -= 1;
+  }
+
+  const activeDays = activeIdx.length;
 
   const recentIntentions = focus
     .filter(s => s.intention && s.intention.trim().length > 0)

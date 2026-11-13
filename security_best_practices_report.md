@@ -119,3 +119,14 @@ The current dependency audit reports zero known vulnerabilities. Strict TypeScri
 npm audit
 npm run check
 ```
+
+## Update 2026-11-13
+
+Corrections to the review above and follow-up hardening:
+
+- Kairo has an optional Supabase backup. Backups now require a Supabase Auth session and a per-user row protected by RLS (`SUPABASE_SETUP_SQL` in `utils/supabaseSync.ts`). The earlier fixed-row, anon-key-only design is removed.
+- Sync tokens are only accepted for `*.supabase.co` or localhost; cloud writes refuse to overwrite a newer cloud copy without confirmation; restore downloads a local copy first.
+- Gemini API keys are sent in the `x-goog-api-key` header, not the URL.
+- The inline theme script moved to `public/theme-init.js`, so CSP no longer needs `script-src 'unsafe-inline'`. Netlify and Vercel now ship the same CSP.
+- Google Fonts is still loaded from `fonts.googleapis.com` (allowed by CSP); the earlier "removed" note was inaccurate.
+- Known limitation: the `openai_custom` provider accepts any https base URL, but the CSP `connect-src` allow-list blocks hosts not listed.

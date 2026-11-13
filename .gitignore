@@ -43,3 +43,8 @@ docs/
 scratch/
 
 .audit-reports/
+
+# Local tooling artefacts
+.playwright-mcp/
+output/playwright/
+ROADMAP.xlsx

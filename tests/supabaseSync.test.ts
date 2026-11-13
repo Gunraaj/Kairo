@@ -76,3 +76,20 @@ test('testSupabaseConnection sanitizes CRLF in anonKey and requires valid URL', 
   assert.equal(r2.ok, false);
   assert.match(r2.message, /Anon API Key/);
 });
+
+test('decodeSyncToken rejects non-Supabase hosts', () => {
+  const evil = encodeSyncToken('https://evil.example.com', 'key');
+  assert.equal(decodeSyncToken(evil), null);
+  const lookalike = encodeSyncToken('https://abc.supabase.co.evil.com', 'key');
+  assert.equal(decodeSyncToken(lookalike), null);
+});
+
+test('backup and restore require a signed-in session', async () => {
+  const { backupToSupabase, restoreFromSupabase } = await import('../utils/supabaseSync.ts');
+  const b = await backupToSupabase('https://xyz.supabase.co', 'key', {}, null);
+  assert.equal(b.ok, false);
+  assert.match(b.message, /Sign in/);
+  const r = await restoreFromSupabase('https://xyz.supabase.co', 'key', null);
+  assert.equal(r.ok, false);
+  assert.match(r.message, /Sign in/);
+});
