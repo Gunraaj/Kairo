@@ -534,7 +534,7 @@ const App: React.FC = () => {
         <div className="k-sidebar-head">
           <div
             className="k-brand"
-            title="Kairo interval mark"
+            title="Kairo"
           >
             <span className="k-brand-mark" aria-hidden="true">
               <BrandLogo variant={logoVariant} size={15} />
@@ -822,8 +822,6 @@ const App: React.FC = () => {
           setTheme={setTheme}
           palette={palette}
           setPalette={setPalette}
-          logoVariant={logoVariant}
-          setLogoVariant={setLogoVariant}
         />
       )}
 

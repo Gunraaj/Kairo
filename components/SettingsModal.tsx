@@ -31,7 +31,6 @@ import {
   testSupabaseConnection,
   type SupabaseSession,
 } from '../utils/supabaseSync';
-import { BrandLogo, LOGO_VARIANTS, type LogoVariant } from './BrandLogo';
 
 interface SettingsModalProps {
   settings: Settings;
@@ -42,8 +41,6 @@ interface SettingsModalProps {
   setTheme?: (theme: 'light' | 'dark') => void;
   palette?: Palette;
   setPalette?: (palette: Palette) => void;
-  logoVariant?: LogoVariant;
-  setLogoVariant?: (variant: LogoVariant) => void;
 }
 
 const PALETTES = [
@@ -203,8 +200,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   setTheme,
   palette = 'obsidian',
   setPalette,
-  logoVariant = 'interval',
-  setLogoVariant,
 }) => {
   const [local, setLocal] = useState(settings);
   const [aiConfig, setAiConfig] = useState<AiConfig>(() => getAiConfig());
@@ -433,30 +428,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="k-palette-title">{p.name}</div>
                 <div className="k-palette-desc">{p.subtitle}</div>
-              </button>
-            ))}
-          </div>
-
-          <div className="k-settings-section-title" style={{ marginTop: 24 }}>Kairo brand mark</div>
-          <p className="k-settings-section-help">The interval mark uses a bold task anchor, tactile interval arms, and one rounded vermilion active-state latch.</p>
-          <div className="k-logo-variants-grid">
-            {LOGO_VARIANTS.map(v => (
-              <button
-                key={v.id}
-                type="button"
-                className={`k-logo-variant-card ${logoVariant === v.id ? 'is-active' : ''}`}
-                onClick={() => setLogoVariant?.(v.id)}
-              >
-                <div className="k-variant-icon-wrap">
-                  <BrandLogo variant={v.id} size={28} />
-                </div>
-                <div className="k-variant-meta">
-                  <div className="k-variant-name">
-                    <span>{v.name}</span>
-                    <span className="k-variant-kanji">{v.japanese}</span>
-                  </div>
-                  <div className="k-variant-desc">{v.concept}</div>
-                </div>
               </button>
             ))}
           </div>
