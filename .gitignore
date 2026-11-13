@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -48,3 +48,4 @@ scratch/
 .playwright-mcp/
 output/playwright/
 ROADMAP.xlsx
+brag-output/

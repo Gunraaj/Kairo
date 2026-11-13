@@ -656,6 +656,7 @@ const App: React.FC = () => {
 
       {/* 2. Main Focus Stage & Sound Studio */}
       <main className="k-main">
+        <h1 className="sr-only">Kairo focus timer</h1>
         <section className="k-stage" id="focus-workspace">
           {/* Pinned Stage Utility Header (Coordinated in-flow, completely eliminating overlaps) */}
           <header className="k-stage-utility-header">

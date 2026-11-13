@@ -9569,3 +9569,14 @@ input[type="range"]::-moz-range-thumb:hover {
   color: var(--sumi);
 }
 .k-faq-empty, .k-faq-footer { font-size: 13px; color: var(--sumi-2); }
+
+/* Touch targets: keep small controls tappable on coarse pointers (WCAG 2.5.8) */
+@media (pointer: coarse) {
+  .k-break-stepper-btn,
+  .k-modal-close,
+  .k-nav-item,
+  .k-faq-tab {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
