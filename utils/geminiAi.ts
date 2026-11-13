@@ -10,6 +10,7 @@
  *   6. 100% Offline Heuristic Fallback Engine
  */
 
+import { generateStructured } from './structuredAi';
 import { detectPresetCategory } from './slicePresets';
 
 export type AiProviderType =
@@ -700,25 +701,34 @@ export const sharpenIntention = async (vagueIntention: string): Promise<string> 
 export const breakdownProjectTasks = async (
   projectName: string,
 ): Promise<Array<{ name: string; targetRounds: number }>> => {
-  const systemPrompt = `You are an expert agile engineer. Break the project into 3 to 4 sequential, discrete 25-minute Pomodoro tasks.
-Return ONLY valid JSON matching this schema:
-[
-  { "name": "Task name (short, actionable)", "targetRounds": 1 or 2 }
-]
-Do not wrap in backticks or code blocks. Output raw JSON only.`;
-
   try {
-    const raw = await queryAi(`Project: "${projectName}"`, systemPrompt);
-    const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.slice(0, 5).map(item => ({
-        name: String(item.name || 'Next task').slice(0, 100),
-        targetRounds: Math.min(6, Math.max(1, Number(item.targetRounds) || 2)),
-      }));
-    }
+    const result = await generateStructured<{ tasks: Array<{ name: string; targetRounds: number }> }>({
+      schemaName: 'project_tasks',
+      system: 'You are an expert planner. Break the project into 3 to 4 sequential, concrete tasks. Each task is sized in 25-minute Pomodoro rounds (1 or 2 for most tasks). Task names are short and start with a verb.',
+      prompt: `Project: "${projectName}"`,
+      schema: {
+        type: 'object',
+        properties: {
+          tasks: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 5,
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', maxLength: 100 },
+                targetRounds: { type: 'integer', minimum: 1, maximum: 6 },
+              },
+              required: ['name', 'targetRounds'],
+            },
+          },
+        },
+        required: ['tasks'],
+      },
+    });
+    return result.tasks;
   } catch {
-    // Smart heuristic preset fallback if AI is unavailable or unconfigured
+    // Fall back to the offline preset below
   }
 
   const preset = detectPresetCategory(projectName);
@@ -734,23 +744,22 @@ Do not wrap in backticks or code blocks. Output raw JSON only.`;
 export const breakdownSubtasks = async (
   taskName: string,
 ): Promise<string[]> => {
-  const systemPrompt = `You are a productivity expert. Break the task into 2 to 4 micro subtasks (sub-steps).
-Return ONLY valid JSON array of strings:
-[
-  "Subtask 1",
-  "Subtask 2"
-]
-Keep each subtask under 10 words. Output raw JSON only with no quotes outside the array.`;
-
   try {
-    const raw = await queryAi(`Task: "${taskName}"`, systemPrompt);
-    const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.slice(0, 5).map(item => String(item).slice(0, 100));
-    }
+    const result = await generateStructured<{ subtasks: string[] }>({
+      schemaName: 'subtasks',
+      system: 'You are a productivity expert. Break the task into 2 to 4 small sub-steps, each under 10 words.',
+      prompt: `Task: "${taskName}"`,
+      schema: {
+        type: 'object',
+        properties: {
+          subtasks: { type: 'array', minItems: 1, maxItems: 5, items: { type: 'string', maxLength: 100 } },
+        },
+        required: ['subtasks'],
+      },
+    });
+    return result.subtasks;
   } catch {
-    // Smart heuristic preset fallback
+    // Fall back to the offline preset below
   }
 
   const preset = detectPresetCategory(taskName);
