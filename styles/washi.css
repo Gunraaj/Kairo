@@ -9618,3 +9618,15 @@ input[type="range"]::-moz-range-thumb:hover {
 .k-onboarding-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .k-onboarding-note { margin: 0; font-size: 12px; color: var(--sumi-3); }
 @media (max-width: 640px) { .k-today-inner { padding: 24px 16px 80px; } .k-today-block { grid-template-columns: 1fr auto; } .k-today-block .k-btn { grid-column: 1 / -1; } }
+
+/* AI bridge */
+.k-aibridge { width: min(720px, 94vw); }
+.k-aibridge-body { display: flex; flex-direction: column; gap: 14px; }
+.k-aibridge-context { margin: 0; padding: 12px 14px; max-height: 260px; overflow: auto; white-space: pre-wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; border: 1px solid var(--stone-3); border-radius: var(--r-sm); background: var(--washi-card); color: var(--sumi); }
+.k-aibridge-errors { margin: 0; padding: 10px 14px 10px 28px; font-size: 13px; color: var(--shu); border: 1px solid var(--shu-line); border-radius: var(--r-sm); }
+.k-aibridge-preview { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--sumi-2); }
+.k-aibridge-preview p { margin: 0; }
+.k-aibridge-project { border: 1px solid var(--stone-3); border-radius: var(--r-sm); padding: 10px 12px; background: var(--washi-2); }
+.k-aibridge-project b { display: block; color: var(--sumi); }
+.k-aibridge-project small { color: var(--sumi-3); }
+.k-aibridge-project ul { margin: 6px 0 0; padding-left: 18px; }

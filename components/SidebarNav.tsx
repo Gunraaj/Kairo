@@ -121,6 +121,7 @@ export interface SidebarNavProps {
   capsuleCount?: number;
   onScience?: () => void;
   onToday?: () => void;
+  onBridge?: () => void;
   onHelp?: () => void;
   isSessionActive?: boolean;
   onStartTaskFocus?: (taskId: string) => void;
@@ -142,6 +143,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   capsuleCount,
   onScience,
   onToday,
+  onBridge,
   onHelp,
   isSessionActive,
   onStartTaskFocus,
@@ -1568,6 +1570,13 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         <button className="k-nav-item" onClick={onToday} title="Today's plan">
           <NavIcon name="today" />
           <span className="k-nav-label">Today</span>
+        </button>
+      )}
+
+      {onBridge && (
+        <button className="k-nav-item" onClick={onBridge} title="Plan with your ChatGPT, Claude or Gemini">
+          <NavIcon name="sparkles" />
+          <span className="k-nav-label">Use my AI</span>
         </button>
       )}
 

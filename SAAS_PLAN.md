@@ -83,7 +83,13 @@ Loop = observe -> compute -> propose -> approve -> apply.
 
 ---
 
-## Status (2026-11-14)
+## Build status (2026-11-14, end of day)
+
+Done and committed locally (171 tests): upgrade-path steps 1 (AI layer, live model lists, Chrome AI, evals; qwen2.5 7B scores 6/6 valid plans), 3 (deadlines, estimate multiplier, pace, schedule, Today screen), 4 (paste bridge with share links and import preview), and the core of step 2 (Today home, first-run onboarding, extras behind Settings). Not yet built: the full four-place nav (Focus/Plan/Progress as separate screens), component splitting, AI "re-plan diff" proposals, PWA/notifications (step 5), hosting move (step 6), and everything backend (steps 7-10). Not pushed; see git log.
+
+Next for a cheaper model: step 5 (PWA + notifications), then step 6 (Cloudflare Pages), then the AI re-plan diff (use `paceStatus` + `generateStructured`, schema in the Phase 2 section), then the four-place nav.
+
+## Status (2026-11-14, earlier)
 
 Done and tested (151 tests pass):
 - `utils/structuredAi.ts` — `generateStructured()`: provider-side schema enforcement (OpenAI-compatible `json_schema`, Gemini `responseSchema`, Anthropic forced tool), automatic step-down for endpoints that reject schemas, local validation and safe repair (`conform`), one retry carrying the validation errors, timeout. Verified live on Ollama with qwen2.5 7B, llama3.2 3B and gemma3 4B.

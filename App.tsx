@@ -7,6 +7,8 @@ import { AnalyticsModal } from './components/AnalyticsModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { FaqModal } from './components/FaqModal';
 import { TodayScreen } from './components/TodayScreen';
+import { AiBridgeModal } from './components/AiBridgeModal';
+import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
@@ -81,6 +83,11 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showBridge, setShowBridge] = useState(false);
+  const [linkedPlan, setLinkedPlan] = useState<BridgePlan | null>(() => {
+    if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
+    return decodePlanLink(location.hash).plan;
+  });
   const [onboardingPlan, setOnboardingPlan] = useState<OnboardingResult | null>(null);
   const [showExtras, setShowExtras] = useLocalStorage<boolean>('kairo_extras', false, {
     version: 1,
@@ -662,6 +669,10 @@ const App: React.FC = () => {
             setSoundStudioOpen(v => !v);
           }}
           soundStudioOpen={soundStudioOpen}
+          onBridge={() => {
+            setMobileNavOpen(false);
+            setShowBridge(true);
+          }}
           onToday={() => {
             setMobileNavOpen(false);
             setView('today');
@@ -705,6 +716,7 @@ const App: React.FC = () => {
             onNewPlan={() => setShowOnboarding(true)}
             onOpenFocus={() => setView('focus')}
             onOpenProgress={() => setShowAnalytics(true)}
+            onOpenPlanBridge={() => setShowBridge(true)}
           />
         )}
         <section className="k-stage" id="focus-workspace">
@@ -896,6 +908,22 @@ const App: React.FC = () => {
 
       {showShortcuts && (
         <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {(showBridge || linkedPlan) && (
+        <AiBridgeModal
+          projects={projects}
+          sessions={sessions}
+          initialPlan={linkedPlan}
+          onClose={() => {
+            setShowBridge(false);
+            if (linkedPlan) {
+              setLinkedPlan(null);
+              history.replaceState(null, '', location.pathname + location.search);
+            }
+          }}
+          onImport={plans => plans.forEach(handleImportedPlan)}
+        />
       )}
 
       {showOnboarding && (

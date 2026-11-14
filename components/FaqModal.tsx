@@ -82,6 +82,14 @@ const SECTIONS: FaqSection[] = [
     id: 'ai',
     title: 'AI setup',
     items: [
+      item('Can I use my ChatGPT, Claude or Gemini subscription with Kairo?', 'chatgpt claude gemini subscription bridge paste plan copy chatbot free', (
+        <Steps>
+          <li>Open <b>Use my AI</b> in the sidebar and copy the text.</li>
+          <li>Paste it into your chatbot and add your exam, topics and date at the end.</li>
+          <li>Copy the chatbot's reply, open the <b>Paste its plan</b> tab, review the preview, and import.</li>
+          <li>Kairo keeps your history. Next time the copied text includes how fast you really work, so the next plan is more realistic.</li>
+        </Steps>
+      )),
       item('What does the AI do, and do I need it?', 'slicing breakdown syllabus offline heuristics optional', (
         <p>
           AI powers task slicing and Import Syllabus (document breakdown). It is optional: with no key, Kairo falls
