@@ -9,6 +9,7 @@ import { FaqModal } from './components/FaqModal';
 import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
 import { ReplanModal } from './components/ReplanModal';
+import { ExamSprintModal } from './components/ExamSprintModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
@@ -87,6 +88,7 @@ const App: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
   const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
+  const [showSprint, setShowSprint] = useState(false);
   const [linkedPlan, setLinkedPlan] = useState<BridgePlan | null>(() => {
     if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
     return decodePlanLink(location.hash).plan;
@@ -721,6 +723,7 @@ const App: React.FC = () => {
             onOpenProgress={() => setShowAnalytics(true)}
             onOpenPlanBridge={() => setShowBridge(true)}
             onReplan={setReplanProjectId}
+            onExamSprint={() => setShowSprint(true)}
           />
         )}
         <section className="k-stage" id="focus-workspace">
@@ -948,6 +951,20 @@ const App: React.FC = () => {
           onImport={plans => plans.forEach(handleImportedPlan)}
         />
       )}
+
+      {showSprint && todayState.exam && (() => {
+        const exam = todayState.exam;
+        const project = projects.find(p => p.id === exam.projectId);
+        return project ? (
+          <ExamSprintModal
+            project={project}
+            phase={exam.phase}
+            daysLeft={exam.daysLeft}
+            onClose={() => setShowSprint(false)}
+            onStart={handleStartFromToday}
+          />
+        ) : null;
+      })()}
 
       {replanProjectId && (() => {
         const project = projects.find(p => p.id === replanProjectId);

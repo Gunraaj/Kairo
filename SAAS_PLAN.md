@@ -89,6 +89,8 @@ Done, tested (177 tests) and checked in a real browser: upgrade-path steps 1 (AI
 
 Needs you (accounts or decisions, cannot be done from code): create the Cloudflare Pages project and point it at the repo (step 6), then update `OLLAMA_ORIGINS` on Helios for the new address; Supabase + Google sign-in project (step 7); connector host (step 8); payment provider eligibility check (step 9).
 
+Exam Mode (added later the same day, researched: retrieval practice over rereading, interleaving, no new topics in the last days): phase banner on Today for deadlines within 7 days, and a sprint planner (`utils/examMode.ts`) with Recall/Practice/Fix blocks and an optional 10 pm stop.
+
 Not built: component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.
 
 ## Status (2026-11-14, earlier)

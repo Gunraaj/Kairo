@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Pace } from '../utils/planMath';
 import type { ProjectPlan, TodayState } from '../utils/todayPlan';
+import { PHASE_ADVICE } from '../utils/examMode';
 
 interface TodayScreenProps {
   state: TodayState;
@@ -11,6 +12,7 @@ interface TodayScreenProps {
   onOpenProgress: () => void;
   onOpenPlanBridge?: () => void;
   onReplan?: (projectId: string) => void;
+  onExamSprint?: () => void;
 }
 
 const num = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
@@ -36,7 +38,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan, onExamSprint,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -60,6 +62,16 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             <button type="button" className="k-btn" onClick={onOpenFocus}>Open timer</button>
           </div>
         </header>
+
+        {state.exam && (
+          <div className={`k-today-exam is-${state.exam.phase}`} role="region" aria-label="Exam mode">
+            <div>
+              <b>{PHASE_ADVICE[state.exam.phase].title}: {state.exam.name}</b>
+              <p>{state.exam.daysLeft <= 0 ? 'Today. ' : `${state.exam.daysLeft} day${state.exam.daysLeft === 1 ? '' : 's'} left. `}{PHASE_ADVICE[state.exam.phase].advice}</p>
+            </div>
+            {onExamSprint && <button type="button" className="k-btn k-btn-primary" onClick={onExamSprint}>Plan a sprint</button>}
+          </div>
+        )}
 
         {!state.hasPlan && (
           <div className="k-today-empty">

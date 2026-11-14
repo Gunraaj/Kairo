@@ -1,5 +1,6 @@
 import type { KairoSession, Project, Task } from '../types';
-import { applyMultiplier, estimateMultiplier, paceStatus, spreadRounds, toDayKey, type Pace } from './planMath';
+import { applyMultiplier, daysBetween, estimateMultiplier, paceStatus, spreadRounds, toDayKey, type Pace } from './planMath';
+import { examPhase, type ExamPhase } from './examMode';
 
 export const DEFAULT_DAILY_GOAL = 4;
 const HISTORY_DAYS = 14;
@@ -28,7 +29,11 @@ export type ProjectPlan = {
   capPerDay: number;
 };
 
+export type ExamInfo = { projectId: string; name: string; daysLeft: number; phase: Exclude<ExamPhase, 'normal'>; remainingRounds: number };
+
 export type TodayState = {
+  /** The nearest deadline within 7 days that still has work left. */
+  exam?: ExamInfo;
   blocks: TodayBlock[];
   projects: ProjectPlan[];
   multiplier: number;
@@ -138,7 +143,18 @@ export const buildTodayState = (input: {
     room -= take;
   }
 
+  let exam: ExamInfo | undefined;
+  for (const plan of plans) {
+    if (!plan.deadline || plan.remainingRounds <= 0) continue;
+    const daysLeft = daysBetween(today, plan.deadline);
+    const phase = examPhase(daysLeft);
+    if (daysLeft >= 0 && phase !== 'normal' && (!exam || daysLeft < exam.daysLeft)) {
+      exam = { projectId: plan.projectId, name: plan.name, daysLeft, phase, remainingRounds: plan.remainingRounds };
+    }
+  }
+
   return {
+    exam,
     blocks,
     projects: plans,
     multiplier,

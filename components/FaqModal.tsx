@@ -90,6 +90,20 @@ const SECTIONS: FaqSection[] = [
           <li>Kairo keeps your history. Next time the copied text includes how fast you really work, so the next plan is more realistic.</li>
         </Steps>
       )),
+      item('What is Exam Mode?', 'exam mode sprint crunch last minute short time revision deadline cramming', (
+        <>
+          <p>
+            When a project's deadline is 7 days away or less, Today shows an Exam Mode banner with advice for that stage, and a <b>Plan a sprint</b> button.
+            Tell it how many hours you have right now and it builds a timed schedule.
+          </p>
+          <ul>
+            <li>Topics are mixed, not blocked, because mixing helps you remember more.</li>
+            <li>Each topic goes Recall (notes closed), then Practice (past questions), then Fix mistakes. There is no passive rereading.</li>
+            <li>Short breaks, and a longer one after every fourth round. It can stop by 10 pm to protect your sleep.</li>
+            <li>In the last 3 days it advises no new topics, and the day before it advises a light pass and rest.</li>
+          </ul>
+        </>
+      )),
       item('What does the AI do, and do I need it?', 'slicing breakdown syllabus offline heuristics optional', (
         <p>
           AI powers task slicing and Import Syllabus (document breakdown). It is optional: with no key, Kairo falls

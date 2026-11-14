@@ -110,3 +110,17 @@ test('heavy plans are flagged infeasible against a realistic daily capacity', ()
   assert.equal(state.projects[0]!.capPerDay, 6);
   assert.equal(state.projects[0]!.pace!.status, 'infeasible');
 });
+
+test('exam is the nearest deadline within 7 days that still has work', () => {
+  const state = buildTodayState({
+    projects: [
+      project('far', [task('f', 4)], '2026-03-30'),
+      project('soon', [task('s', 4)], '2026-03-12'),
+      project('done', [task('d', 2, { completed: true, timeSpent: 50 })], '2026-03-11'),
+    ],
+    sessions: [],
+    today: '2026-03-10',
+  });
+  assert.deepEqual([state.exam?.projectId, state.exam?.daysLeft, state.exam?.phase], ['soon', 2, 'final-days']);
+  assert.equal(buildTodayState({ projects: [project('far', [task('f', 4)], '2026-03-30')], sessions: [], today: '2026-03-10' }).exam, undefined);
+});
