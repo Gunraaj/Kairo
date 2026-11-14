@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
+import { applyImportedPlan, type ImportedPlan } from '../utils/importPlan';
 import type { Project, SubTask, Task, UserSettings } from '../types';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import { InfoTip } from './InfoTip';
@@ -37,7 +38,8 @@ export const NavIcon: React.FC<{
     | 'mail'
     | 'book'
     | 'sparkles'
-    | 'help';
+    | 'help'
+    | 'today';
 }> = ({ name }) => {
   const shared = {
     className: 'k-nav-icon',
@@ -91,6 +93,8 @@ export const NavIcon: React.FC<{
           <path d="M2 3.5A1.5 1.5 0 013.5 2H7v12H3.5A1.5 1.5 0 012 12.5v-9zM14 3.5A1.5 1.5 0 0012.5 2H9v12h3.5a1.5 1.5 0 001.5-1.5v-9z" />
         </svg>
       );
+    case 'today':
+      return <svg {...shared}><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" /><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" /></svg>;
     case 'help':
       return <svg {...shared}><circle cx="8" cy="8" r="6" /><path d="M6.2 6.3a1.9 1.9 0 013.6.7c0 1.3-1.8 1.4-1.8 2.6M8 11.6v.1" /></svg>;
     case 'sparkles':
@@ -116,6 +120,7 @@ export interface SidebarNavProps {
   onTimeCapsule?: () => void;
   capsuleCount?: number;
   onScience?: () => void;
+  onToday?: () => void;
   onHelp?: () => void;
   isSessionActive?: boolean;
   onStartTaskFocus?: (taskId: string) => void;
@@ -136,6 +141,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   onTimeCapsule,
   capsuleCount,
   onScience,
+  onToday,
   onHelp,
   isSessionActive,
   onStartTaskFocus,
@@ -190,58 +196,11 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [slicingTaskId, setSlicingTaskId] = useState<string | null>(null);
   const [docBreakdownTargetProjectId, setDocBreakdownTargetProjectId] = useState<string | null>(null);
 
-  const handleImportDocPlan = (imported: {
-    projectName: string;
-    targetProjectId?: string;
-    tasks: Array<{
-      name: string;
-      targetRounds: number;
-      subTasks: Array<{ id: string; name: string; completed: boolean }>;
-    }>;
-  }) => {
-    if (imported.targetProjectId) {
-      setProjects(prev =>
-        (Array.isArray(prev) ? prev : []).map(p => {
-          if (p.id !== imported.targetProjectId) return p;
-          const newTasks: Task[] = imported.tasks.map(t => ({
-            id: crypto.randomUUID(),
-            name: t.name,
-            completed: false,
-            timeSpent: 0,
-            status: 'todo',
-            targetRounds: t.targetRounds,
-            subTasks: t.subTasks.map(st => ({ id: crypto.randomUUID(), name: st.name, completed: false })),
-          }));
-          return {
-            ...p,
-            tasks: [...(p.tasks || []), ...newTasks],
-          };
-        }),
-      );
-    } else {
-      const newProjId = crypto.randomUUID();
-      const newTasks: Task[] = imported.tasks.map(t => ({
-        id: crypto.randomUUID(),
-        name: t.name,
-        completed: false,
-        timeSpent: 0,
-        status: 'todo',
-        targetRounds: t.targetRounds,
-        subTasks: t.subTasks.map(st => ({ id: crypto.randomUUID(), name: st.name, completed: false })),
-      }));
-      const newProject: Project = {
-        id: newProjId,
-        name: imported.projectName,
-        tasks: newTasks,
-        subProjects: [],
-        isExpanded: true,
-      };
-      setProjects(prev => [newProject, ...(Array.isArray(prev) ? prev : [])]);
-      setExpanded(prev => new Set(prev).add(newProjId));
-      if (newTasks.length > 0) {
-        setActiveTaskId(newTasks[0].id);
-      }
-    }
+  const handleImportDocPlan = (imported: ImportedPlan) => {
+    const result = applyImportedPlan(projects, imported);
+    setProjects(result.projects);
+    if (!imported.targetProjectId) setExpanded(prev => new Set(prev).add(result.projectId));
+    if (!imported.targetProjectId && result.firstTaskId) setActiveTaskId(result.firstTaskId);
   };
 
   const allTasks = React.useMemo(() => {
@@ -1602,6 +1561,13 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         <button className="k-nav-item" onClick={onScience} title="Focus Science & Pomodoro Guide">
           <NavIcon name="book" />
           <span className="k-nav-label">Focus Guide</span>
+        </button>
+      )}
+
+      {onToday && (
+        <button className="k-nav-item" onClick={onToday} title="Today's plan">
+          <NavIcon name="today" />
+          <span className="k-nav-label">Today</span>
         </button>
       )}
 

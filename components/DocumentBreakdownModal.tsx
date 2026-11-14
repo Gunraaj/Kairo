@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Icon } from './Icon';
 import {
@@ -13,22 +13,19 @@ import {
 } from '../utils/documentBreakdown';
 import { PresetCategory, SLICE_PRESETS } from '../utils/slicePresets';
 import { Project } from '../types';
+import type { ImportedPlan } from '../utils/importPlan';
 import { formatDurationCompact } from '../utils/subtaskTime';
 import { getAiConfig, saveAiConfig, AiProviderType } from '../utils/geminiAi';
 
 interface DocumentBreakdownModalProps {
   onClose: () => void;
-  onImportPlan: (plan: {
-    projectName: string;
-    targetProjectId?: string;
-    tasks: Array<{
-      name: string;
-      targetRounds: number;
-      subTasks: Array<{ id: string; name: string; completed: boolean }>;
-    }>;
-  }) => void;
+  onImportPlan: (plan: ImportedPlan) => void;
   existingProjects?: Project[];
   defaultProjectId?: string | null;
+  initialText?: string;
+  initialDeadline?: string;
+  initialProjectName?: string;
+  autoAnalyze?: boolean;
 }
 
 export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
@@ -36,13 +33,17 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
   onImportPlan,
   existingProjects = [],
   defaultProjectId = null,
+  initialText = '',
+  initialDeadline = '',
+  initialProjectName = '',
+  autoAnalyze = false,
 }) => {
   // Step state: 'input' | 'staging'
   const [step, setStep] = useState<'input' | 'staging'>('input');
   const [inputMode, setInputMode] = useState<'text' | 'file'>('text');
   
   // Input fields
-  const [rawText, setRawText] = useState('');
+  const [rawText, setRawText] = useState(initialText);
   const [selectedFile, setSelectedFile] = useState<{
     file: File;
     name: string;
@@ -52,7 +53,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
     extractedText?: string;
   } | null>(null);
   const [archetype, setArchetype] = useState<PresetCategory>('study');
-  const [targetDeadline, setTargetDeadline] = useState('');
+  const [targetDeadline, setTargetDeadline] = useState(initialDeadline);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
@@ -160,7 +161,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
 
       const generatedPlan = await analyzeDocumentWithAi(analysisInput);
       setPlan(generatedPlan);
-      setProjectName(generatedPlan.projectName);
+      setProjectName(initialProjectName.trim() || generatedPlan.projectName);
       // Auto expand first module
       if (generatedPlan.modules.length > 0) {
         setExpandedModules(new Set([generatedPlan.modules[0].id]));
@@ -288,11 +289,21 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
     onImportPlan({
       projectName: projectName.trim() || plan.projectName || 'Imported Curriculum',
       targetProjectId: targetProjectId === 'new' ? undefined : targetProjectId,
+      deadline: plan.targetDeadline || targetDeadline || undefined,
       tasks: tasksToImport,
     });
 
     onClose();
   };
+
+  const autoRan = useRef(false);
+  useEffect(() => {
+    if (autoAnalyze && !autoRan.current && initialText.trim()) {
+      autoRan.current = true;
+      void handleAnalyze();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Selected totals
   const allProposedTasks = plan?.modules.flatMap(m => m.tasks) || [];

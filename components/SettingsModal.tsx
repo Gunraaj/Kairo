@@ -42,6 +42,8 @@ interface SettingsModalProps {
   setTheme?: (theme: 'light' | 'dark') => void;
   palette?: Palette;
   setPalette?: (palette: Palette) => void;
+  showExtras?: boolean;
+  setShowExtras?: (value: boolean) => void;
 }
 
 const PALETTES = [
@@ -201,6 +203,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   setTheme,
   palette = 'obsidian',
   setPalette,
+  showExtras = false,
+  setShowExtras,
 }) => {
   const [local, setLocal] = useState(settings);
   const [aiConfig, setAiConfig] = useState<AiConfig>(() => getAiConfig());
@@ -475,6 +479,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             ))}
           </div>
         </section>
+
+        {setShowExtras && (
+          <section className="k-settings-section">
+            <div className="k-settings-section-title">Extras</div>
+            <div className="k-settings-row">
+              <div className="k-settings-row-label">
+                <b id="extras-label">Show Time Capsule and Focus Guide</b>
+                <small>Optional features that stay out of the way by default.</small>
+              </div>
+              <Toggle labelId="extras-label" enabled={showExtras} onChange={setShowExtras} />
+            </div>
+          </section>
+        )}
 
         <section className="k-settings-section">
           <div className="k-settings-section-title">Round structure</div>

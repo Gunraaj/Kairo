@@ -6,6 +6,11 @@ import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { FaqModal } from './components/FaqModal';
+import { TodayScreen } from './components/TodayScreen';
+import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
+import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
+import { buildTodayState } from './utils/todayPlan';
+import { applyImportedPlan, type ImportedPlan } from './utils/importPlan';
 import { Modal } from './components/Modal';
 import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
@@ -75,6 +80,15 @@ const App: React.FC = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingPlan, setOnboardingPlan] = useState<OnboardingResult | null>(null);
+  const [showExtras, setShowExtras] = useLocalStorage<boolean>('kairo_extras', false, {
+    version: 1,
+    normalize: value => value === true,
+  });
+  const [view, setView] = useState<'today' | 'focus'>(() =>
+    projects.some(project => project.tasks.some(task => !task.completed)) ? 'today' : 'focus');
+  const todayState = useMemo(() => buildTodayState({ projects, sessions }), [projects, sessions]);
   const [showScience, setShowScience] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -304,7 +318,7 @@ const App: React.FC = () => {
       setShowWelcome(false);
       return;
     }
-    if (!localStorage.getItem('kairo_seen_welcome')) setShowWelcome(true);
+    if (!localStorage.getItem('kairo_seen_welcome')) setShowOnboarding(true);
   }, [projects.length, sessions.length]);
 
   const dismissWelcome = () => {
@@ -320,6 +334,28 @@ const App: React.FC = () => {
     setActiveTaskId(taskId);
     setStartSessionTrigger(Date.now());
   }, []);
+
+  const handleStartFromToday = useCallback((taskId: string) => {
+    setView('focus');
+    handleStartTaskFocus(taskId);
+  }, [handleStartTaskFocus]);
+
+  const handleSetDeadline = useCallback((projectId: string, deadline: string) => {
+    setProjects(previous => previous.map(project =>
+      project.id === projectId ? { ...project, deadline: deadline || undefined } : project));
+  }, [setProjects]);
+
+  const finishOnboarding = useCallback(() => {
+    try { localStorage.setItem('kairo_seen_welcome', '1'); } catch { /* storage unavailable */ }
+    setShowOnboarding(false);
+  }, []);
+
+  const handleImportedPlan = useCallback((imported: ImportedPlan) => {
+    const result = applyImportedPlan(projects, imported);
+    setProjects(result.projects);
+    if (result.firstTaskId) setActiveTaskId(result.firstTaskId);
+    setView('today');
+  }, [projects, setProjects, setActiveTaskId]);
 
   const handleToggleTimer = useCallback(() => {
     setToggleSessionTrigger(Date.now());
@@ -626,15 +662,19 @@ const App: React.FC = () => {
             setSoundStudioOpen(v => !v);
           }}
           soundStudioOpen={soundStudioOpen}
-          onTimeCapsule={() => {
+          onToday={() => {
+            setMobileNavOpen(false);
+            setView('today');
+          }}
+          onTimeCapsule={showExtras ? () => {
             setMobileNavOpen(false);
             setShowCapsuleModal(true);
-          }}
+          } : undefined}
           capsuleCount={capsules.filter(c => !c.isUnlocked).length}
-          onScience={() => {
+          onScience={showExtras ? () => {
             setMobileNavOpen(false);
             setShowScience(true);
-          }}
+          } : undefined}
           onHelp={() => {
             setMobileNavOpen(false);
             setShowFaq(true);
@@ -657,6 +697,16 @@ const App: React.FC = () => {
       {/* 2. Main Focus Stage & Sound Studio */}
       <main className="k-main">
         <h1 className="sr-only">Kairo focus timer</h1>
+        {view === 'today' && (
+          <TodayScreen
+            state={todayState}
+            onStartBlock={handleStartFromToday}
+            onSetDeadline={handleSetDeadline}
+            onNewPlan={() => setShowOnboarding(true)}
+            onOpenFocus={() => setView('focus')}
+            onOpenProgress={() => setShowAnalytics(true)}
+          />
+        )}
         <section className="k-stage" id="focus-workspace">
           {/* Pinned Stage Utility Header (Coordinated in-flow, completely eliminating overlaps) */}
           <header className="k-stage-utility-header">
@@ -695,6 +745,7 @@ const App: React.FC = () => {
                 {audioSettings.isPlaying && <span className="k-sound-pill-active-tag">Active</span>}
               </button>
 
+              {showExtras && (
               <button
                 className={`k-capsule-pill-btn ${capsules.some(c => !c.isUnlocked) ? 'has-locked' : ''}`}
                 onClick={() => setShowCapsuleModal(true)}
@@ -710,7 +761,9 @@ const App: React.FC = () => {
                   <span className="k-capsule-pill-badge">{capsules.filter(c => !c.isUnlocked).length}</span>
                 )}
               </button>
+              )}
 
+              {showExtras && (
               <button
                 className="k-guide-pill-btn"
                 onClick={() => setShowScience(true)}
@@ -722,6 +775,7 @@ const App: React.FC = () => {
                 </svg>
                 <span className="k-pill-label">Guide</span>
               </button>
+              )}
             </div>
           </header>
 
@@ -822,6 +876,8 @@ const App: React.FC = () => {
           setTheme={setTheme}
           palette={palette}
           setPalette={setPalette}
+          showExtras={showExtras}
+          setShowExtras={setShowExtras}
         />
       )}
 
@@ -840,6 +896,25 @@ const App: React.FC = () => {
 
       {showShortcuts && (
         <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {showOnboarding && (
+        <OnboardingModal
+          onSkip={() => { finishOnboarding(); setView('focus'); }}
+          onSubmit={result => { finishOnboarding(); setOnboardingPlan(result); }}
+        />
+      )}
+
+      {onboardingPlan && (
+        <DocumentBreakdownModal
+          onClose={() => { setOnboardingPlan(null); setView(v => v); }}
+          onImportPlan={handleImportedPlan}
+          existingProjects={projects}
+          initialText={onboardingPlan.text}
+          initialDeadline={onboardingPlan.deadline}
+          initialProjectName={onboardingPlan.name}
+          autoAnalyze
+        />
       )}
 
       {showFaq && (

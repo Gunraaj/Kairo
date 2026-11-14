@@ -47,6 +47,9 @@ const normalizeSubTask = (value: unknown): SubTask | null => {
   };
 };
 
+const dayKeyValue = (value: unknown): string | undefined =>
+  typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) ? value : undefined;
+
 const normalizeTask = (value: unknown): Task | null => {
   const source = objectValue(value);
   if (!source) return null;
@@ -74,6 +77,9 @@ const normalizeTask = (value: unknown): Task | null => {
     completed,
     status,
     timeSpent: Math.round(boundedNumber(source.timeSpent, 0, 0, 1_000_000)),
+    estimatedRounds: typeof source.estimatedRounds === 'number'
+      ? Math.round(boundedNumber(source.estimatedRounds, 1, 1, 100))
+      : undefined,
     directTimeSpent: typeof source.directTimeSpent === 'number'
       ? Math.round(boundedNumber(source.directTimeSpent, 0, 0, 1_000_000))
       : undefined,
@@ -106,6 +112,7 @@ export const normalizeProjects = (value: unknown): Project[] => {
       tasks,
       subProjects: [],
       isExpanded: source.isExpanded !== false,
+      deadline: dayKeyValue(source.deadline),
     }];
   });
 };

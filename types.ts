@@ -23,6 +23,7 @@ export interface Task {
   subTasks?: SubTask[];
   timeCalcMode?: TimeCalcMode; // 'auto' (sum of subtasks), 'direct' (standalone), 'hybrid' (direct + subtasks)
   directTimeSpent?: number; // unassigned direct minutes spent on parent task (used in hybrid mode)
+  estimatedRounds?: number; // rounds originally estimated (kept when targetRounds is re-planned)
 }
 
 export interface Project {
@@ -31,6 +32,7 @@ export interface Project {
   tasks: Task[];
   subProjects: Project[];
   isExpanded: boolean;
+  deadline?: string; // YYYY-MM-DD, local day
 }
 
 export interface FocusTarget {
