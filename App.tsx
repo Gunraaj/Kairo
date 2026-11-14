@@ -10,6 +10,7 @@ import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
 import { ReplanModal } from './components/ReplanModal';
 import { ExamSprintModal } from './components/ExamSprintModal';
+import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
@@ -80,6 +81,7 @@ const App: React.FC = () => {
   const [showBridge, setShowBridge] = useState(false);
   const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
   const [showSprint, setShowSprint] = useState(false);
+  const [historyProjectId, setHistoryProjectId] = useState<string | null>(null);
   const [linkedPlan, setLinkedPlan] = useState<BridgePlan | null>(() => {
     if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
     return decodePlanLink(location.hash).plan;
@@ -715,6 +717,7 @@ const App: React.FC = () => {
             onOpenPlanBridge={() => setShowBridge(true)}
             onReplan={setReplanProjectId}
             onExamSprint={() => setShowSprint(true)}
+            onHistory={setHistoryProjectId}
           />
         )}
         <section className="k-stage" id="focus-workspace">
@@ -955,6 +958,11 @@ const App: React.FC = () => {
             onStart={handleStartFromToday}
           />
         ) : null;
+      })()}
+
+      {historyProjectId && (() => {
+        const project = projects.find(p => p.id === historyProjectId);
+        return project ? <ProjectHistoryModal project={project} sessions={sessions} onClose={() => setHistoryProjectId(null)} /> : null;
       })()}
 
       {replanProjectId && (() => {

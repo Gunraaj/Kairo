@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
+import { PlanPopover } from './PlanPopover';
 import { applyImportedPlan, type ImportedPlan } from '../utils/importPlan';
 import type { Project, SubTask, Task, UserSettings } from '../types';
 import { DocumentBreakdownModal } from './DocumentBreakdownModal';
@@ -992,153 +993,22 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                           </div>
                         </div>
 
-                        {/* Focus To-Do Style Pomodoro Target & Pace Popover */}
-                        {isPomoPopoverOpen && (() => {
-                          const taskFinish = calculateFinishEstimate([task], settings);
-                          return (
-                            <div className="k-pomo-popover" onClick={e => e.stopPropagation()}>
-                              <div className="k-pomo-pop-head">
-                                <div className="k-pomo-pop-title">
-                                  <span className="k-pomo-pop-icon">🍅</span>
-                                  <b>Pomodoro Target & Pace</b>
-                                </div>
-                                <button
-                                  type="button"
-                                  className="k-pomo-pop-close"
-                                  onClick={() => setTargetPopoverTaskId(null)}
-                                  aria-label="Close"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-
-                              <div className="k-pomo-finish-pill-full" title="Estimated completion time based on rounds & breaks">
-                                <span>Finish at ~<b>{taskFinish.finishTimeFormatted}</b></span>
-                                <small>({taskFinish.hoursFormatted} total)</small>
-                              </div>
-
-                              {/* Section 1: Estimated Pomodoros (Target) */}
-                              <div className="k-pomo-pop-section">
-                                <div className="k-pomo-pop-label-row">
-                                  <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
-                                  <span className="k-pomo-pop-hint">Target sessions (clean whole numbers)</span>
-                                </div>
-                                <div className="k-pomo-stepper-wrap">
-                                  <div className="k-pomo-stepper">
-                                    <button
-                                      type="button"
-                                      className="k-pomo-stepper-btn"
-                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.max(1, target - 1))}
-                                      aria-label="Decrease target"
-                                    >
-                                      −
-                                    </button>
-                                    <span className="k-pomo-stepper-val">{target}</span>
-                                    <button
-                                      type="button"
-                                      className="k-pomo-stepper-btn"
-                                      onClick={() => updateTaskPomodoroTarget(project.id, task.id, Math.min(24, target + 1))}
-                                      aria-label="Increase target"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                  <div className="k-pomo-quick-chips">
-                                    {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
-                                      <button
-                                        key={n}
-                                        type="button"
-                                        className={`k-pomo-chip ${target === n ? 'active' : ''}`}
-                                        onClick={() => updateTaskPomodoroTarget(project.id, task.id, n)}
-                                      >
-                                        {n}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Or set by total estimated time (auto-divided by pomodoro duration) */}
-                                <div className="k-pomo-time-calc-chips">
-                                  <span className="k-pomo-sublabel">Or by total duration:</span>
-                                  <div className="k-pomo-quick-chips">
-                                    {[
-                                      { label: '30m', mins: 30 },
-                                      { label: '45m', mins: 45 },
-                                      { label: '1h', mins: 60 },
-                                      { label: '1.5h', mins: 90 },
-                                      { label: '2h', mins: 120 },
-                                      { label: '3h', mins: 180 },
-                                      { label: '4h', mins: 240 },
-                                    ].map(({ label, mins }) => {
-                                      const computedRounds = Math.max(1, Math.ceil(mins / pomodoroLength));
-                                      const isCurrent = target === computedRounds;
-                                      return (
-                                        <button
-                                          key={label}
-                                          type="button"
-                                          className={`k-pomo-chip k-chip-duration ${isCurrent ? 'active' : ''}`}
-                                          onClick={() => updateTaskPomodoroTarget(project.id, task.id, computedRounds)}
-                                          title={`Set ~${mins}m total → ${computedRounds} Pomodoros (${pomodoroLength}m each)`}
-                                        >
-                                          {label}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-
-                            {/* Section 2: Each Pomodoro Time */}
-                            <div className="k-pomo-pop-section">
-                              <div className="k-pomo-pop-label-row">
-                                <span className="k-pomo-pop-title-sm">Each Pomodoro Time</span>
-                                <span className="k-pomo-pop-hint">Focus session duration</span>
-                              </div>
-                              <div className="k-pomo-time-chips">
-                                {[15, 20, 25, 30, 45, 50, 60].map(mins => (
-                                  <button
-                                    key={mins}
-                                    type="button"
-                                    className={`k-pomo-chip ${pomodoroLength === mins ? 'active' : ''}`}
-                                    onClick={() => updateTaskPomodoroLength(project.id, task.id, mins)}
-                                  >
-                                    {mins}m {mins === (settings?.focusDuration || 25) ? '★' : ''}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Section 3: Live Planned Calculation */}
-                            <div className="k-pomo-pop-calc">
-                              <div className="k-pomo-calc-line">
-                                <span className="k-pomo-calc-k">Total Planned:</span>
-                                <span className="k-pomo-calc-v">
-                                  <b>{target}</b> × <b>{pomodoroLength}m</b> = <b>{formatDurationCompact(plannedMinutes)}</b>
-                                </span>
-                              </div>
-                              <div className="k-pomo-calc-line">
-                                <span className="k-pomo-calc-k">Progress:</span>
-                                <span className="k-pomo-calc-v">
-                                  <b>{doneRounds}</b> of <b>{target}</b> done ({formatDurationCompact(task.timeSpent)} focused)
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Auto-align from subtasks if subtasks exist */}
-                            {hasSubs && (
-                              <button
-                                type="button"
-                                className="k-pomo-auto-subs-btn"
-                                onClick={() => alignTargetFromSubtasks(project.id, task.id)}
-                                title="Auto-align target based on subtask estimated durations"
-                              >
-                                <span>⚡ Auto-align target from {subTasks.length} subtasks</span>
-                                {subtaskTotalEstimated > 0 && <small>({subtaskTotalEstimated}m total planned)</small>}
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })()}
+                        {isPomoPopoverOpen && (
+                          <PlanPopover
+                            kind="task"
+                            target={target}
+                            length={pomodoroLength}
+                            doneRounds={doneRounds}
+                            focusedMinutes={task.timeSpent || 0}
+                            defaultLength={settings?.focusDuration || 25}
+                            finish={calculateFinishEstimate([task], settings)}
+                            totalChips={[30, 45, 60, 90, 120, 180, 240]}
+                            onTarget={n => updateTaskPomodoroTarget(project.id, task.id, n)}
+                            onLength={m => updateTaskPomodoroLength(project.id, task.id, m)}
+                            onClose={() => setTargetPopoverTaskId(null)}
+                            align={hasSubs ? { count: subTasks.length, estimated: subtaskTotalEstimated, onAlign: () => alignTargetFromSubtasks(project.id, task.id) } : undefined}
+                          />
+                        )}
 
                         {/* Nested Subtasks Container */}
                         {(isTaskExpanded || addingSubTaskFor === task.id || hasSubs) && (
@@ -1285,146 +1155,23 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                     </div>
                                   </div>
 
-                                  {/* Subtask Pomodoro Target Popover */}
-                                  {isSubPopoverOpen && (() => {
-                                    const subFinish = calculateFinishEstimate([
-                                      {
-                                        targetRounds: subTarget,
-                                        completed: st.completed,
-                                        timeSpent: st.timeSpent || 0,
-                                        pomodoroLength: subPomodoroLength,
-                                      }
-                                    ], settings);
-                                    return (
-                                      <div className="k-pomo-popover k-subtask-popover" onClick={e => e.stopPropagation()}>
-                                        <div className="k-pomo-pop-head">
-                                          <div className="k-pomo-pop-title">
-                                            <span className="k-pomo-pop-icon">🍅</span>
-                                            <b>Subtask Target & Pace</b>
-                                          </div>
-                                          <button
-                                            type="button"
-                                            className="k-pomo-pop-close"
-                                            onClick={() => setTargetPopoverTaskId(null)}
-                                            aria-label="Close"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-
-                                        <div className="k-pomo-finish-pill-full" title="Estimated subtask completion time based on rounds & breaks">
-                                          <span>Finish at ~<b>{subFinish.finishTimeFormatted}</b></span>
-                                          <small>({subFinish.hoursFormatted} total)</small>
-                                        </div>
-
-                                        {/* Section 1: Estimated Pomodoros (Target) */}
-                                        <div className="k-pomo-pop-section">
-                                          <div className="k-pomo-pop-label-row">
-                                            <span className="k-pomo-pop-title-sm">Estimated Pomodoros</span>
-                                            <span className="k-pomo-pop-hint">Subtask target (whole numbers)</span>
-                                          </div>
-                                          <div className="k-pomo-stepper-wrap">
-                                            <div className="k-pomo-stepper">
-                                              <button
-                                                type="button"
-                                                className="k-pomo-stepper-btn"
-                                                onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, Math.max(1, subTarget - 1))}
-                                                aria-label="Decrease target"
-                                              >
-                                                −
-                                              </button>
-                                              <span className="k-pomo-stepper-val">{subTarget}</span>
-                                              <button
-                                                type="button"
-                                                className="k-pomo-stepper-btn"
-                                                onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, Math.min(24, subTarget + 1))}
-                                                aria-label="Increase target"
-                                              >
-                                                +
-                                              </button>
-                                            </div>
-                                            <div className="k-pomo-quick-chips">
-                                              {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
-                                                <button
-                                                  key={n}
-                                                  type="button"
-                                                  className={`k-pomo-chip ${subTarget === n ? 'active' : ''}`}
-                                                  onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, n)}
-                                                >
-                                                  {n}
-                                                </button>
-                                              ))}
-                                            </div>
-                                          </div>
-
-                                          {/* Or set by duration */}
-                                          <div className="k-pomo-time-calc-chips">
-                                            <span className="k-pomo-sublabel">Or by total duration:</span>
-                                            <div className="k-pomo-quick-chips">
-                                              {[
-                                                { label: '15m', mins: 15 },
-                                                { label: '30m', mins: 30 },
-                                                { label: '45m', mins: 45 },
-                                                { label: '1h', mins: 60 },
-                                                { label: '1.5h', mins: 90 },
-                                                { label: '2h', mins: 120 },
-                                              ].map(({ label, mins }) => {
-                                                const computedRounds = Math.max(1, Math.ceil(mins / subPomodoroLength));
-                                                const isCurrent = subTarget === computedRounds;
-                                                return (
-                                                  <button
-                                                    key={label}
-                                                    type="button"
-                                                    className={`k-pomo-chip k-chip-duration ${isCurrent ? 'active' : ''}`}
-                                                    onClick={() => updateSubTaskPomodoroTarget(project.id, task.id, st.id, computedRounds)}
-                                                    title={`Set ~${mins}m total → ${computedRounds} Pomodoros (${subPomodoroLength}m each)`}
-                                                  >
-                                                    {label}
-                                                  </button>
-                                                );
-                                              })}
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Section 2: Each Pomodoro Time */}
-                                        <div className="k-pomo-pop-section">
-                                          <div className="k-pomo-pop-label-row">
-                                            <span className="k-pomo-pop-title-sm">Each Pomodoro Time</span>
-                                            <span className="k-pomo-pop-hint">Subtask session length</span>
-                                          </div>
-                                          <div className="k-pomo-time-chips">
-                                            {[15, 20, 25, 30, 45, 50, 60].map(mins => (
-                                              <button
-                                                key={mins}
-                                                type="button"
-                                                className={`k-pomo-chip ${subPomodoroLength === mins ? 'active' : ''}`}
-                                                onClick={() => updateSubTaskPomodoroLength(project.id, task.id, st.id, mins)}
-                                              >
-                                                {mins}m {mins === (settings?.focusDuration || 25) ? '★' : ''}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-
-                                        {/* Section 3: Planned Calculation */}
-                                        <div className="k-pomo-pop-calc">
-                                          <div className="k-pomo-calc-line">
-                                            <span className="k-pomo-calc-k">Subtask Planned:</span>
-                                            <span className="k-pomo-calc-v">
-                                              <b>{subTarget}</b> × <b>{subPomodoroLength}m</b> = <b>{formatDurationCompact(subPlannedMinutes)}</b>
-                                            </span>
-                                          </div>
-                                          <div className="k-pomo-calc-line">
-                                            <span className="k-pomo-calc-k">Progress:</span>
-                                            <span className="k-pomo-calc-v">
-                                              <b>{subDoneRounds}</b> of <b>{subTarget}</b> done {Boolean(st.timeSpent && st.timeSpent > 0) && `(${st.timeSpent}m focused)`}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
+                                  {isSubPopoverOpen && (
+                                    <PlanPopover
+                                      kind="subtask"
+                                      target={subTarget}
+                                      length={subPomodoroLength}
+                                      doneRounds={subDoneRounds}
+                                      focusedMinutes={st.timeSpent || 0}
+                                      defaultLength={settings?.focusDuration || 25}
+                                      finish={calculateFinishEstimate([
+                                        { targetRounds: subTarget, completed: st.completed, timeSpent: st.timeSpent || 0, pomodoroLength: subPomodoroLength },
+                                      ], settings)}
+                                      totalChips={[15, 30, 45, 60, 90, 120]}
+                                      onTarget={n => updateSubTaskPomodoroTarget(project.id, task.id, st.id, n)}
+                                      onLength={m => updateSubTaskPomodoroLength(project.id, task.id, st.id, m)}
+                                      onClose={() => setTargetPopoverTaskId(null)}
+                                    />
+                                  )}
                                 </div>
                               );
                             })}

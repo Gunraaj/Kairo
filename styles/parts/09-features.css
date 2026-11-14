@@ -173,3 +173,38 @@
 .k-sprint-legend dt { font-weight: 700; color: var(--sumi); display: inline; }
 .k-sprint-legend dt::after { content: ': '; }
 .k-sprint-legend dd { display: inline; margin: 0; }
+
+/* Touch devices have no hover: always show task action icons (AI Slice, edit, delete). */
+@media (hover: none) {
+  .k-task-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+    opacity: 1;
+    pointer-events: auto;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Plan popover: one summary sentence, progress, then two numbered steps */
+.k-plan-summary { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--r-md); background: var(--washi-2); border: 1px solid var(--stone-3); margin-bottom: 10px; }
+.k-plan-summary-main { font-size: 15px; color: var(--sumi); }
+.k-plan-summary small { color: var(--sumi-3); font-size: 12px; }
+.k-plan-progress { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.k-plan-progress-bar { height: 6px; border-radius: 999px; background: var(--washi-3); overflow: hidden; }
+.k-plan-progress-bar span { display: block; height: 100%; background: var(--shu); border-radius: 999px; transition: width .3s; }
+.k-plan-progress small { color: var(--sumi-3); font-size: 12px; }
+
+/* Project history */
+.k-today-project .k-today-history-btn { align-self: flex-start; }
+.k-history-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.k-history-stats > div { display: flex; flex-direction: column; padding: 10px 12px; border: 1px solid var(--stone-3); border-radius: var(--r-sm); background: var(--washi-2); }
+.k-history-stats b { font-size: 20px; color: var(--sumi); }
+.k-history-stats small { color: var(--sumi-3); font-size: 12px; }
+.k-history-bars { display: flex; align-items: flex-end; gap: 3px; flex: 0 0 72px; height: 72px; box-sizing: border-box; padding: 6px; border: 1px solid var(--stone-3); border-radius: var(--r-sm); background: var(--washi-2); }
+.k-history-bars span { flex: 1; min-width: 3px; border-radius: 2px; background: var(--stone-3); }
+.k-history-bars span.has-time { background: var(--shu); }
+.k-today-projects-title { margin: 6px 0 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--sumi-3); }
+.k-history-tasks, .k-history-recent { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.k-history-tasks li { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--sumi); }
+.k-history-tasks small, .k-history-recent small { color: var(--sumi-3); font-size: 12px; display: block; }
+.k-history-recent li { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items: center; font-size: 13px; color: var(--sumi); padding: 6px 0; border-top: 1px solid var(--stone-3); }
+@media (max-width: 640px) { .k-history-stats { grid-template-columns: repeat(2, 1fr); } }

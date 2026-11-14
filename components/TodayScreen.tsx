@@ -13,6 +13,7 @@ interface TodayScreenProps {
   onOpenPlanBridge?: () => void;
   onReplan?: (projectId: string) => void;
   onExamSprint?: () => void;
+  onHistory?: (projectId: string) => void;
 }
 
 const num = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
@@ -38,7 +39,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan, onExamSprint,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan, onExamSprint, onHistory,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -128,6 +129,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                     )}
                     {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} rounds will not fit before the deadline. Move the date or drop topics.</small>}
                   </div>
+                  {onHistory && <button type="button" className="k-btn k-today-history-btn" onClick={() => onHistory(plan.projectId)}>History</button>}
                   <label className="k-today-deadline">
                     <small>Deadline</small>
                     <input type="date" value={plan.deadline ?? ''} onChange={e => onSetDeadline(plan.projectId, e.target.value)} aria-label={`Deadline for ${plan.name}`} />

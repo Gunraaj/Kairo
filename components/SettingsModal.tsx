@@ -239,6 +239,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       controller.abort();
     };
   }, [aiConfig.provider, aiConfig.baseUrl, aiConfig.apiKey]);
+  useEffect(() => {
+    if (liveModels?.some(m => m.id === aiConfig.model)) setIsCustomModel(false);
+  }, [liveModels, aiConfig.model]);
   const modelOptions: ModelOption[] = (() => {
     const list = liveModels ?? fallbackModels(aiConfig.provider);
     return list.some(m => m.id === aiConfig.model) || !aiConfig.model ? list : [{ id: aiConfig.model, label: aiConfig.model }, ...list];

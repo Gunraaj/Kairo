@@ -97,6 +97,10 @@ Hosting (step 6): deployed and fully tested on Cloudflare Workers static assets 
 
 Sync (step 7) groundwork, all tested without a Supabase project: `utils/vaultCrypto.ts` (PBKDF2 600k + AES-256-GCM end-to-end envelope), `utils/supabaseAuth.ts` (Google sign-in with PKCE, verified against the RFC 7636 test vector), `supabase/migrations/20261114000000_kairo_sync.sql` (`kairo_vault` encrypted, `kairo_state` readable for the connector, row-level security on both), `connector/src/supabaseStore.ts`. Still to do once a project exists: run the migration, enable the Google provider, build the Settings UI for sign-in + passphrase, and test the real OAuth round trip.
 
+Netlify warning (2026-11-14): Netlify emailed that the team used its full credit allowance, production deploys and Agent Runners are paused until upgrade or cycle reset; the existing site stays online on 30 operational credits. Do not push to `main` expecting a deploy. Move to Cloudflare (`npx wrangler login`, then `npm run deploy:cf`).
+
+UX pass: the Pomodoro target popover (task and subtask copies) is now one `PlanPopover` component: summary sentence, progress bar, step 1 sessions, step 2 session length, all original controls kept. Per-project history screen (`utils/projectHistory.ts`, `ProjectHistoryModal`): totals, 30-day chart, per-task progress, recent sessions; opened from Today > project > History. Touch devices now always show the per-task action icons (they were hover-only).
+
 Code health done: `washi.css` split into ordered `styles/parts/*.css` (built CSS byte-identical), `WelcomeModal`, `AnalogDial` and `soundStudio/soundCatalog` extracted (App 1108 -> 1027 lines, Stage 1535 -> 1180, ControlPanel 2648 -> 2189). Further splitting of the `ControlPanel` and `SidebarNav` bodies is left; their state is tightly coupled.
 
 Not built: further component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.
