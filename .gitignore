@@ -49,3 +49,5 @@ scratch/
 output/playwright/
 ROADMAP.xlsx
 brag-output/
+.cf-dist/
+.wrangler/

@@ -101,6 +101,13 @@ Connect the repo in the Cloudflare dashboard (no card needed):
 
 Security headers and the SPA redirect ship in `public/_headers` and `public/_redirects`. After moving, add the new site address to `OLLAMA_ORIGINS` if you use a local model (see Help in the app).
 
+### Cloudflare Workers via wrangler (no Git link)
+```bash
+npm run deploy:cf                 # after `npx wrangler login`
+npm run deploy:cf -- --temporary  # no account: throwaway preview URL
+```
+Builds, prepares `.cf-dist` (drops the Pages-only `_redirects`) and deploys with SPA routing from `wrangler.jsonc`.
+
 ### Installable app
 Kairo is a PWA: open the live site in Chrome, Edge or Safari and use "Install" / "Add to Home Screen". It works offline after the first visit. The service worker never caches AI or API calls.
 
