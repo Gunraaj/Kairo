@@ -1,0 +1,1102 @@
+.k-station-wave span {
+  width: 2.5px;
+  background: var(--shu);
+  border-radius: 1px;
+  animation: k-wave-bar 0.9s ease-in-out infinite alternate;
+}
+
+.k-station-wave span:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.k-station-wave span:nth-child(2) { height: 90%; animation-delay: 0.3s; }
+.k-station-wave span:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+
+/* --- Saved Custom Streams & Stream Creator ------------------------------ */
+.k-lofi-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0 6px;
+}
+
+.k-lofi-section-header .k-lofi-section-label {
+  margin: 0;
+}
+
+.k-saved-stream-creator {
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  animation: k-fade-in 180ms ease-out;
+}
+
+.k-saved-stream-creator-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.k-creator-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sumi);
+}
+
+.k-creator-sub {
+  font-size: 11px;
+  color: var(--sumi-3);
+}
+
+.k-creator-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.k-creator-field label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sumi-3);
+}
+
+.k-creator-field input {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi);
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.k-creator-field input:focus {
+  border-color: var(--shu);
+}
+
+.k-creator-url-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.k-creator-url-row input {
+  width: 100%;
+  padding-right: 90px;
+}
+
+.k-url-valid-badge {
+  position: absolute;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sumi-2);
+  background: var(--washi-card);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--stone-3);
+  pointer-events: none;
+}
+
+.k-badge-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.k-badge-tag-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--stone-3);
+  background: var(--washi-2);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-badge-tag-btn:hover {
+  border-color: var(--stone);
+  color: var(--sumi);
+}
+
+.k-badge-tag-btn.is-selected {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #FFFFFF;
+}
+
+.k-station-badge-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.k-station-emoji {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.k-station-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.k-station-del-btn {
+  background: transparent;
+  border: none;
+  color: var(--sumi-3);
+  opacity: 0.45;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 120ms ease;
+}
+
+.k-station-card:hover .k-station-del-btn {
+  opacity: 0.85;
+}
+
+.k-station-del-btn:hover {
+  opacity: 1 !important;
+  color: var(--shu);
+  background: var(--shu-soft);
+}
+
+.k-saved-streams-section {
+  margin-bottom: 8px;
+}
+
+.k-stream-quick-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  border: 1px dashed var(--stone-2);
+  gap: 8px;
+}
+
+.k-quick-save-prompt {
+  font-size: 11px;
+  color: var(--sumi-2);
+}
+
+.k-quick-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 4px;
+  background: var(--shu-soft);
+  border: 1px solid var(--shu);
+  color: var(--shu);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms ease;
+}
+
+.k-quick-save-btn:hover {
+  background: var(--shu);
+  color: #FFFFFF;
+}
+
+.k-stream-saved-badge-bar {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.k-saved-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sumi-3);
+  background: var(--washi-2);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--stone-3);
+}
+
+.lofi-input button.k-btn-save-inline {
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lofi-input button.k-btn-save-inline:hover:not(:disabled) {
+  border-color: var(--shu);
+  color: var(--shu);
+  background: var(--shu-soft);
+}
+
+.lofi-input button.k-btn-save-inline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Custom Atmosphere Mix Controls */
+.k-active-mix-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  margin-bottom: 12px;
+}
+
+.k-mix-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sumi-2);
+}
+
+.k-active-count-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #FFFFFF;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.k-mix-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-btn-xs {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  min-height: 26px !important;
+}
+
+.k-save-mix-dialog {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--shu);
+  margin-bottom: 12px;
+  animation: k-fade-in 140ms ease-out;
+}
+
+.k-emoji-trigger-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.k-emoji-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-2);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 120ms ease;
+  line-height: 1;
+}
+
+.k-emoji-trigger-btn:hover {
+  background: var(--washi-card);
+  border-color: var(--stone);
+}
+
+.k-emoji-caret {
+  font-size: 8px;
+  color: var(--sumi-3);
+}
+
+.k-emoji-popover {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 80;
+  background: var(--washi-card);
+  border: 1px solid var(--stone);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  width: 172px;
+  animation: k-fade-in 120ms ease-out;
+}
+
+.k-emoji-popover-chip {
+  top: calc(100% + 4px);
+  left: 0;
+}
+
+.k-emoji-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.k-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+
+.k-emoji-cell {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: var(--r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.k-emoji-cell:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  transform: scale(1.08);
+}
+
+.k-emoji-cell.is-selected {
+  background: var(--shu-light);
+  border-color: var(--shu);
+  box-shadow: 0 0 0 2px var(--shu-ring);
+  transform: scale(1.05);
+}
+
+.k-atmo-chip-wrap {
+  position: relative;
+}
+
+.k-atmo-icon.is-clickable {
+  cursor: pointer;
+  position: relative;
+  border-radius: 4px;
+  padding: 1px 3px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 120ms ease;
+}
+
+.k-atmo-icon.is-clickable:hover {
+  background: var(--washi-2);
+  box-shadow: 0 0 0 1px var(--stone-2);
+}
+
+.k-emoji-edit-badge {
+  font-size: 8px;
+  color: var(--sumi-3);
+  margin-left: 1px;
+  opacity: 0.5;
+}
+
+.k-atmo-icon.is-clickable:hover .k-emoji-edit-badge {
+  color: var(--shu);
+  opacity: 1;
+}
+
+.k-save-mix-dialog input {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  font-size: 12px;
+  background: var(--washi);
+  color: var(--sumi);
+  outline: none;
+}
+
+.k-save-mix-dialog input:focus {
+  border-color: var(--shu);
+}
+
+.k-atm-del-btn {
+  margin-left: auto;
+  opacity: 0.5;
+  background: transparent;
+  border: none;
+  color: var(--sumi-3);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.k-atm-del-btn:hover {
+  opacity: 1;
+  color: var(--shu);
+}
+
+/* Stage Treat / Reward Motivator Pill */
+.k-stage-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: var(--r-full);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  font-size: 11.5px;
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 140ms ease;
+  margin-top: 6px;
+}
+
+.k-stage-reward-pill:hover {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  transform: translateY(-1px);
+}
+
+.k-stage-reward-pill b {
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.k-reward-lock {
+  font-size: 11px;
+}
+
+/* --- Settings Dialog Specifics ------------------------------------------- */
+.settings-dialog { max-width: 560px; }
+.k-settings-section {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--stone-3);
+}
+.k-settings-section:last-of-type {
+  border-bottom: 0;
+}
+.k-settings-section-title {
+  font-family: var(--jp);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--sumi);
+  margin-bottom: 4px;
+}
+.k-settings-section-help {
+  color: var(--sumi-3);
+  font-size: 12.5px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* Theme & Atmosphere Palettes */
+.k-theme-mode-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.k-theme-mode-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+.k-theme-mode-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+}
+.k-theme-mode-btn.is-active {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.k-palette-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.k-palette-card:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  transform: translateY(-1px);
+}
+.k-palette-card.is-active {
+  border-color: var(--shu);
+  box-shadow: 0 0 0 1px var(--shu), var(--shadow-sm);
+  background: var(--washi-2);
+}
+.k-palette-swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.k-palette-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.k-palette-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+.k-palette-desc {
+  font-size: 11px;
+  color: var(--sumi-3);
+  line-height: 1.3;
+}
+.k-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.k-settings-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  background: var(--washi-2);
+}
+.k-settings-grid-label {
+  color: var(--sumi-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.k-settings-grid input {
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--sumi);
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.k-settings-grid input:focus {
+  outline: none;
+  color: var(--shu);
+}
+.k-settings-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+}
+.k-settings-row + .k-settings-row {
+  border-top: 1px solid var(--stone-3);
+}
+.k-settings-row-label b {
+  color: var(--sumi);
+  font-size: 13.5px;
+  font-weight: 500;
+  display: block;
+}
+.k-settings-row-label small {
+  color: var(--sumi-3);
+  font-size: 12px;
+  display: block;
+  margin-top: 2px;
+  line-height: 1.45;
+}
+.k-num-input {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.k-num-input:focus {
+  outline: none;
+  border-color: var(--shu);
+}
+
+/* --- AI Provider Card & Multi-Model Settings ----------------------------- */
+.k-ai-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.k-ai-provider-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  cursor: pointer;
+  text-align: left;
+  transition: all 140ms ease;
+}
+
+.k-ai-provider-card:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  transform: translateY(-0.5px);
+}
+
+.k-ai-provider-card.active {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  color: var(--shu);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-ai-provider-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.k-ai-provider-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.k-ai-provider-info b {
+  font-size: 12px;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.k-ai-provider-info small {
+  font-size: 10px;
+  color: var(--sumi-3);
+  white-space: nowrap;
+}
+
+.k-ai-provider-card.active .k-ai-provider-info small {
+  color: var(--shu);
+  opacity: 0.85;
+}
+
+.k-ai-config-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  gap: 8px;
+}
+
+.k-ai-tip-callout,
+.k-ai-offline-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  border: 1px dashed var(--stone-3);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--sumi-2);
+  margin-top: 4px;
+}
+
+.k-ai-tip-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.k-ai-tip-text b {
+  color: var(--sumi);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.k-code-inline {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--stone-1);
+  border: 1px solid var(--stone-3);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--sumi);
+  margin-top: 3px;
+}
+
+.k-ai-test-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--stone-3);
+}
+
+.k-btn-test-ai {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 6px 12px;
+  min-height: 30px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  color: var(--sumi);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-btn-test-ai:hover:not(:disabled) {
+  background: var(--washi-hover);
+  border-color: var(--shu);
+  color: var(--shu);
+}
+
+.k-ai-test-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-family: var(--mono);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.k-ai-test-badge.success {
+  background: rgba(46, 160, 67, 0.12);
+  color: #2ea043;
+  border: 1px solid rgba(46, 160, 67, 0.3);
+}
+
+.k-ai-test-badge.error {
+  background: var(--shu-soft);
+  color: var(--shu);
+  border: 1px solid var(--shu-ring);
+}
+
+/* --- Time Capsule & Future Treat Dialog --------------------------------- */
+.capsule-dialog {
+  max-width: 660px;
+  max-height: min(92vh, 880px);
+}
+
+.k-capsule-kanji {
+  font-family: var(--jp);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--sumi-3);
+  padding: 2px 7px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-sm);
+}
+
+.k-capsule-unsealed-hero {
+  margin: 16px 28px 0;
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, rgba(232, 85, 61, 0.09) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1px solid var(--shu-ring);
+  box-shadow: 0 4px 16px rgba(232, 85, 61, 0.12);
+  animation: k-fade-in 240ms ease-out;
+}
+
+.k-capsule-unsealed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shu);
+  margin-bottom: 8px;
+}
+
+.k-capsule-unsealed-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-capsule-unsealed-card.compact {
+  padding: 14px 16px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+}
+
+.k-capsule-from-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--sumi-3);
+}
+
+.k-capsule-quote {
+  margin: 0;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sumi);
+  padding-left: 10px;
+  border-left: 2px solid var(--shu);
+}
+
+.k-capsule-treat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--washi);
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--stone-2);
+  margin-top: 4px;
+}
+
+.k-treat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--shu);
+}
+
+.k-treat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.k-unlocked-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--sumi-3);
+  margin-top: 4px;
+}
+
+/* Tabs */
+.k-capsule-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 28px 0;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-capsule-tab {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 140ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-capsule-tab:hover {
+  color: var(--sumi);
+}
+
+.k-capsule-tab.active {
+  color: var(--shu);
+  border-bottom-color: var(--shu);
+  font-weight: 600;
+}
+
+/* Capsule Form */
+.k-capsule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.k-capsule-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.k-capsule-field label:not(.k-trigger-card) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.k-capsule-field label:not(.k-trigger-card) small {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--sumi-3);
+}
+
+.k-capsule-field textarea,
+.k-capsule-field input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--sumi);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.k-capsule-field textarea:focus,
+.k-capsule-field input[type="text"]:focus {
+  border-color: var(--shu);
+  box-shadow: 0 0 0 3px var(--shu-glow);
+}
+
+.k-capsule-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.k-chip-subtle {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.k-chip-subtle:hover {
+  background: var(--washi-3);
+  color: var(--sumi);
+  border-color: var(--stone);
+}
+
+/* Trigger Selector Cards */
+.k-trigger-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.k-trigger-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  cursor: pointer;
+  transition: all 140ms ease;
+  font-size: 13px;
+  font-weight: normal;
+  width: 100%;
+}

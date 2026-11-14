@@ -571,9 +571,15 @@ test('Tier 1: Feature 16 - Backward Compatibility Facades', async () => {
   assert.ok(typeof pacing.daysRemaining === 'number' || Object.keys(pacing).length === 0);
 });
 
+/** washi.css only holds ordered @imports of styles/parts/*.css; tests need the combined text. */
+const readStylesheet = (): string => {
+  const dir = path.resolve(process.cwd(), 'styles/parts');
+  return fs.readdirSync(dir).filter(f => f.endsWith('.css')).sort()
+    .map(f => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n');
+};
+
 test('Tier 1: Feature 17 - Washi CSS Token Integrity', () => {
-  const washiCssPath = path.resolve(process.cwd(), 'styles/washi.css');
-  const css = fs.readFileSync(washiCssPath, 'utf8');
+  const css = readStylesheet();
 
   // Extract all var(--token) calls
   const varMatches = Array.from(css.matchAll(/var\(\s*(--[a-zA-Z0-9_-]+)/g)).map(m => m[1]);
@@ -608,8 +614,7 @@ test('Tier 1: Feature 17 - Washi CSS Token Integrity', () => {
 });
 
 test('Tier 1: Feature 18 - Modal 860px Width Selector', () => {
-  const washiCssPath = path.resolve(process.cwd(), 'styles/washi.css');
-  const css = fs.readFileSync(washiCssPath, 'utf8');
+  const css = readStylesheet();
 
   // Must declare 860px max-width for the document breakdown modal framing
   const has860Rule = css.includes('860px') && (
@@ -617,6 +622,7 @@ test('Tier 1: Feature 18 - Modal 860px Width Selector', () => {
     css.includes('.modal-card.k-doc-breakdown-modal')
   );
   assert.ok(has860Rule, 'styles/washi.css must contain 860px modal width definition');
+  assert.ok(css.length > 100_000, 'combined stylesheet should not be empty');
 });
 
 test('Tier 1: Feature 19 - WCAG AA Contrast Compliance Mathematics', () => {

@@ -91,7 +91,11 @@ Needs you (accounts or decisions, cannot be done from code): create the Cloudfla
 
 Exam Mode (added later the same day, researched: retrieval practice over rereading, interleaving, no new topics in the last days): phase banner on Today for deadlines within 7 days, and a sprint planner (`utils/examMode.ts`) with Recall/Practice/Fix blocks and an optional 10 pm stop.
 
-Not built: component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.
+MCP connector (step 8) prototype in `connector/`, 7 tests with the official MCP client (see its README). Checked against current docs on 2026-11-14: Claude custom connectors need a public HTTPS URL, OAuth with PKCE, and support Dynamic Client Registration (callback `https://claude.ai/api/mcp/auth_callback`); ChatGPT needs developer mode and the sources disagree on whether Plus/Pro can run write tools (OpenAI's own page lists full MCP for Business/Enterprise/Edu), so the paste bridge stays the universal path and the connector is launched for Claude first. Claude, ChatGPT and Gemini acceptance is untested until there is a public URL.
+
+Code health done: `washi.css` split into ordered `styles/parts/*.css` (built CSS byte-identical), `WelcomeModal`, `AnalogDial` and `soundStudio/soundCatalog` extracted (App 1108 -> 1027 lines, Stage 1535 -> 1180, ControlPanel 2648 -> 2189). Further splitting of the `ControlPanel` and `SidebarNav` bodies is left; their state is tightly coupled.
+
+Not built: further component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.
 
 ## Status (2026-11-14, earlier)
 

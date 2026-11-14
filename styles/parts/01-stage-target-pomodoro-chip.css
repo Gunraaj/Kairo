@@ -1,0 +1,1100 @@
+/* Stage Target Pomodoro Chip */
+.k-target-pomo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-2);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.k-target-pomo-chip.is-complete {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-target-pomo-chip small {
+  font-size: 9px;
+  color: var(--sumi-4);
+  font-weight: 400;
+}
+
+/* --- Focus To-Do Style Pomodoro Popover --------------------------------- */
+.k-pomo-popover {
+  margin: 6px 0 8px 24px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: kPomoPopIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20;
+}
+
+@keyframes kPomoPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.k-pomo-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--stone-2);
+}
+
+.k-pomo-pop-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--sumi-1);
+}
+
+.k-pomo-pop-icon {
+  font-size: 14px;
+}
+
+.k-pomo-pop-close {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--sumi-4);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: var(--r-sm);
+  transition: all 120ms ease;
+}
+
+.k-pomo-pop-close:hover {
+  background: var(--stone-1);
+  color: var(--sumi-1);
+}
+
+.k-pomo-pop-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-pomo-pop-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.k-pomo-pop-title-sm {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-2);
+}
+
+.k-pomo-pop-hint {
+  font-size: 9.5px;
+  color: var(--sumi-4);
+}
+
+.k-pomo-stepper-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.k-pomo-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  background: var(--stone-1);
+  overflow: hidden;
+}
+
+.k-pomo-stepper-btn {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.k-pomo-stepper-btn:hover {
+  background: var(--stone-2);
+  color: var(--sumi-1);
+}
+
+.k-pomo-stepper-val {
+  min-width: 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sumi-1);
+  padding: 0 4px;
+}
+
+.k-pomo-quick-chips,
+.k-pomo-time-chips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.k-pomo-chip {
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  border-radius: var(--r-sm);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-pomo-chip:hover {
+  background: var(--stone-2);
+  color: var(--sumi-1);
+  border-color: var(--stone-3);
+}
+
+.k-pomo-chip.active {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.k-pomo-pop-calc {
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: var(--stone-1);
+  border: 1px dashed var(--stone-2);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10.5px;
+}
+
+.k-pomo-calc-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.k-pomo-calc-k {
+  color: var(--sumi-4);
+  font-size: 10px;
+}
+
+.k-pomo-calc-v {
+  font-family: var(--mono);
+  color: var(--sumi-2);
+}
+
+.k-pomo-auto-subs-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 120ms ease;
+  margin-top: 2px;
+}
+
+.k-pomo-auto-subs-btn:hover {
+  background: var(--shu);
+  color: #ffffff;
+}
+
+.k-pomo-auto-subs-btn small {
+  opacity: 0.85;
+}
+
+/* --- Pomofocus-Style Summary Bar (Overall Target & Finish Time) --- */
+.k-pomo-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 6px;
+  margin: 0 2px 8px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--sumi-2);
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.k-pomo-sum-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.k-pomo-sum-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sumi-4);
+  font-weight: 600;
+}
+
+.k-pomo-sum-val {
+  color: var(--sumi);
+}
+
+.k-pomo-sum-val b {
+  font-weight: 600;
+  color: var(--shu);
+}
+
+.k-pomo-sum-val small {
+  color: var(--sumi-4);
+  font-size: 9.5px;
+}
+
+.k-pomo-sum-divider {
+  color: var(--stone-3);
+  font-size: 10px;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-pomo-summary-bar {
+  display: none !important;
+}
+
+/* Finish pill in Pomodoro Popover header */
+.k-pomo-finish-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-2);
+}
+
+.k-pomo-finish-pill b {
+  color: var(--shu);
+}
+
+.k-pomo-finish-pill small {
+  color: var(--sumi-4);
+  font-size: 9px;
+}
+
+.k-pomo-finish-pill-full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 10px;
+  padding: 4px 8px;
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-md);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--sumi-2);
+}
+
+.k-pomo-finish-pill-full b {
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-pomo-finish-pill-full small {
+  color: var(--sumi-4);
+  font-size: 9.5px;
+}
+
+/* Duration chips in Pomodoro Popover */
+.k-pomo-time-calc-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--stone-2);
+}
+
+.k-pomo-sublabel {
+  font-size: 9.5px;
+  color: var(--sumi-4);
+}
+
+.k-chip-duration {
+  font-size: 10px;
+  padding: 3px 6px;
+}
+
+/* Stage Target Finish Pill */
+.k-target-finish-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  margin-left: 6px;
+}
+
+/* --- InfoTip Contextual Help Tooltip --- */
+.k-infotip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.k-infotip-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--stone-3);
+  background: transparent;
+  color: var(--sumi-4);
+  font-family: var(--serif);
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 120ms ease;
+}
+
+.k-infotip-btn:hover,
+.k-infotip-btn.is-active {
+  color: var(--shu);
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+  transform: scale(1.05);
+}
+
+.k-infotip-card {
+  position: absolute;
+  z-index: 100;
+  width: 230px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  animation: kPomoPopIn 140ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--sumi-2);
+}
+
+.k-infotip-card.pos-bottom {
+  top: calc(100% + 6px);
+  right: 0;
+}
+
+.k-infotip-card.pos-top {
+  bottom: calc(100% + 6px);
+  right: 0;
+}
+
+.k-infotip-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-infotip-head b {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sumi);
+  flex: 1;
+}
+
+.k-infotip-icon {
+  font-size: 12px;
+}
+
+.k-infotip-close {
+  background: none;
+  border: none;
+  color: var(--sumi-4);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 2px;
+}
+
+.k-infotip-close:hover {
+  color: var(--sumi);
+}
+
+.k-infotip-body {
+  font-size: 11px;
+  color: var(--sumi-2);
+}
+
+/* --- Nested Subtasks Tree ----------------------------------------------- */
+.k-tree-task-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.k-task-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.k-task-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: all 140ms ease;
+}
+
+.k-tree-task:hover .k-task-actions .k-tree-icon-btn:not(.k-task-play-btn),
+.k-tree-task:focus-within .k-task-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 1;
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+}
+
+/* Direct 1-Click Task Play/Pause Button */
+.k-task-play-btn {
+  color: var(--shu);
+  background: var(--shu-soft);
+  border-radius: var(--r-full);
+  font-size: 10px;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 120ms ease;
+  margin-right: 2px;
+}
+
+.k-task-play-btn:hover {
+  background: var(--shu);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.k-task-play-btn.is-running {
+  background: var(--shu);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px var(--shu-soft);
+  animation: kPomoGlow 2s infinite ease-in-out;
+}
+
+@keyframes kPomoGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px var(--shu-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--shu-ring);
+  }
+}
+
+/* Stage Target Start & Countdown Badges */
+.k-target-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #ffffff;
+  border: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 140ms ease;
+  box-shadow: 0 2px 6px rgba(224, 82, 54, 0.25);
+}
+
+.k-target-start-btn:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 3px 8px rgba(224, 82, 54, 0.35);
+  background: #d4472c;
+}
+
+.k-target-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.k-target-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+  display: inline-block;
+  animation: kLiveDotBlink 1.4s infinite ease-in-out;
+}
+
+@keyframes kLiveDotBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
+}
+
+.k-tree-subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 4px 14px;
+  position: relative;
+}
+
+.k-subtasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 4px 4px 0;
+  margin-bottom: 2px;
+  border-bottom: 1px dashed var(--stone-2);
+  user-select: none;
+}
+
+.k-subtasks-header-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sumi-3);
+}
+
+.k-subtasks-header-ratio {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--sumi-4);
+  font-weight: normal;
+}
+
+.k-tree-subtasks::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 8px;
+  width: 1px;
+  background: var(--stone-3);
+}
+
+.k-tree-subtask-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.k-tree-subtask {
+  display: grid;
+  grid-template-columns: 14px minmax(40px, 1fr) auto auto;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  border-radius: var(--r-sm);
+  color: var(--sumi-2);
+  font-size: 11.5px;
+  min-height: 26px;
+  transition: all 120ms ease;
+  position: relative;
+}
+
+.k-subtask-popover {
+  margin: 4px 0 6px 0;
+  padding: 10px 12px;
+}
+
+.k-subtask-pomo-badge {
+  padding: 1px 4px;
+  font-size: 9px;
+  height: 19px;
+  margin-left: 2px;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.k-subtask-pomo-badge .k-pomo-badge-icon {
+  font-size: 9.5px;
+}
+
+.k-subtask-pomo-badge .k-pomo-badge-ratio {
+  font-size: 9px;
+}
+
+.k-subtask-pomo-badge .k-pomo-badge-len {
+  font-size: 8px;
+}
+
+.k-tree-subtask:hover {
+  background: var(--washi-2);
+}
+
+.k-tree-subtask.active {
+  background: var(--washi-card);
+  color: var(--sumi);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-tree-subtask.active .k-tree-subtask-name span {
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-tree-subtask.done .k-tree-subtask-name span {
+  color: var(--stone);
+  text-decoration: line-through;
+}
+
+.k-subtask-check {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1.2px solid var(--stone);
+  display: grid;
+  place-items: center;
+  background: var(--washi-card);
+  cursor: pointer;
+  padding: 0;
+  transition: all 120ms ease;
+}
+
+.k-subtask-check:hover {
+  border-color: var(--shu);
+}
+
+.k-subtask-check.checked {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #fff;
+}
+
+.k-subtask-check svg {
+  width: 8px;
+  height: 8px;
+}
+
+.k-tree-subtask-name {
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 11.5px;
+}
+
+.k-tree-subtask-name > span:first-child {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 32px;
+}
+
+.k-tree-subtask-name em {
+  font-style: normal;
+  color: var(--sumi-3);
+  font-size: 10px;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.k-subtask-pill {
+  font-size: 9px;
+  font-family: var(--mono);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-3);
+  padding: 0 5px;
+  border-radius: 4px;
+  margin-left: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: all 120ms ease;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.k-subtask-pill:hover {
+  border-color: var(--stone-2);
+  color: var(--sumi);
+}
+
+.k-subtask-pill.all-done {
+  background: rgba(39, 174, 96, 0.12);
+  border-color: rgba(39, 174, 96, 0.28);
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* Subtask Time & Calculation Mode Styles */
+.k-task-calc-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-3);
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 120ms ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.k-task-calc-badge:hover {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+  transform: translateY(-0.5px);
+}
+
+.k-subtask-time-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--sumi-2);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  cursor: pointer;
+  transition: all 120ms ease;
+  flex-shrink: 0;
+}
+
+.k-subtask-time-chip:hover {
+  border-color: var(--shu);
+  color: var(--shu);
+}
+
+.k-subtask-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.k-subtask-actions .k-task-play-btn {
+  width: 18px;
+  height: 18px;
+  font-size: 8.5px;
+}
+
+.k-subtask-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: all 140ms ease;
+}
+
+.k-tree-subtask:hover .k-subtask-actions .k-tree-icon-btn:not(.k-task-play-btn),
+.k-tree-subtask:focus-within .k-subtask-actions .k-tree-icon-btn:not(.k-task-play-btn) {
+  opacity: 1;
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+}
+
+.k-subtask-add-time-btn {
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px dashed var(--stone-3);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 120ms ease;
+  line-height: 1.2;
+}
+
+.k-subtask-add-time-btn:hover {
+  background: var(--shu-soft);
+  border-style: solid;
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-subtask-add-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: var(--sumi-3);
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 120ms ease;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.k-subtask-add-trigger:hover {
+  color: var(--shu);
+  background: var(--washi-2);
+}
+
+.k-subtask-add-trigger svg {
+  width: 10px;
+  height: 10px;
+}
+
+.k-tree-add-subtask {
+  padding: 2px 0;
+}
+
+.k-tree-add-subtask input {
+  width: 100%;
+  padding: 3px 6px;
+  font-size: 11.5px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  color: var(--sumi);
+  outline: none;
+}
+
+.k-tree-add-subtask input:focus {
+  border-color: var(--shu);
+}
+
+.k-tree-rename-input {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--shu);
+  background: var(--washi-card);
+  color: var(--sumi);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--shu-soft);
+}
+
+.k-tree-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  color: var(--sumi-3);
+  font-size: 12px;
+}
+.k-tree-add-btn:hover {
+  color: var(--sumi);
+  background: var(--washi-2);
+}
+
+.k-tree-add-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+}
+
+.k-tree-ai-slice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px dashed var(--stone-2);
+  color: var(--sumi-2);
+  font-size: 11px;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 140ms ease;
+  white-space: nowrap;
+}
+
+.k-tree-ai-slice-btn:hover:not(:disabled) {
+  border-color: var(--shu);
+  color: var(--shu);
+  background: var(--shu-subtle);
+  transform: translateY(-0.5px);
+}
+
+.k-tree-ai-slice-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* Slice Presets & Button Groups */
+.k-slice-btn-group {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--stone-2);
+  background: transparent;
+  transition: all 140ms ease;
+}
+
+.k-slice-btn-group .k-tree-ai-slice-btn {
+  border: none;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+}
+
+.k-tree-presets-menu-btn {
+  background: transparent;
+  border: none;
+  border-left: 1px dashed var(--stone-2);
+  padding: 3px 6px;
+  font-size: 10px;
+  font-family: var(--sans);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.k-slice-btn-group:hover {
+  border-color: var(--shu);
+}
+
+.k-tree-presets-menu-btn:hover,
+.k-tree-presets-menu-btn.is-open {
+  background: var(--shu-subtle);
+  color: var(--shu);
+}
+
+/* Quick Starter Presets Shelf */
+.k-tree-presets-shelf {
+  padding: 8px 10px;
+  margin: 6px 0 10px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-shelf-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sumi-3);
+}
+
+.k-preset-chips-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.k-preset-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: all 120ms ease;
+}

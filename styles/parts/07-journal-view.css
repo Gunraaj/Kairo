@@ -1,0 +1,1102 @@
+.k-trigger-card input[type="radio"] {
+  accent-color: var(--shu);
+  flex-shrink: 0;
+  cursor: pointer;
+  margin: 0;
+}
+
+.k-trigger-card:hover {
+  border-color: var(--stone);
+  background: var(--washi-2);
+}
+
+.k-trigger-card.active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+}
+
+.k-trigger-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+}
+
+.k-trigger-info b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.k-trigger-info small {
+  font-size: 11px;
+  color: var(--sumi-3);
+}
+
+.k-round-selector {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.k-round-selector button {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-2);
+  color: var(--sumi-2);
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-round-selector button.active {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+}
+
+.k-time-input {
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--sumi);
+  outline: none;
+}
+
+.k-capsule-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--stone-3);
+}
+
+/* Journal View */
+.k-capsule-journal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.k-journal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.k-section-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+}
+
+.k-journal-empty {
+  font-size: 13px;
+  color: var(--sumi-3);
+  font-style: italic;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.k-capsule-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.k-capsule-locked-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+}
+
+.k-capsule-lock-icon {
+  font-size: 18px;
+  opacity: 0.7;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.k-capsule-locked-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.k-capsule-condition {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--shu);
+}
+
+.k-capsule-hidden-msg {
+  margin: 0;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--sumi-2);
+  line-height: 1.4;
+}
+
+.k-locked-treat {
+  font-size: 12px;
+  color: var(--sumi-3);
+}
+
+.k-locked-treat b {
+  color: var(--sumi);
+}
+
+/* Top Utility Bar Pill Button for Capsule */
+.k-capsule-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.k-capsule-pill-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+  transform: translateY(-1px);
+}
+
+.k-capsule-pill-btn.has-locked {
+  border-color: var(--shu-ring);
+}
+
+.k-capsule-pill-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Stage Treat Button inside Intention box */
+.k-intention-capsule-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 140ms ease;
+  flex-shrink: 0;
+}
+
+.k-intention-capsule-btn:hover {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  color: var(--shu);
+}
+
+/* Responsive Adaptations --------------------------------------------- */
+@media (max-width: 1024px) {
+  .k-sound-lib {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    box-shadow: var(--shadow-deep);
+  }
+  .k-sound-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 17, 14, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 22;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .k-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--stone-2);
+    padding: 10px 16px;
+    height: auto;
+    position: relative;
+    z-index: 80;
+  }
+  .k-sidebar-head {
+    border-bottom: 0;
+    padding: 0;
+    width: 100%;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  .app-shell[data-sidebar="collapsed"] .k-sidebar-head {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+  }
+  .app-shell[data-sidebar="collapsed"] .k-head-actions {
+    flex-direction: row !important;
+  }
+  .app-shell[data-sidebar="collapsed"] .k-brand-name {
+    display: inline-block !important;
+  }
+
+  .k-collapse-icon-desktop {
+    display: none !important;
+  }
+  .k-collapse-icon-mobile {
+    display: inline-flex !important;
+  }
+
+  /* Default hidden on mobile */
+  .k-nav {
+    display: none;
+  }
+
+  /* Mobile Drawer Overlay when open */
+  .app-shell[data-mobile-nav="open"] .k-nav {
+    display: flex !important;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    width: min(85vw, 320px);
+    background: var(--washi-sidebar);
+    border-right: 1px solid var(--stone-2);
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.25);
+    padding: 16px 12px;
+    z-index: 100;
+    overflow-y: auto;
+    animation: kDrawerSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Backdrop for mobile drawer */
+  .k-mobile-backdrop {
+    display: none;
+  }
+  .app-shell[data-mobile-nav="open"] .k-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 95;
+    animation: kFadeIn 150ms ease;
+  }
+
+  .k-stage {
+    padding: 20px 12px;
+  }
+  .k-dial-time {
+    font-size: 46px;
+  }
+  .k-hero-dial-wrapper {
+    max-width: min(80vw, 270px);
+  }
+  .k-btn-hero {
+    min-height: 48px;
+    padding: 0 24px;
+    font-size: 14px;
+  }
+}
+
+.k-collapse-icon-mobile {
+  display: none;
+}
+.k-collapse-icon-desktop {
+  display: inline-flex;
+}
+
+@keyframes kDrawerSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* --- Focus Guide & Pomodoro Science Modal --- */
+.k-science-dialog {
+  max-width: 760px;
+  width: 95vw;
+}
+
+.k-science-eyebrow {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shu);
+  margin-bottom: 2px;
+}
+
+.k-science-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 24px;
+  background: var(--washi-2);
+  border-bottom: 1px solid var(--stone-3);
+  overflow-x: auto;
+}
+
+.k-science-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 140ms ease;
+}
+
+.k-science-tab:hover {
+  color: var(--sumi);
+  background: var(--washi-card);
+}
+
+.k-science-tab.active {
+  color: var(--shu);
+  background: var(--washi-card);
+  border-color: var(--shu-line);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.k-science-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.k-science-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.k-science-banner {
+  padding: 16px 20px;
+  border-radius: var(--r-md);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+}
+
+.k-science-banner h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sumi);
+  margin: 0 0 6px 0;
+}
+
+.k-science-banner p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--sumi-2);
+  margin: 0;
+}
+
+.k-science-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .k-science-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.k-science-feature-card {
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-science-card-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.k-science-feature-card h4 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--sumi);
+  margin: 0 0 6px 0;
+}
+
+.k-science-feature-card p {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--sumi-3);
+  margin: 0;
+}
+
+.k-science-deep-card {
+  padding: 18px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-science-deep-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sumi);
+  margin: 0 0 8px 0;
+}
+
+.k-science-deep-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--sumi-2);
+  margin: 0;
+}
+
+.k-paper-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.k-paper-card {
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.k-paper-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.k-paper-year {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--shu-soft);
+  color: var(--shu);
+}
+
+.k-paper-journal {
+  font-size: 11.5px;
+  color: var(--sumi-3);
+  font-style: italic;
+}
+
+.k-paper-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.k-paper-title a {
+  color: var(--sumi);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 120ms ease;
+}
+
+.k-paper-title a:hover {
+  color: var(--shu);
+  text-decoration: underline;
+}
+
+.k-paper-authors {
+  font-size: 12px;
+  color: var(--sumi-3);
+}
+
+.k-paper-finding {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--sumi-2);
+  background: var(--washi-2);
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+}
+
+.k-paper-takeaway {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--sumi);
+}
+
+.k-paper-takeaway b {
+  color: var(--shu);
+}
+
+.k-protocol-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .k-protocol-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.k-protocol-column {
+  padding: 18px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+}
+
+.k-protocol-col-header {
+  margin-bottom: 12px;
+}
+
+.k-protocol-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+}
+
+.k-protocol-pill.green {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+}
+
+.k-protocol-pill.red {
+  background: rgba(198, 40, 40, 0.1);
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.25);
+}
+
+.k-protocol-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--sumi-2);
+}
+
+.k-protocol-list li b {
+  color: var(--sumi);
+}
+
+.k-science-footer-note {
+  font-size: 12px;
+  color: var(--sumi-3);
+}
+
+/* --- Document & Syllabus Breakdown Modal -------------------------------- */
+.modal-card.k-doc-breakdown-modal,
+.k-doc-breakdown-modal {
+  max-width: 860px;
+  width: 95vw;
+  max-height: 90vh;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.k-doc-modal-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 90vh;
+}
+
+.k-doc-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  gap: 16px;
+}
+
+.k-doc-head-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.k-doc-head-icon {
+  font-size: 28px;
+  line-height: 1;
+  padding: 8px;
+  background: var(--washi-2);
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+}
+
+.k-doc-title {
+  margin: 0 0 4px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--sumi);
+  letter-spacing: -0.02em;
+}
+
+.k-doc-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--sumi-3);
+  line-height: 1.45;
+}
+
+.k-doc-close-btn {
+  background: none;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sumi-2);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 160ms ease;
+}
+
+.k-doc-close-btn:hover {
+  background: var(--washi-2);
+  color: var(--sumi);
+  border-color: var(--stone-2);
+}
+
+/* AI Engine & Privacy Selector Card (Feature 20) */
+.k-doc-engine-card {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.k-doc-engine-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.k-doc-engine-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sumi);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.k-doc-engine-icon {
+  color: var(--shu);
+  font-size: 15px;
+}
+
+.k-doc-engine-label {
+  letter-spacing: -0.01em;
+}
+
+.k-doc-engine-faq-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-full);
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--sumi-2);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-doc-engine-faq-toggle:hover {
+  background: var(--washi-card);
+  color: var(--shu);
+  border-color: var(--shu-subtle);
+}
+
+.k-doc-engine-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.k-doc-engine-chip {
+  flex: 1 1 calc(16.666% - 6px);
+  min-width: 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 140ms ease;
+  text-align: center;
+  gap: 2px;
+}
+
+.k-doc-engine-chip:hover {
+  border-color: var(--stone-1);
+  transform: translateY(-1px);
+}
+
+.k-doc-engine-chip.active {
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.k-engine-chip-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+
+.k-engine-chip-badge {
+  font-size: 10px;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.k-doc-engine-chip.active .k-engine-chip-label {
+  color: var(--shu);
+}
+
+.k-doc-engine-chip.active .k-engine-chip-badge {
+  color: var(--shu);
+  opacity: 0.85;
+}
+
+.k-doc-faq-drawer {
+  margin-top: 6px;
+  padding: 12px 14px;
+  background: var(--washi-card);
+  border: 1px dashed var(--stone-2);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--sumi-2);
+}
+
+.k-doc-faq-row b {
+  color: var(--sumi);
+  font-size: 12px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.k-doc-faq-row p {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.k-doc-faq-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--washi-2);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+}
+
+.k-doc-faq-code-bar code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--sumi);
+}
+
+.k-doc-faq-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-doc-faq-copy-btn:hover {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+}
+
+.k-diff-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.k-diff-indicator.intensive {
+  background: #A855F7;
+}
+
+.k-diff-indicator.standard {
+  background: #EAB308;
+}
+
+.k-diff-indicator.light {
+  background: #22C55E;
+}
+
+/* Step 1: Input Ingestion View */
+.k-doc-input-view {
+  padding: 22px 28px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.k-doc-tab-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--washi-2);
+  padding: 4px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+}
+
+.k-doc-tab-btn {
+  padding: 9px 14px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.k-doc-tab-btn.active {
+  background: var(--washi-card);
+  color: var(--sumi);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-doc-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.k-doc-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.k-doc-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sumi-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-doc-label small {
+  font-weight: 400;
+  color: var(--sumi-3);
+}
+
+.k-doc-templates-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-templates-caption {
+  font-size: 11px;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.k-template-btn {
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  color: var(--sumi-2);
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-template-btn:hover {
+  background: var(--washi-card);
+  color: var(--shu);
+  border-color: var(--shu-soft);
+}
+
+.k-doc-archetype-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .k-doc-archetype-pills {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.k-doc-archetype-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.k-doc-archetype-pill:hover {
+  border-color: var(--stone-2);
+  background: var(--washi-2);
+}
+
+.k-doc-archetype-pill.active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.k-pill-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.k-pill-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.k-pill-text b {
+  font-size: 12.5px;
+  color: var(--sumi);
+  line-height: 1.25;
+}
+
+.k-pill-text small {
+  font-size: 10.5px;
+  color: var(--sumi-3);
+  line-height: 1.2;
+}
+
+.k-doc-date-input {
+  max-width: 240px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 13px;
+}

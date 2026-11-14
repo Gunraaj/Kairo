@@ -1,0 +1,1099 @@
+.beat-mode-icon {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.beat-mode-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.beat-mode-selector button small {
+  font-size: 9.5px;
+  color: var(--sumi-3);
+}
+
+.beat-mode-selector .beat-mode-active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.beat-mode-selector .beat-mode-active .beat-mode-title {
+  color: var(--shu);
+}
+
+/* Audio Telemetry Readout */
+.beat-signal-readout {
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 160ms ease;
+}
+
+.beat-signal-readout.is-live {
+  border-color: var(--shu-line);
+}
+
+.signal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signal-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--sumi-3);
+  flex: 1;
+}
+
+.signal-live-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--shu);
+  color: #fff;
+  letter-spacing: 0.08em;
+}
+
+.signal-channels {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--washi-2);
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+}
+
+.channel-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.channel-label {
+  font-size: 8.5px;
+  font-family: var(--mono);
+  color: var(--sumi-3);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.channel-val {
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--sumi);
+}
+
+.channel-val.accent {
+  color: var(--shu);
+  font-weight: 700;
+}
+
+.channel-val small {
+  font-size: 9.5px;
+  color: var(--sumi-3);
+  font-weight: normal;
+}
+
+.channel-op {
+  color: var(--sumi-3);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 2px;
+}
+
+.channel-box.is-result {
+  margin-left: auto;
+  text-align: right;
+}
+
+.signal-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--sumi-3);
+  margin: 0;
+}
+
+/* Hero Generator Button */
+.sound-main-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: var(--r-md);
+  background: var(--shu);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-family: var(--sans);
+  font-weight: 600;
+  border: 1px solid var(--shu);
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--shu-glow);
+  transition: all 140ms ease;
+}
+.sound-main-control svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.sound-main-control:hover {
+  background: var(--shu-hover);
+  transform: translateY(-0.5px);
+  box-shadow: 0 4px 12px var(--shu-glow);
+}
+
+.sound-main-control.is-active {
+  background: var(--washi-card);
+  border-color: var(--shu);
+  color: var(--shu);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+.sound-main-control.is-active:hover {
+  background: var(--shu-soft);
+}
+
+/* Beat Presets Grid */
+.beat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.beat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  text-align: left;
+  cursor: pointer;
+  transition: all 140ms ease;
+  width: 100%;
+}
+
+.beat-card:hover {
+  border-color: var(--stone-2);
+  background: var(--washi-2);
+}
+
+.beat-card.beat-card-active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.beat-badge-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 3px 0;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  flex-shrink: 0;
+}
+
+.beat-card.beat-card-active .beat-badge-col {
+  background: var(--shu);
+  color: #fff;
+}
+
+.beat-freq-num {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.beat-freq-unit {
+  font-size: 9px;
+  font-family: var(--mono);
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
+.beat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.beat-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.beat-info b {
+  color: var(--sumi);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.beat-card.beat-card-active .beat-info b {
+  color: var(--shu);
+}
+
+.beat-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+}
+
+.beat-info small {
+  color: var(--sumi-3);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+/* Acoustic Tuning Sliders */
+.beat-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.carrier-control, .rhythm-control, .noise-blend-control {
+  padding: 12px 14px;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.control-heading span {
+  color: var(--sumi-3);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.control-heading b {
+  color: var(--sumi);
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+/* --- Focus Presets Header & Custom Preset Saving ------------------------- */
+.k-presets-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.k-save-mix-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--shu);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-line);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 120ms ease;
+  cursor: pointer;
+}
+.k-save-mix-btn:hover {
+  background: var(--shu);
+  color: #fff;
+}
+.k-save-mix-btn.is-cancel {
+  color: var(--sumi-3);
+  background: var(--washi-2);
+  border-color: var(--stone-3);
+}
+
+.beat-card-wrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+.beat-card-wrapper .beat-card {
+  flex: 1;
+}
+.k-beat-del-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-3);
+  font-size: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 120ms ease;
+  z-index: 2;
+}
+.beat-card-wrapper:hover .k-beat-del-btn {
+  opacity: 1;
+}
+.k-beat-del-btn:hover {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #fff;
+}
+
+.k-custom-tag {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--mono);
+  background: var(--shu-soft);
+  color: var(--shu);
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 6px;
+  letter-spacing: 0.05em;
+}
+
+/* --- Range Controls & Sliders -------------------------------------------- */
+.range-control {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  width: 100% !important;
+  margin-top: 2px;
+}
+
+.range-control-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: baseline !important;
+  width: 100% !important;
+}
+
+.range-control-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-2);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.range-control-val {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--shu);
+  background: var(--shu-soft);
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--shu-line);
+}
+
+/* Universal Range Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--stone-3);
+  outline: none;
+  cursor: pointer;
+  transition: background 150ms ease;
+  margin: 6px 0;
+}
+
+input[type="range"]:hover {
+  background: var(--stone-2);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--shu);
+  border: 2px solid var(--washi-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+  box-shadow: 0 2px 6px var(--shu-glow);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--shu);
+  border: 2px solid var(--washi-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.18);
+  box-shadow: 0 2px 6px var(--shu-glow);
+}
+
+/* --- Carrier Presets Grid ------------------------------------------------ */
+.carrier-presets {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.carrier-presets button {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 8px 4px !important;
+  min-height: 48px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-card);
+  color: var(--sumi-2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 130ms ease;
+}
+
+.carrier-presets button:hover {
+  background: var(--washi-2);
+  border-color: var(--stone);
+  transform: translateY(-1px);
+}
+
+.carrier-presets button .carrier-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+
+.carrier-presets button .carrier-hz {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--sumi-3);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.carrier-presets button.carrier-preset-active {
+  background: var(--shu) !important;
+  border-color: var(--shu) !important;
+  box-shadow: 0 2px 8px var(--shu-glow);
+}
+
+.carrier-presets button.carrier-preset-active .carrier-label,
+.carrier-presets button.carrier-preset-active .carrier-hz {
+  color: #ffffff !important;
+}
+
+/* --- Brainwave Band Selector & Scale ------------------------------------- */
+.brainwave-scale {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.brainwave-band-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  padding: 6px 4px !important;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  cursor: pointer;
+  transition: all 130ms ease;
+  text-align: center;
+}
+
+.brainwave-band-btn:hover {
+  background: var(--washi-card);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+}
+
+.brainwave-band-btn .band-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+
+.brainwave-band-btn .band-range {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--sumi-3);
+  line-height: 1;
+}
+
+.brainwave-band-btn.active-band {
+  background: var(--shu-soft) !important;
+  border-color: var(--shu-line) !important;
+  box-shadow: 0 0 0 1px var(--shu-line);
+}
+
+.brainwave-band-btn.active-band .band-name {
+  color: var(--shu) !important;
+  font-weight: 700;
+}
+
+.brainwave-band-btn.active-band .band-range {
+  color: var(--shu) !important;
+  font-weight: 600;
+}
+
+/* --- Noise Type Chips ---------------------------------------------------- */
+.noise-type-chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.noise-type-chip {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  padding: 8px 6px !important;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-card);
+  color: var(--sumi-2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 130ms ease;
+}
+
+.noise-type-chip:hover {
+  background: var(--washi-2);
+  border-color: var(--stone);
+}
+
+.noise-type-chip .noise-chip-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sumi);
+  letter-spacing: 0.05em;
+}
+
+.noise-type-chip .noise-chip-desc {
+  font-size: 9px;
+  color: var(--sumi-3);
+  line-height: 1.1;
+}
+
+.noise-type-chip.active {
+  background: var(--shu) !important;
+  border-color: var(--shu) !important;
+  box-shadow: 0 2px 8px var(--shu-glow);
+}
+
+.noise-type-chip.active .noise-chip-name,
+.noise-type-chip.active .noise-chip-desc {
+  color: #ffffff !important;
+}
+
+/* --- Interactive Physiology & Entrainment Guide -------------------------- */
+.k-physio-guide {
+  margin-top: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  overflow: hidden;
+  transition: border-color 150ms ease;
+}
+.k-physio-guide:hover {
+  border-color: var(--stone-2);
+}
+
+.k-physio-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sumi);
+  background: var(--washi-2);
+  list-style: none;
+}
+.k-physio-summary::-webkit-details-marker {
+  display: none;
+}
+.k-physio-summary-icon {
+  font-size: 14px;
+}
+.k-physio-summary-text {
+  flex: 1;
+  letter-spacing: 0.02em;
+}
+.k-physio-arrow {
+  font-size: 11px;
+  color: var(--sumi-3);
+  transition: transform 180ms ease;
+}
+.k-physio-guide[open] .k-physio-arrow {
+  transform: rotate(180deg);
+}
+
+.k-physio-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--stone-3);
+}
+
+.k-physio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .k-physio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.k-physio-item {
+  padding: 10px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.k-physio-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  align-self: flex-start;
+}
+.k-physio-badge.theta {
+  background: rgba(142, 68, 173, 0.12);
+  color: #8e44ad;
+}
+.k-physio-badge.alpha {
+  background: rgba(39, 174, 96, 0.12);
+  color: #27ae60;
+}
+.k-physio-badge.beta {
+  background: rgba(41, 128, 185, 0.12);
+  color: #2980b9;
+}
+.k-physio-badge.gamma {
+  background: rgba(197, 56, 47, 0.12);
+  color: var(--shu);
+}
+
+.k-physio-item h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.3;
+}
+
+.k-physio-item p {
+  font-size: 11px;
+  color: var(--sumi-3);
+  line-height: 1.45;
+}
+
+.k-physio-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--stone-3);
+}
+
+.k-physio-note {
+  font-size: 11px;
+  color: var(--sumi-2);
+  line-height: 1.45;
+}
+
+.k-physio-note b {
+  color: var(--sumi);
+}
+
+.k-physio-note em {
+  color: var(--shu);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.sound-note {
+  margin-top: 4px;
+  color: var(--sumi-3);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.audio-status-error {
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--shu-soft);
+  color: var(--shu);
+  font-size: 12px;
+  border: 1px solid var(--shu-line);
+}
+
+/* --- Error Boundary Screen ------------------------------------------------ */
+.k-error-boundary-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--washi);
+  color: var(--sumi);
+}
+
+.k-error-boundary-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 32px 28px;
+  border-radius: var(--r-lg);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  box-shadow: 0 12px 36px var(--sumi-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.k-error-boundary-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.k-error-boundary-title {
+  font-family: var(--jp);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sumi);
+  letter-spacing: -0.01em;
+}
+
+.k-error-boundary-msg {
+  font-size: 13.5px;
+  color: var(--sumi-2);
+  line-height: 1.5;
+}
+
+.k-error-boundary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.k-error-boundary-details {
+  width: 100%;
+  text-align: left;
+  margin-top: 12px;
+  border-top: 1px solid var(--stone-3);
+  padding-top: 12px;
+  font-size: 11px;
+}
+
+.k-error-boundary-details summary {
+  cursor: pointer;
+  color: var(--sumi-3);
+  font-family: var(--mono);
+}
+
+.k-error-boundary-details pre {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  color: var(--sumi);
+  font-family: var(--mono);
+  overflow-x: auto;
+  max-height: 180px;
+}
+
+/* --- Lofi Stream Panel ---------------------------------------------------- */
+.lofi-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+}
+.lofi-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--washi-card);
+  color: var(--shu);
+  border: 1px solid var(--stone-3);
+  flex-shrink: 0;
+}
+.lofi-intro h3 {
+  font-family: var(--jp);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--sumi);
+  margin-bottom: 2px;
+}
+.lofi-intro p {
+  color: var(--sumi-3);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.lofi-input {
+  display: flex;
+  gap: 6px;
+}
+.lofi-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 12.5px;
+}
+.lofi-input input:focus {
+  outline: none;
+  border-color: var(--shu);
+}
+.lofi-input button {
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  background: var(--shu);
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 140ms ease;
+}
+.lofi-input button:disabled {
+  background: var(--stone-3);
+  color: var(--sumi-3);
+  cursor: not-allowed;
+}
+.lofi-input button:hover:not(:disabled) {
+  background: var(--shu-hover);
+}
+.lofi-hint {
+  color: var(--sumi-3);
+  font-size: 11px;
+}
+.lofi-error {
+  color: var(--shu);
+  font-size: 11.5px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--shu-soft);
+  border: 1px solid var(--shu-line);
+}
+.lofi-empty {
+  padding: 24px 16px;
+  border-radius: var(--r-md);
+  border: 1px dashed var(--stone-2);
+  color: var(--sumi-3);
+  font-size: 12px;
+  text-align: center;
+}
+.lofi-empty a {
+  color: var(--shu);
+  text-decoration: underline;
+}
+.lofi-player {
+  position: relative;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--stone-2);
+}
+.lofi-player iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 0;
+}
+.lofi-player > button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(18, 17, 14, 0.7);
+  color: #FFFFFF;
+}
+
+/* --- Curated Lofi Radio Stations ---------------------------------------- */
+.k-lofi-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+  margin: 10px 0 6px;
+}
+
+.k-curated-stations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.k-station-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  cursor: pointer;
+  text-align: left;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.k-station-card:hover {
+  background: var(--washi-2);
+  border-color: var(--stone);
+  transform: translateY(-1px);
+}
+
+.k-station-card.is-active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.k-station-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.k-station-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-3);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+.k-station-card.is-active .k-station-badge {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #FFFFFF;
+}
+
+.k-station-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sumi);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-station-subtitle {
+  font-size: 10.5px;
+  color: var(--sumi-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Equalizer Bars for Active Station */
+.k-station-wave {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}

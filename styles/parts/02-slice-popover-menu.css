@@ -1,0 +1,1115 @@
+.k-preset-chip-btn:hover {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  color: var(--shu);
+  transform: translateY(-0.5px);
+}
+
+.k-chip-emoji {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Slice Popover Menu */
+.k-slice-popover {
+  position: relative;
+  z-index: 50;
+  margin: 6px 0 8px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: k-fade-in 140ms ease-out;
+}
+
+.k-slice-popover-task {
+  margin: 4px 0 6px 24px;
+}
+
+.k-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-popover-head b {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sumi);
+}
+
+.k-popover-head button {
+  background: transparent;
+  border: none;
+  color: var(--sumi-3);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.k-popover-head button:hover {
+  color: var(--shu);
+}
+
+.k-popover-options {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.k-popover-preset-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: all 120ms ease;
+  width: 100%;
+}
+
+.k-popover-preset-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-3);
+}
+
+.k-popover-preset-btn.is-ai {
+  background: var(--shu-subtle);
+  border-color: rgba(229, 77, 46, 0.2);
+}
+
+.k-popover-emoji {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.k-popover-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.k-popover-text b {
+  font-size: 11.5px;
+  color: var(--sumi);
+}
+
+.k-popover-text span {
+  font-size: 10px;
+  color: var(--sumi-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-tree-add-task input,
+.k-tree-add-project input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-sm);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 12.5px;
+  transition: border-color 140ms ease;
+}
+.k-tree-add-task input:focus,
+.k-tree-add-project input:focus {
+  outline: none;
+  border-color: var(--shu);
+}
+
+.k-tree-add-project {
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--stone-3);
+}
+.k-tree-add-project button {
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--sumi-2);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-2);
+  transition: all 140ms ease;
+}
+.k-tree-add-project button:hover:not(:disabled) {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #FFFFFF;
+}
+.k-tree-add-project button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.k-tree-empty {
+  padding: 12px 8px;
+  color: var(--sumi-3);
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* --- Main Region --------------------------------------------------------- */
+.k-main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--washi);
+}
+
+.k-stage-utility-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  flex-shrink: 0;
+  z-index: 20;
+  pointer-events: auto;
+  margin-bottom: 12px;
+}
+
+.k-stage-utility-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.k-top-utility-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  pointer-events: auto;
+  transition: opacity 200ms ease;
+}
+
+.k-zen-pill-btn,
+.k-sound-pill-btn,
+.k-capsule-pill-btn,
+.k-guide-pill-btn {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+/* When Sound Studio is open, collapse utility bar text to sleek icon pills */
+.app-shell[data-sound-open="true"] .k-top-utility-bar .k-pill-label,
+.app-shell[data-sound-open="true"] .k-top-utility-bar .k-kbd-inline {
+  display: none !important;
+}
+
+.app-shell[data-sound-open="true"] .k-zen-pill-btn,
+.app-shell[data-sound-open="true"] .k-sound-pill-btn,
+.app-shell[data-sound-open="true"] .k-capsule-pill-btn,
+.app-shell[data-sound-open="true"] .k-guide-pill-btn {
+  padding: 7px 11px;
+  gap: 4px;
+}
+
+@media (max-width: 1180px) {
+  .k-top-utility-bar .k-pill-label,
+  .k-top-utility-bar .k-kbd-inline {
+    display: none !important;
+  }
+  .k-zen-pill-btn,
+  .k-sound-pill-btn,
+  .k-capsule-pill-btn,
+  .k-guide-pill-btn {
+    padding: 7px 11px;
+    gap: 4px;
+  }
+}
+
+/* On tablets and mobile where Sound Studio is a fixed modal drawer overlay,
+   smoothly hide the background stage utility bar so it never gets smushed,
+   trapped, or overlapped behind the drawer. */
+@media (max-width: 1024px) {
+  .app-shell[data-sound-open="true"] .k-top-utility-bar {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms ease;
+  }
+}
+
+@media (max-width: 480px) {
+  .k-stage-utility-header {
+    margin-bottom: 8px;
+  }
+  .k-top-utility-bar {
+    gap: 6px;
+  }
+  .k-zen-pill-btn,
+  .k-sound-pill-btn,
+  .k-capsule-pill-btn,
+  .k-guide-pill-btn {
+    padding: 6px 9px;
+  }
+}
+
+.k-zen-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.k-zen-pill-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+  transform: translateY(-1px);
+}
+.k-zen-pill-btn.is-active {
+  background: var(--shu-soft);
+  border-color: var(--shu);
+  color: var(--shu);
+}
+.k-kbd-inline {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--washi-2);
+  color: var(--sumi-3);
+  border: 1px solid var(--stone-3);
+  font-weight: 600;
+}
+.k-zen-pill-btn.is-active .k-kbd-inline {
+  border-color: var(--shu-line);
+  color: var(--shu);
+}
+
+/* Zen Fullscreen Mode */
+.app-shell[data-zen="true"] {
+  grid-template-columns: 1fr !important;
+}
+.app-shell[data-zen="true"] .k-sidebar {
+  display: none !important;
+}
+.app-shell[data-zen="true"] .k-sound-lib {
+  display: none !important;
+}
+.app-shell[data-zen="true"] .k-main {
+  grid-template-columns: 1fr;
+  padding: 40px;
+  overflow: hidden;
+}
+.app-shell[data-zen="true"] .k-top-utility-bar .k-sound-pill-btn {
+  display: none !important;
+}
+.app-shell[data-zen="true"] .k-stage-utility-header {
+  opacity: 0.25;
+  transition: opacity 200ms ease;
+}
+.app-shell[data-zen="true"] .k-stage-utility-header:hover {
+  opacity: 1;
+}
+
+.k-sound-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.k-sound-pill-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+  transform: translateY(-1px);
+}
+.k-sound-pill-btn.is-open {
+  border-color: var(--shu);
+  color: var(--shu);
+}
+
+.k-guide-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.k-guide-pill-btn:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  color: var(--sumi);
+  transform: translateY(-1px);
+}
+.k-sound-pill-btn.is-playing {
+  border-color: var(--shu-line);
+}
+
+.k-sound-pill-wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 12px;
+}
+.k-sound-pill-wave span {
+  width: 2.5px;
+  height: 8px;
+  background: var(--stone);
+  border-radius: 2px;
+  transition: height 160ms ease, background 160ms ease;
+}
+.k-sound-pill-btn.is-playing .k-sound-pill-wave span {
+  background: var(--shu);
+  animation: k-wave-pulse 1s infinite alternate ease-in-out;
+}
+.k-sound-pill-btn.is-playing .k-sound-pill-wave span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.k-sound-pill-btn.is-playing .k-sound-pill-wave span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes k-wave-pulse {
+  0% { height: 4px; }
+  100% { height: 12px; }
+}
+
+.k-sound-pill-active-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--shu-soft);
+  color: var(--shu);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  font-weight: 600;
+}
+
+/* --- Stage (Zen Focus Workspace) ----------------------------------------- */
+.k-stage {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px 24px 32px;
+  background: radial-gradient(circle at 50% 42%, var(--ambient-radial-glow, rgba(255, 69, 58, 0.05)) 0%, transparent 65%), var(--washi);
+  transition: background 300ms ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.k-stage-zen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 620px;
+  width: 100%;
+  gap: 20px;
+  margin: auto 0;
+}
+
+/* 1. Mode Pill Bar */
+.k-mode-pill-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.k-mode-pill {
+  padding: 6px 16px;
+  border-radius: var(--r-full);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  transition: all 160ms ease;
+}
+.k-mode-pill:hover:not(:disabled) {
+  color: var(--sumi);
+}
+.k-mode-pill.active {
+  background: var(--washi-card);
+  color: var(--sumi);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+.k-mode-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 2. Target Context & Intention */
+.k-target-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.k-target-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  max-width: 90%;
+}
+
+.k-target-icon {
+  color: var(--shu);
+  display: grid;
+  place-items: center;
+}
+
+.k-target-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-target-hint {
+  font-size: 11px;
+  color: var(--sumi-3);
+  background: var(--washi-2);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+}
+
+.k-intention-zen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 440px;
+  width: 100%;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--stone-2);
+  transition: border-color 160ms ease;
+}
+.k-intention-zen:focus-within {
+  border-bottom-color: var(--shu);
+}
+
+.k-intention-prefix {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--shu);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.k-intention-zen input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--sumi);
+  font-size: 13.5px;
+  padding: 4px 0;
+}
+.k-intention-zen input::placeholder {
+  color: var(--sumi-3);
+  font-style: italic;
+}
+
+.k-ai-sharpen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--shu-subtle);
+  border: 1px solid var(--shu-ring);
+  color: var(--shu);
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 140ms ease;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.k-ai-sharpen-btn:hover:not(:disabled) {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+  transform: translateY(-0.5px);
+}
+
+.k-ai-sharpen-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.k-ai-spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: k-spin 600ms linear infinite;
+}
+
+@keyframes k-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 3. Hero Analog Dial - Double-Bezel Hardware Architecture */
+.k-hero-dial-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 330px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  margin: 6px 0;
+  border-radius: 50%;
+  box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.75),
+              0 0 0 1px var(--stone-3),
+              inset 0 2px 6px rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle at 50% 28%, var(--dial-disc-light, #16161D) 0%, var(--dial-disc-dark, #0D0D12) 100%);
+  transition: all 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+:root[data-theme="light"] .k-hero-dial-wrapper {
+  box-shadow: 0 24px 60px -12px rgba(45, 35, 25, 0.12),
+              0 0 0 1px rgba(35, 25, 15, 0.07),
+              inset 0 2px 6px rgba(255, 255, 255, 0.9);
+  background: radial-gradient(circle at 50% 28%, #FFFFFF 0%, #F5EFE6 100%);
+}
+
+.k-dial-zen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.k-dial-zen.is-dragging {
+  cursor: grabbing;
+}
+.k-dial-zen svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.k-dial-outer-bezel {
+  fill: var(--washi-2);
+  stroke: var(--stone-3);
+  stroke-width: 1.5;
+  transition: all 200ms ease;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.08));
+}
+.k-dial-outer-rim {
+  fill: none;
+  stroke: var(--stone-3);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+.k-dial-inner-groove {
+  fill: none;
+  stroke: var(--stone-2);
+  stroke-width: 0.8;
+  stroke-dasharray: 2, 4;
+  opacity: 0.4;
+}
+
+.k-dial-track {
+  stroke: var(--stone-2);
+  opacity: 0.65;
+}
+
+.k-dial-arc {
+  transition: stroke-dasharray 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 10px var(--shu-glow));
+}
+
+.k-dial-tick {
+  transition: stroke 140ms ease, opacity 140ms ease;
+}
+.k-dial-tick.subtle {
+  stroke: var(--stone);
+  opacity: 0.5;
+}
+.k-dial-tick.minor {
+  stroke: var(--stone-3);
+  opacity: 0.85;
+}
+.k-dial-tick.major {
+  stroke: var(--sumi-2);
+  opacity: 0.95;
+}
+.k-dial-tick.passed {
+  stroke: var(--shu) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 2px var(--shu));
+}
+
+.k-dial-tick-label {
+  fill: var(--sumi-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  transition: fill 140ms ease;
+}
+.k-dial-tick-label.passed {
+  fill: var(--shu);
+  font-weight: 600;
+}
+
+.k-dial-time {
+  fill: var(--sumi);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 64px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+:root[data-theme="light"] .k-dial-time {
+  filter: none;
+}
+
+.k-dial-sub-label {
+  fill: var(--sumi-3);
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  text-transform: uppercase;
+  user-select: none;
+}
+.k-dial-zen.is-dragging .k-dial-sub-label {
+  fill: var(--shu);
+}
+.k-dial-zen.is-active .k-dial-sub-label {
+  fill: var(--shu);
+}
+
+.k-dial-handle-group {
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.k-dial-handle-group.is-dragging {
+  transition: none !important;
+}
+.k-dial-handle-halo {
+  fill: var(--shu-soft);
+  opacity: 0;
+  transition: opacity 160ms ease, r 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.k-dial-handle-outer {
+  fill: var(--shu);
+  stroke: var(--washi-card);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+  transition: transform 120ms ease;
+}
+.k-dial-handle-inner {
+  fill: #FFFFFF;
+  opacity: 0.9;
+  transition: r 120ms ease;
+}
+
+.k-dial-handle-group:hover .k-dial-handle-halo {
+  opacity: 0.6;
+  r: 16;
+}
+.k-dial-handle-group.is-dragging .k-dial-handle-halo {
+  opacity: 0.9;
+  r: 18;
+}
+.k-dial-handle-group.is-dragging .k-dial-handle-outer {
+  transform: scale(1.18);
+  stroke-width: 3;
+}
+.k-dial-handle-group.is-dragging .k-dial-handle-inner {
+  r: 4;
+}
+
+/* Floating HUD badge while dragging */
+.k-dial-hud-bg {
+  fill: var(--sumi);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+}
+.k-dial-hud-text {
+  fill: var(--washi);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.k-dial-hitbox {
+  fill: transparent;
+  cursor: grab;
+}
+.k-dial-zen.is-dragging .k-dial-hitbox {
+  cursor: grabbing;
+}
+
+/* Celebratory Session Completion Toast */
+.k-completion-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 0 auto 12px auto;
+  border-radius: 9999px;
+  background: var(--washi-card, #FFFFFF);
+  border: 1px solid rgba(201, 56, 42, 0.28);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sumi, #1E1E1E);
+  line-height: 1.3;
+  z-index: 5;
+}
+
+.k-completion-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--shu, #C9382A);
+  box-shadow: 0 0 6px var(--shu);
+  flex-shrink: 0;
+}
+
+.k-completion-text {
+  letter-spacing: -0.01em;
+}
+
+.k-completion-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--sumi-muted, #78716C);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: color 150ms ease;
+}
+
+.k-completion-dismiss:hover {
+  color: var(--sumi, #1E1E1E);
+}
+
+/* 4. Unified Ergonomic Control Dock */
+.k-control-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.k-dock-primary-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.k-btn-hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 36px;
+  border-radius: var(--r-full);
+  background: linear-gradient(180deg, var(--shu-hover) 0%, var(--shu) 100%);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+              0 10px 28px -4px var(--shu-glow);
+  cursor: pointer;
+  transition: transform 140ms cubic-bezier(0.32, 0.72, 0, 1),
+              box-shadow 140ms ease,
+              filter 140ms ease;
+}
+.k-btn-hero:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+              0 14px 32px -4px var(--shu-glow);
+  filter: brightness(1.03);
+}
+.k-btn-hero:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
+              0 4px 12px -2px var(--shu-glow);
+}
+.k-btn-hero.is-active {
+  background: var(--sumi);
+  color: var(--washi);
+  border-color: var(--stone-3);
+  box-shadow: var(--shadow-deep);
+}
+.k-btn-hero.is-active:hover {
+  background: var(--sumi-2);
+}
+
+.k-hero-btn-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.k-hero-kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.k-dock-secondary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.k-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--r-full);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  transition: all 140ms ease;
+}
+.k-btn-secondary:hover {
+  background: var(--washi-2);
+  border-color: var(--stone);
+  color: var(--sumi);
+  transform: translateY(-1px);
+}
+.k-btn-secondary:active {
+  transform: scale(0.97);
+}
+.k-btn-secondary kbd {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--washi-2);
+  color: var(--sumi-3);
+  border: 1px solid var(--stone-3);
+}
+
+/* 5. Subtle Settings Strip */
+.k-dock-meta-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  column-gap: 12px;
+  padding-top: 8px;
+  font-size: 12px;
+  color: var(--sumi-3);
+  max-width: 100%;
+}
+
+.app-shell[data-sound-open="true"] .k-meta-divider {
+  display: none;
+}
+
+@media (max-width: 680px) {
+  .k-meta-divider {
+    display: none;
+  }
+}
+
+.k-meta-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-meta-subtle-label {
+  font-size: 11px;
+  color: var(--sumi-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.k-chips-compact {
+  display: flex;
+  gap: 4px;
+}
+.k-chip-compact {
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-card);
+  color: var(--sumi-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: all 120ms ease;
+}
+.k-chip-compact:hover {
+  border-color: var(--stone);
+  color: var(--sumi);
+}
+.k-chip-compact.active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-meta-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--stone-2);
+}
+
+.k-toggle-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sumi-3);
+  font-size: 12px;
+}
+.k-toggle-compact .k-toggle-track {
+  width: 28px;
+  height: 16px;
+}
+.k-toggle-compact .k-toggle-track::after {
+  width: 12px;
+  height: 12px;
+}
+.k-toggle-compact[aria-pressed="true"] .k-toggle-track::after {
+  left: 14px;
+}
+
+.k-momentum-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+}
+.k-momentum-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+}
+.k-momentum-stat b {
+  color: var(--sumi);
+  font-weight: 600;
+}
+
+/* --- Interrupted Session Recovery Banner --- */
+.k-recovery-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 580px;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--shu-line);
+  box-shadow: 0 4px 20px -4px var(--shu-soft), var(--shadow-sm);
+  animation: kFadeSlideDown 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 4px;
+}

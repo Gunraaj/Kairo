@@ -1,0 +1,1101 @@
+@keyframes kFadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.k-recovery-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--sumi);
+  min-width: 0;
+}
+
+.k-recovery-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--shu);
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--shu-glow);
+  animation: kPulseDot 2s infinite ease-in-out;
+}
+
+@keyframes kPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+
+.k-recovery-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-recovery-text b {
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-recovery-text i {
+  font-style: normal;
+  color: var(--sumi-2);
+}
+
+.k-recovery-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.k-recovery-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 140ms ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.k-recovery-btn.primary {
+  background: var(--shu);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px var(--shu-soft);
+}
+.k-recovery-btn.primary:hover {
+  background: var(--shu-hover);
+  transform: translateY(-1px);
+}
+
+.k-recovery-btn.bank {
+  background: var(--washi-2);
+  color: var(--sumi);
+  border-color: var(--stone-2);
+}
+.k-recovery-btn.bank:hover {
+  background: var(--washi-3);
+  border-color: var(--stone);
+  transform: translateY(-1px);
+}
+
+.k-recovery-btn.discard {
+  background: transparent;
+  color: var(--sumi-3);
+}
+.k-recovery-btn.discard:hover {
+  color: var(--sumi);
+  background: var(--washi-2);
+}
+
+/* --- Break Stepper Controls --- */
+.k-break-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-full);
+  padding: 1px 3px;
+  transition: border-color 140ms ease;
+}
+.k-break-stepper:hover {
+  border-color: var(--stone);
+}
+
+.k-break-stepper-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sumi-2);
+  cursor: pointer;
+  padding: 0;
+  transition: all 120ms ease;
+}
+.k-break-stepper-btn:hover:not(:disabled) {
+  background: var(--washi-card);
+  color: var(--shu);
+}
+.k-break-stepper-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.k-break-stepper-value {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  padding: 0 4px;
+  min-width: 26px;
+  text-align: center;
+}
+
+/* --- Sound Studio (Collapsible Panel / Drawer) ---------------------------- */
+.k-sound-lib {
+  width: 400px;
+  background: var(--washi-sidebar);
+  border-left: 1px solid var(--stone-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 25;
+  transition: margin-right 280ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease;
+}
+
+.k-sound-lib.is-closed {
+  margin-right: -400px;
+  opacity: 0;
+  pointer-events: none;
+  border-left: none;
+}
+.k-sound-lib.is-open {
+  margin-right: 0;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.k-sl-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 1. Header */
+.k-sl-head {
+  padding: 16px 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--washi-sidebar);
+  border-bottom: 1px solid var(--stone-3);
+  flex-shrink: 0;
+}
+
+.k-sl-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.k-sl-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.k-sl-head h2 {
+  font-family: var(--jp);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--sumi);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.k-sl-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-2);
+  color: var(--sumi-3);
+  font-size: 11px;
+  font-family: var(--sans);
+  font-weight: 500;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-sl-status-pill.is-active {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-sl-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stone);
+  flex-shrink: 0;
+}
+
+.k-sl-status-pill.is-active .k-sl-status-dot {
+  background: var(--shu);
+  box-shadow: 0 0 6px var(--shu-glow);
+  animation: k-pulse-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes k-pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+.k-sl-close-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi-3);
+  cursor: pointer;
+  transition: all 140ms ease;
+  flex-shrink: 0;
+}
+
+.k-sl-close-btn:hover {
+  background: var(--washi-card);
+  color: var(--sumi);
+  border-color: var(--stone-2);
+}
+
+.k-sl-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.k-sl-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 6px;
+  color: var(--sumi-3);
+  font-size: 12.5px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-sl-tab:hover {
+  color: var(--sumi);
+}
+
+.k-sl-tab[aria-selected="true"] {
+  color: var(--shu);
+  border-bottom-color: var(--shu);
+  font-weight: 600;
+}
+
+.k-tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.k-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+}
+
+/* 2. Scrollable Body */
+.k-sl-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.k-sl-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Search Input */
+.k-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--stone-2);
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  color: var(--sumi-3);
+  transition: border-color 140ms ease;
+  min-height: 34px;
+}
+
+.k-search:focus-within {
+  border-color: var(--shu);
+  color: var(--sumi);
+}
+
+.k-search svg.k-search-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--sumi-3);
+  flex-shrink: 0;
+}
+
+.k-search input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--sumi);
+  font-size: 12.5px;
+  width: 100%;
+}
+
+.k-search input::placeholder {
+  color: var(--sumi-3);
+  font-style: italic;
+}
+
+.k-search-clear {
+  border: none;
+  background: transparent;
+  color: var(--sumi-3);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.k-search-clear:hover {
+  color: var(--sumi);
+}
+
+/* Atmosphere Presets */
+.k-atmosphere-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-section-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--stone);
+}
+
+.k-atmosphere-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.k-atmosphere-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 140ms ease;
+}
+
+.k-atmosphere-chip:hover {
+  border-color: var(--shu-ring);
+  background: var(--washi-2);
+  transform: translateY(-0.5px);
+}
+
+.k-atmo-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* --- Quick Deck & Sound Library Modal Overhaul ------------------------- */
+.k-sl-quick-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.k-sl-standby-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px dashed var(--stone-3);
+  color: var(--sumi-3);
+  font-size: 11.5px;
+}
+
+.k-sl-standby-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.k-sl-standby-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.k-sl-standby-text b {
+  color: var(--sumi);
+  font-weight: 600;
+}
+
+.k-quick-instruments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-quick-instruments-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.k-quick-inst-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  color: var(--sumi);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 140ms ease;
+  text-align: left;
+}
+
+.k-quick-inst-pill:hover {
+  background: var(--washi-2);
+  border-color: var(--stone-2);
+  transform: translateY(-0.5px);
+}
+
+.k-quick-inst-pill.is-active {
+  background: var(--shu-light);
+  border-color: var(--shu);
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-sl-library-trigger-card {
+  margin-top: 4px;
+}
+
+.k-sl-open-modal-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--washi-card) 0%, var(--washi-2) 100%);
+  border: 1.5px solid var(--stone-3);
+  cursor: pointer;
+  transition: all 160ms ease;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+
+.k-sl-open-modal-btn:hover {
+  border-color: var(--shu);
+  background: var(--washi-card);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.k-sl-open-modal-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--washi);
+  border: 1px solid var(--stone-3);
+}
+
+.k-sl-open-modal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.k-sl-open-modal-text b {
+  font-size: 13px;
+  color: var(--sumi);
+  font-weight: 600;
+}
+
+.k-sl-open-modal-text small {
+  font-size: 11px;
+  color: var(--sumi-3);
+}
+
+.k-sl-open-modal-arrow {
+  font-size: 14px;
+  color: var(--shu);
+  font-weight: 700;
+  transition: transform 140ms ease;
+}
+
+.k-sl-open-modal-btn:hover .k-sl-open-modal-arrow {
+  transform: translate(2px, -2px);
+}
+
+.k-sl-drawer-mode-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.k-sl-toggle-drawer-btn {
+  background: none;
+  border: none;
+  color: var(--sumi-3);
+  font-size: 11px;
+  font-family: var(--mono);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: all 120ms ease;
+}
+
+.k-sl-toggle-drawer-btn:hover {
+  color: var(--sumi);
+  background: var(--washi-2);
+}
+
+.k-sl-collapse-bar {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.modal-card.k-sound-library-dialog {
+  max-width: 900px;
+  width: 92vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.k-modal-sl-tabs {
+  margin: 12px 0 16px;
+}
+
+.k-modal-sound-catalog-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.k-modal-sound-catalog-wrap .k-sl-grid {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+/* --- 3 Focus Layout Variations (Zen, Classic, Cockpit) ----------------- */
+.k-stage-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.k-stage-variation-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-var-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sumi-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-var-btn:hover {
+  color: var(--sumi);
+  background: var(--washi-2);
+}
+
+.k-var-btn.is-active {
+  background: var(--washi);
+  color: var(--sumi);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.k-var-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* 1. Zen Variation */
+.k-stage-zen.is-variation-zen {
+  max-width: 520px;
+  gap: 28px;
+}
+
+.k-zen-focus-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  font-size: 13px;
+  color: var(--sumi);
+  box-shadow: var(--shadow-sm);
+  animation: k-fade-in 180ms ease;
+}
+
+.k-zen-mode-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--shu);
+}
+
+.k-zen-sep {
+  color: var(--stone-2);
+}
+
+.k-zen-target-title {
+  font-weight: 500;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-zen-pomo-dot {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--sumi-2);
+  background: var(--washi-2);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+}
+
+.k-zen-reward-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.k-zen-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* 2. Cockpit Variation */
+.k-stage-zen.is-variation-cockpit {
+  max-width: 980px;
+  gap: 18px;
+}
+
+.k-cockpit-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 300px) minmax(320px, 360px) minmax(240px, 280px);
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .k-cockpit-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .k-cockpit-center {
+    grid-column: span 2;
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .k-cockpit-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.k-cockpit-card {
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.k-cockpit-card-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sumi-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.k-cockpit-target-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.3;
+}
+
+.k-cockpit-pacing-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--sumi-2);
+}
+
+.k-cockpit-subtasks-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.k-cockpit-sub-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-3);
+}
+
+.k-cockpit-subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sumi);
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  cursor: pointer;
+}
+
+.k-cockpit-subtask-item.is-done {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.k-cockpit-subtask-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-cockpit-sub-est {
+  font-family: var(--mono);
+  color: var(--sumi-3);
+  font-size: 10px;
+}
+
+.k-cockpit-intention-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+}
+
+.k-cockpit-intention-row input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  color: var(--sumi);
+  width: 100%;
+}
+
+.k-cockpit-stat-item {
+  font-size: 12.5px;
+  color: var(--sumi-2);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-cockpit-stat-item b {
+  color: var(--sumi);
+}
+
+.k-cockpit-sec-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.k-cockpit-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.k-sl-cats {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.k-sl-cat {
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-card);
+  color: var(--sumi-2);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-sl-cat:hover {
+  border-color: var(--stone);
+  color: var(--sumi);
+}
+
+.k-sl-cat.active {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #FFFFFF;
+}
+
+/* Active Ambient Layers Bar */
+.k-active-layers-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+}
+
+.k-layers-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.k-layers-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.k-layer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.k-layer-btn:hover {
+  background: var(--washi-3);
+}
+
+.k-layer-btn.is-danger {
+  color: var(--shu);
+  border-color: var(--shu-ring);
+}
+
+.k-layer-btn.is-danger:hover {
+  background: var(--shu-soft);
+}
+
+/* Sound Cards Grid */
+.k-sound-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.k-sound-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  box-shadow: var(--shadow-sm);
+  transition: all 140ms ease;
+  overflow: hidden;
+}
+
+.k-sound-card:hover {
+  border-color: var(--stone-2);
+}
+
+.k-sound-card.active {
+  border-color: var(--shu-line);
+  background: var(--shu-soft);
+}
+
+.k-sound-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.k-sound-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  display: grid;
+  place-items: center;
+  color: var(--sumi-3);
+  flex-shrink: 0;
+  transition: all 140ms ease;
+}
+
+.k-sound-card.active .k-sound-thumb {
+  background: var(--shu);
+  color: #fff;
+}
+
+.k-sound-title {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sumi);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-sound-toggle-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  background: var(--washi-2);
+  color: var(--sumi-3);
+  flex-shrink: 0;
+  transition: all 140ms ease;
+}
+
+.k-sound-toggle-badge.is-playing {
+  background: var(--shu);
+  color: #fff;
+}
+
+.k-sound-wave-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 9px;
+}

@@ -1,0 +1,1101 @@
+/* ==========================================================================
+   Kairo · Washi Design System (Zen Studio Revamp)
+   A committed, distraction-free visual environment:
+     - Washi paper canvas, Sumi ink marks, radiant Vermilion (朱) accent
+     - Haptic micro-interactions, double-bezel concentric curves, fluid responsiveness
+   ========================================================================== */
+
+/* --- Tokens -------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* Ground and Ink (Light - Artisanal Washi default) */
+  --washi:          #FAF7F2;
+  --washi-2:        #F0EAE1;
+  --washi-3:        #E6DED3;
+  --washi-card:     #FFFFFF;
+  --washi-sidebar:  #F4EFE6;
+  --washi-hover:    #EBE4D8;
+  --bg-card:        #FFFFFF;
+
+  --sumi:           #181614;
+  --sumi-1:         #181614;
+  --sumi-2:         #3E3A34;
+  --sumi-3:         #6E685E;
+  --sumi-4:         #8A8275;
+  --sumi-muted:     #78716C;
+  --sumi-shadow:    rgba(24, 22, 20, 0.12);
+  --stone:          #9C9486;
+  --stone-1:        #EDE6D8;
+  --stone-2:        #DCD4C5;
+  --stone-3:        #EAE2D3;
+
+  /* Canonical Kairo mark colors stay stable across atmospheric palettes. */
+  --brand-ink:       #20201E;
+  --brand-paper:     #F7F7F3;
+  --brand-vermilion: #C9382A;
+
+  /* Vermilion Accent (朱) */
+  --shu:            #C9382A;
+  --shu-hover:      #B52F22;
+  --shu-soft:       rgba(201, 56, 42, 0.08);
+  --shu-subtle:     rgba(201, 56, 42, 0.06);
+  --shu-light:      rgba(201, 56, 42, 0.12);
+  --shu-line:       rgba(201, 56, 42, 0.28);
+  --shu-ring:       rgba(201, 56, 42, 0.35);
+  --shu-glow:       rgba(201, 56, 42, 0.25);
+
+  --ambient-radial-glow: rgba(201, 56, 42, 0.03);
+  --dial-disc-light: #FFFFFF;
+  --dial-disc-dark: #F5EFE6;
+
+  /* Layout */
+  --sidebar-w:      240px;
+
+  /* Geometry & Typography */
+  --unit:           4px;
+  --r-sm:           6px;
+  --r-md:           12px;
+  --r-lg:           18px;
+  --r-full:         9999px;
+
+  --sans:           "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --jp:             "Noto Sans JP", "Inter", sans-serif;
+  --mono:           "IBM Plex Mono", "SF Mono", monospace;
+  --serif:          "Newsreader", "Playfair Display", "Noto Serif JP", Georgia, serif;
+
+  /* Shadows */
+  --shadow-sm:      0 1px 2px rgba(28, 27, 24, 0.04);
+  --shadow-lift:    0 2px 4px rgba(28, 27, 24, 0.04), 0 10px 28px rgba(28, 27, 24, 0.06);
+  --shadow-lg:      0 10px 25px -5px rgba(28, 27, 24, 0.08), 0 8px 10px -6px rgba(28, 27, 24, 0.06);
+  --shadow-deep:    0 6px 16px rgba(28, 27, 24, 0.08), 0 24px 64px rgba(28, 27, 24, 0.12);
+}
+
+/* Dark theme: Deep Obsidian Noir default */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --washi:          #09090B;
+  --washi-2:        #111115;
+  --washi-3:        #18181F;
+  --washi-card:     #121217;
+  --washi-sidebar:  #0C0C10;
+  --washi-hover:    #1F1F26;
+  --bg-card:        #121217;
+
+  --sumi:           #F4F4F6;
+  --sumi-1:         #F4F4F6;
+  --sumi-2:         #D1D1D6;
+  --sumi-3:         #82828C;
+  --sumi-4:         #A1A1AA;
+  --sumi-muted:     #71717A;
+  --sumi-shadow:    rgba(0, 0, 0, 0.45);
+  --stone:          #52525C;
+  --stone-1:        #2E2E36;
+  --stone-2:        #24242A;
+  --stone-3:        #1A1A20;
+
+  --shu:            #FF453A;
+  --shu-hover:      #FF5D53;
+  --shu-soft:       rgba(255, 69, 58, 0.12);
+  --shu-subtle:     rgba(255, 69, 58, 0.08);
+  --shu-light:      rgba(255, 69, 58, 0.16);
+  --shu-line:       rgba(255, 69, 58, 0.35);
+  --shu-ring:       rgba(255, 69, 58, 0.4);
+  --shu-glow:       rgba(255, 69, 58, 0.45);
+
+  --ambient-radial-glow: rgba(255, 69, 58, 0.05);
+  --dial-disc-light: #16161D;
+  --dial-disc-dark: #0D0D12;
+
+  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-lift:    0 2px 6px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.7);
+  --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --shadow-deep:    0 8px 24px rgba(0, 0, 0, 0.7), 0 32px 72px rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --washi:          #09090B;
+    --washi-2:        #111115;
+    --washi-3:        #18181F;
+    --washi-card:     #121217;
+    --washi-sidebar:  #0C0C10;
+    --sumi:           #F4F4F6;
+    --sumi-2:         #D1D1D6;
+    --sumi-3:         #82828C;
+    --stone:          #52525C;
+    --stone-2:        #24242A;
+    --stone-3:        #1A1A20;
+    --shu:            #FF453A;
+    --shu-hover:      #FF5D53;
+    --shu-soft:       rgba(255, 69, 58, 0.12);
+    --shu-line:       rgba(255, 69, 58, 0.35);
+    --shu-glow:       rgba(255, 69, 58, 0.45);
+    --ambient-radial-glow: rgba(255, 69, 58, 0.05);
+    --dial-disc-light: #16161D;
+    --dial-disc-dark: #0D0D12;
+  }
+}
+
+/* --- Atmospheric Palette Overrides --------------------------------------- */
+
+/* 1. Obsidian Noir (Tokyo Midnight / Linear-Tier) */
+:root[data-palette="obsidian"][data-theme="dark"],
+:root[data-palette="obsidian"]:not([data-theme="light"]) {
+  --washi: #09090B;
+  --washi-2: #111115;
+  --washi-3: #18181F;
+  --washi-card: #121217;
+  --washi-sidebar: #0C0C10;
+  --sumi: #F4F4F6;
+  --sumi-2: #D1D1D6;
+  --sumi-3: #82828C;
+  --stone: #52525C;
+  --stone-2: #24242A;
+  --stone-3: #1A1A20;
+  --shu: #FF453A;
+  --shu-hover: #FF5D53;
+  --shu-soft: rgba(255, 69, 58, 0.12);
+  --shu-line: rgba(255, 69, 58, 0.35);
+  --shu-glow: rgba(255, 69, 58, 0.45);
+  --ambient-radial-glow: rgba(255, 69, 58, 0.05);
+  --dial-disc-light: #16161D;
+  --dial-disc-dark: #0D0D12;
+}
+
+:root[data-palette="obsidian"][data-theme="light"] {
+  --washi: #F8F8FA;
+  --washi-2: #EEEEF2;
+  --washi-3: #E4E4EB;
+  --washi-card: #FFFFFF;
+  --washi-sidebar: #F2F2F6;
+  --sumi: #111114;
+  --sumi-2: #34343B;
+  --sumi-3: #686875;
+  --stone: #9696A3;
+  --stone-2: #D4D4DE;
+  --stone-3: #E5E5ED;
+  --shu: #E5352B;
+  --shu-hover: #C92A21;
+  --shu-soft: rgba(229, 53, 43, 0.09);
+  --shu-line: rgba(229, 53, 43, 0.30);
+  --shu-glow: rgba(229, 53, 43, 0.28);
+  --ambient-radial-glow: rgba(229, 53, 43, 0.03);
+  --dial-disc-light: #FFFFFF;
+  --dial-disc-dark: #F0F0F5;
+}
+
+/* 2. Zen Sanctuary (Kyoto Moss & Emerald) */
+:root[data-palette="zen"][data-theme="dark"],
+:root[data-palette="zen"]:not([data-theme="light"]) {
+  --washi: #0A0F0D;
+  --washi-2: #111A16;
+  --washi-3: #18251F;
+  --washi-card: #131E18;
+  --washi-sidebar: #0D1411;
+  --sumi: #EBF2ED;
+  --sumi-2: #C4D4C9;
+  --sumi-3: #7D9484;
+  --stone: #46584C;
+  --stone-2: #212E27;
+  --stone-3: #19241E;
+  --shu: #34D399;
+  --shu-hover: #4ADE80;
+  --shu-soft: rgba(52, 211, 153, 0.12);
+  --shu-line: rgba(52, 211, 153, 0.35);
+  --shu-glow: rgba(52, 211, 153, 0.40);
+  --ambient-radial-glow: rgba(52, 211, 153, 0.06);
+  --dial-disc-light: #16241D;
+  --dial-disc-dark: #0E1713;
+}
+
+:root[data-palette="zen"][data-theme="light"] {
+  --washi: #F5F7F5;
+  --washi-2: #EAF0EB;
+  --washi-3: #DFE8E1;
+  --washi-card: #FFFFFF;
+  --washi-sidebar: #EEF4F0;
+  --sumi: #141B17;
+  --sumi-2: #2E3B33;
+  --sumi-3: #586B60;
+  --stone: #899E91;
+  --stone-2: #CAD8CE;
+  --stone-3: #DEE8E1;
+  --shu: #10B981;
+  --shu-hover: #059669;
+  --shu-soft: rgba(16, 185, 129, 0.09);
+  --shu-line: rgba(16, 185, 129, 0.30);
+  --shu-glow: rgba(16, 185, 129, 0.28);
+  --ambient-radial-glow: rgba(16, 185, 129, 0.03);
+  --dial-disc-light: #FFFFFF;
+  --dial-disc-dark: #ECF3EE;
+}
+
+/* 3. Midnight Indigo (Cosmic Deep & Sky) */
+:root[data-palette="indigo"][data-theme="dark"],
+:root[data-palette="indigo"]:not([data-theme="light"]) {
+  --washi: #080A12;
+  --washi-2: #0F1322;
+  --washi-3: #171D33;
+  --washi-card: #121728;
+  --washi-sidebar: #0B0E1A;
+  --sumi: #F0F4FC;
+  --sumi-2: #C5CEE3;
+  --sumi-3: #7D8BAA;
+  --stone: #475473;
+  --stone-2: #212940;
+  --stone-3: #181E30;
+  --shu: #38BDF8;
+  --shu-hover: #60A5FA;
+  --shu-soft: rgba(56, 189, 248, 0.12);
+  --shu-line: rgba(56, 189, 248, 0.35);
+  --shu-glow: rgba(56, 189, 248, 0.40);
+  --ambient-radial-glow: rgba(56, 189, 248, 0.06);
+  --dial-disc-light: #161D36;
+  --dial-disc-dark: #0E1222;
+}
+
+:root[data-palette="indigo"][data-theme="light"] {
+  --washi: #F4F7FB;
+  --washi-2: #E9EEF7;
+  --washi-3: #DDE5F2;
+  --washi-card: #FFFFFF;
+  --washi-sidebar: #EDF2FA;
+  --sumi: #101726;
+  --sumi-2: #283550;
+  --sumi-3: #526384;
+  --stone: #8194B8;
+  --stone-2: #C8D5EB;
+  --stone-3: #DDE6F5;
+  --shu: #0284C7;
+  --shu-hover: #0369A1;
+  --shu-soft: rgba(2, 132, 199, 0.09);
+  --shu-line: rgba(2, 132, 199, 0.30);
+  --shu-glow: rgba(2, 132, 199, 0.28);
+  --ambient-radial-glow: rgba(2, 132, 199, 0.03);
+  --dial-disc-light: #FFFFFF;
+  --dial-disc-dark: #EBF1F9;
+}
+
+/* 4. Artisanal Washi (Warm Textured Paper & Sumi Ink) */
+:root[data-palette="washi"][data-theme="dark"],
+:root[data-palette="washi"]:not([data-theme="light"]) {
+  --washi: #141311;
+  --washi-2: #1C1A17;
+  --washi-3: #262420;
+  --washi-card: #1D1B18;
+  --washi-sidebar: #171512;
+  --sumi: #F5EFE6;
+  --sumi-2: #D6CDBF;
+  --sumi-3: #948C7F;
+  --stone: #665F54;
+  --stone-2: #332F29;
+  --stone-3: #24211C;
+  --shu: #E25844;
+  --shu-hover: #F06A57;
+  --shu-soft: rgba(226, 88, 68, 0.12);
+  --shu-line: rgba(226, 88, 68, 0.35);
+  --shu-glow: rgba(226, 88, 68, 0.40);
+  --ambient-radial-glow: rgba(226, 88, 68, 0.05);
+  --dial-disc-light: #201E1A;
+  --dial-disc-dark: #161412;
+}
+
+:root[data-palette="washi"][data-theme="light"] {
+  --washi: #FAF7F2;
+  --washi-2: #F0EAE1;
+  --washi-3: #E6DED3;
+  --washi-card: #FFFFFF;
+  --washi-sidebar: #F4EFE6;
+  --sumi: #181614;
+  --sumi-2: #3E3A34;
+  --sumi-3: #6E685E;
+  --stone: #9C9486;
+  --stone-2: #DCD4C5;
+  --stone-3: #EAE2D3;
+  --shu: #C9382A;
+  --shu-hover: #B52F22;
+  --shu-soft: rgba(201, 56, 42, 0.08);
+  --shu-line: rgba(201, 56, 42, 0.28);
+  --shu-glow: rgba(201, 56, 42, 0.25);
+  --ambient-radial-glow: rgba(201, 56, 42, 0.03);
+  --dial-disc-light: #FFFFFF;
+  --dial-disc-dark: #F5EFE6;
+}
+
+/* --- Reset & Global Baseline --------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-width: 320px;
+  background: var(--washi);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--washi);
+  color: var(--sumi);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:where(button, a, input, select, summary, [role="tab"], [tabindex]):focus-visible {
+  outline: 2px solid var(--shu);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--stone-2);
+  border-radius: var(--r-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stone);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stone-2) transparent;
+}
+
+/* --- App Shell ----------------------------------------------------------- */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--washi);
+  display: grid;
+  grid-template-columns: var(--sidebar-w, 240px) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  transition: grid-template-columns 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-shell[data-sidebar="collapsed"] {
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+}
+
+.app-shell.is-resizing {
+  transition: none !important;
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+/* --- Harmonious Sidebar -------------------------------------------------- */
+.k-sidebar {
+  background: var(--washi-sidebar);
+  color: var(--sumi);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid var(--stone-2);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 20;
+}
+
+.k-sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  z-index: 50;
+  background: transparent;
+  touch-action: none;
+}
+
+.k-sidebar-resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.k-sidebar-resizer:hover::after,
+.app-shell.is-resizing .k-sidebar-resizer::after {
+  background: var(--shu);
+}
+
+.k-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px 14px;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.k-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--sumi) 20%, transparent);
+}
+
+.k-brand-name {
+  color: var(--sumi);
+  font-family: var(--jp);
+  display: inline-block;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  transform: scaleX(0.97);
+  transform-origin: left center;
+  white-space: nowrap;
+}
+
+.k-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.k-head-icon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--sumi-3);
+  transition: background 140ms ease, color 140ms ease;
+}
+.k-head-icon:hover {
+  background: var(--washi-3);
+  color: var(--sumi);
+}
+
+.app-shell[data-sidebar="collapsed"] .k-brand-name,
+.app-shell[data-sidebar="collapsed"] .k-nav-label,
+.app-shell[data-sidebar="collapsed"] .k-nav-eyebrow,
+.app-shell[data-sidebar="collapsed"] .k-count,
+.app-shell[data-sidebar="collapsed"] .k-tree-toggle,
+.app-shell[data-sidebar="collapsed"] .k-tree-icon-btn,
+.app-shell[data-sidebar="collapsed"] .k-tree-tasks,
+.app-shell[data-sidebar="collapsed"] .k-tree-add-btn,
+.app-shell[data-sidebar="collapsed"] .k-tree-add-actions,
+.app-shell[data-sidebar="collapsed"] .k-tree-add-task,
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project input,
+.app-shell[data-sidebar="collapsed"] .k-tree-empty,
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item small {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-sidebar {
+  padding: 12px 6px;
+  overflow-x: hidden !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-sidebar-nav,
+.app-shell[data-sidebar="collapsed"] .k-nav,
+.app-shell[data-sidebar="collapsed"] .k-tree {
+  overflow-x: hidden !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-sidebar-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 2px 0 10px;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-brand-mark {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-head-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-head-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 4px auto;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: none;
+  border: 1px solid transparent;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item.active {
+  border-color: var(--shu);
+  background: var(--shu-subtle);
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name span,
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-tree-task-name small {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-quick-focus-item .k-quick-focus-indicator {
+  width: 10px;
+  height: 10px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project-row {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 2px auto;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project-name {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-project-row .k-tree-icon {
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project {
+  padding: 0;
+  margin: 6px auto;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project input {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-tree-add-project button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 2px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  position: relative;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-nav-label,
+.app-shell[data-sidebar="collapsed"] .k-nav-item kbd {
+  display: none !important;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-nav-icon {
+  margin: 0 auto;
+}
+
+.app-shell[data-sidebar="collapsed"] .k-nav-item .k-badge-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+/* Sidebar Nav */
+.k-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.k-nav-eyebrow {
+  color: var(--sumi-3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 8px 4px;
+}
+
+.k-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 36px;
+  transition: all 140ms ease;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+
+.k-nav-item:hover {
+  background: var(--washi-3);
+  color: var(--sumi);
+}
+
+.k-nav-item.active {
+  background: var(--washi-card);
+  color: var(--shu);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.k-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--shu);
+  margin-left: auto;
+}
+
+/* Folder tree & Tasks */
+.k-nav-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 0;
+}
+
+.k-quick-focus-item {
+  margin-bottom: 6px;
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+}
+.k-quick-focus-item.active {
+  background: var(--washi-card);
+  border-color: var(--shu-line);
+  box-shadow: var(--shadow-sm);
+}
+.k-quick-focus-item.active .k-tree-task-name span {
+  color: var(--shu);
+  font-weight: 600;
+}
+
+.k-quick-focus-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stone);
+  transition: background 140ms ease;
+}
+.k-quick-focus-item.active .k-quick-focus-indicator {
+  background: var(--shu);
+}
+
+.k-tree-project {
+  display: flex;
+  flex-direction: column;
+}
+
+.k-tree-project-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  min-height: 32px;
+  transition: background 140ms ease;
+}
+
+.k-tree-project-row:hover {
+  background: var(--washi-2);
+}
+
+.k-tree-toggle {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--sumi-3);
+  border-radius: 4px;
+}
+.k-tree-toggle:hover {
+  color: var(--sumi);
+  background: var(--washi-3);
+}
+
+.k-tree-project-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+  padding: 4px 4px;
+  color: var(--sumi);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  border-radius: 4px;
+}
+
+.k-tree-project-name .k-nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k-tree-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: transparent;
+  transition: all 140ms ease;
+}
+.k-tree-project-row:hover .k-tree-icon-btn,
+.k-tree-task:hover .k-tree-icon-btn {
+  color: var(--sumi-3);
+}
+.k-tree-icon-btn:hover {
+  background: var(--washi-3);
+  color: var(--shu) !important;
+}
+
+.k-project-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.k-project-slice-btn,
+.k-task-ai-slice-btn {
+  color: var(--sumi-3);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.k-project-slice-btn:hover,
+.k-task-ai-slice-btn:hover {
+  color: var(--shu) !important;
+  background: var(--shu-subtle) !important;
+  transform: scale(1.08);
+}
+.k-project-slice-btn.is-slicing,
+.k-task-ai-slice-btn.is-slicing {
+  color: var(--shu) !important;
+  animation: k-ai-spin 1.2s infinite linear;
+  pointer-events: none;
+}
+@keyframes k-ai-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.k-delete-confirm-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.k-delete-confirm-btn {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--shu);
+  color: #FFFFFF;
+  font-weight: 500;
+}
+.k-delete-cancel-btn {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--washi-3);
+  color: var(--sumi-2);
+}
+
+.k-tree-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 4px 16px;
+  position: relative;
+}
+.k-tree-tasks::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 8px;
+  width: 1px;
+  background: var(--stone-2);
+}
+
+.k-tree-task {
+  display: grid;
+  grid-template-columns: 16px minmax(50px, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  color: var(--sumi-2);
+  font-size: 12.5px;
+  min-height: 28px;
+  transition: background 140ms ease;
+}
+.k-tree-task:hover {
+  background: var(--washi-2);
+}
+.k-tree-task.active {
+  background: var(--washi-card);
+  color: var(--sumi);
+  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+}
+.k-tree-task.done .k-tree-task-name {
+  color: var(--stone);
+  text-decoration: line-through;
+}
+
+.k-task-check {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--stone);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  transition: all 140ms ease;
+}
+.k-task-check:hover {
+  border-color: var(--sumi);
+}
+.k-task-check.checked {
+  background: var(--shu);
+  border-color: var(--shu);
+  color: #FFFFFF;
+}
+
+.k-tree-task-name {
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.k-tree-task-name > span:first-child {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 32px;
+}
+.k-tree-task-name em {
+  font-style: normal;
+  color: var(--sumi-3);
+  font-size: 11px;
+  margin-left: 4px;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.k-task-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 1px 5px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid transparent;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.8px;
+  color: var(--sumi-3);
+  margin-left: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 120ms ease;
+  user-select: none;
+}
+
+.k-task-pips:hover {
+  background: var(--stone-2);
+  border-color: var(--stone-3);
+  color: var(--shu);
+  transform: translateY(-0.5px);
+}
+
+.k-task-pips[data-completed="true"] {
+  color: var(--shu);
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+}
+
+/* --- Focus To-Do Style Pomodoro Target Badge --------------------------- */
+.k-task-pomo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 6px;
+  border-radius: var(--r-full);
+  background: var(--stone-1);
+  border: 1px solid var(--stone-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--sumi-2);
+  margin-left: 5px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 140ms ease;
+  user-select: none;
+}
+
+.k-task-pomo-badge:hover {
+  background: var(--stone-2);
+  border-color: var(--shu-ring);
+  color: var(--sumi-1);
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.k-pomo-badge-icon {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.k-pomo-badge-ratio {
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.k-pomo-badge-len {
+  font-size: 8.5px;
+  color: var(--sumi-4);
+  background: var(--stone-2);
+  padding: 0 3px;
+  border-radius: 3px;
+  letter-spacing: -0.1px;
+}
+
+.k-task-pomo-badge.is-complete {
+  background: var(--shu-soft);
+  border-color: var(--shu-ring);
+  color: var(--shu);
+}
+
+.k-task-pomo-badge.is-complete .k-pomo-badge-len {
+  background: rgba(224, 82, 54, 0.15);
+  color: var(--shu);
+}

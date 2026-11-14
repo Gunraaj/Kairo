@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { motion } from 'motion/react';
 import { Stage } from './components/Stage';
 import { ControlPanel } from './components/ControlPanel';
 import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { FaqModal } from './components/FaqModal';
+import { WelcomeModal } from './components/WelcomeModal';
 import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
 import { ReplanModal } from './components/ReplanModal';
@@ -16,7 +16,6 @@ import { OnboardingModal, type OnboardingResult } from './components/OnboardingM
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
 import { applyImportedPlan, type ImportedPlan } from './utils/importPlan';
-import { Modal } from './components/Modal';
 import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
 import { PomodoroScienceModal } from './components/PomodoroScienceModal';
@@ -27,15 +26,7 @@ import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
-import {
-  ALLOWED_PALETTES,
-  DEFAULT_SETTINGS,
-  normalizeActiveTaskId,
-  normalizePalette,
-  normalizeProjects,
-  normalizeSessions,
-  normalizeSettings,
-} from './data/validation';
+import { ALLOWED_PALETTES, DEFAULT_SETTINGS, normalizeActiveTaskId, normalizePalette, normalizeProjects, normalizeSessions, normalizeSettings } from './data/validation';
 
 const normalizeCapsules = (value: unknown): TimeCapsule[] => {
   if (!Array.isArray(value)) return [];
@@ -1032,77 +1023,5 @@ const App: React.FC = () => {
 };
 
 /* First-run welcome */
-const WelcomeModal: React.FC<{
-  onClose: () => void;
-  onOpenScience?: () => void;
-  onOpenSettings?: () => void;
-}> = ({ onClose, onOpenScience, onOpenSettings }) => (
-  <Modal titleId="welcome-title" onClose={onClose} className="welcome-dialog">
-    <>
-      <header className="k-modal-header">
-        <div>
-          <h2 id="welcome-title">Welcome to Kairo</h2>
-          <p className="k-modal-sub">Make space for one thing.</p>
-        </div>
-        <button className="k-modal-close" onClick={onClose} aria-label="Dismiss welcome">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            <path d="M4 4l8 8M12 4l-8 8" />
-          </svg>
-        </button>
-      </header>
-      <div className="k-modal-body">
-        {(() => {
-          const steps: Array<[string, React.ReactNode]> = [
-            ['Quick Start', 'Start focusing immediately with Quick Focus, or add a project & task in the sidebar to organize your goals.'],
-            ['Task Target Dots (●○○○)', 'The circles next to each task are estimated 25-minute Pomodoro rounds. Click them anytime to set your target (2, 4, 6, 8 rounds). As you complete sessions, the dots fill in solid red.'],
-            ['Tune Your Pace', <>Drag the dial for any duration up to 60 minutes, then press <kbd>Space</kbd> or the red button. <kbd>S</kbd> skip · <kbd>R</kbd> reset · <kbd>E</kbd> extend +5m.</>],
-            ['Atmospheric Sound Studio', 'Layer ambient rain, campfire, or real-time binaural brainwave frequencies using the Sound Studio toggle at top right.'],
-            ['Track Your Evidence', 'Every completed session banks focus minutes and fills your year-at-a-glance focus heatmap in Progress. 100% private & local.'],
-          ];
-          return (
-            <ol className="k-welcome-list">
-              {steps.map(([title, body], i) => (
-                <li key={i}>
-                  <div className="k-welcome-text">
-                    <b>{title}</b>
-                    <span>{body}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          );
-        })()}
-      </div>
-      <footer className="k-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {onOpenScience && (
-            <button
-              type="button"
-              className="k-btn"
-              onClick={onOpenScience}
-              style={{ fontSize: 12 }}
-            >
-              📚 Read the Science
-            </button>
-          )}
-          {onOpenSettings && (
-            <button
-              type="button"
-              className="k-btn"
-              onClick={onOpenSettings}
-              style={{ fontSize: 12 }}
-              title="Import an existing JSON snapshot or configure cloud sync"
-            >
-              📥 Import Backup / Cloud Sync
-            </button>
-          )}
-        </div>
-        <button className="k-btn k-btn-primary" onClick={onClose}>
-          Start focusing
-        </button>
-      </footer>
-    </>
-  </Modal>
-);
 
 export default App;

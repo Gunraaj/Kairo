@@ -1,0 +1,660 @@
+.k-doc-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  color: var(--sumi);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 160px;
+  box-sizing: border-box;
+}
+
+.k-doc-textarea:focus {
+  outline: none;
+  border-color: var(--shu);
+  box-shadow: 0 0 0 2px var(--shu-soft);
+}
+
+.k-doc-dropzone {
+  border: 2px dashed var(--stone-2);
+  border-radius: var(--r-md);
+  padding: 36px 20px;
+  background: var(--washi-2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 180ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.k-doc-dropzone:hover {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+}
+
+.k-dropzone-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-dropzone-icon {
+  font-size: 32px;
+  margin-bottom: 2px;
+}
+
+.k-dropzone-prompt b {
+  font-size: 14px;
+  color: var(--sumi);
+}
+
+.k-dropzone-prompt span {
+  font-size: 12px;
+  color: var(--sumi-3);
+}
+
+.k-dropzone-selected {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: var(--washi-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  max-width: 90%;
+}
+
+.k-dropzone-meta {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.k-dropzone-meta b {
+  font-size: 13.5px;
+  color: var(--sumi);
+}
+
+.k-dropzone-meta span {
+  font-size: 11.5px;
+  color: var(--sumi-3);
+}
+
+.k-dropzone-clear {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  padding: 3px 9px;
+  font-size: 11px;
+  color: var(--sumi-2);
+  cursor: pointer;
+}
+
+.k-dropzone-clear:hover {
+  background: var(--washi-3);
+  color: var(--shu);
+}
+
+.k-doc-error-banner {
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(198, 40, 40, 0.08);
+  border: 1px solid rgba(198, 40, 40, 0.25);
+  color: #c62828;
+  font-size: 12.5px;
+}
+
+.k-doc-clarification-card {
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--washi-card);
+  border: 1px solid var(--shu-ring);
+  color: var(--sumi-2);
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.k-doc-clarification-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--shu);
+  font-size: 13px;
+}
+
+.k-doc-clarification-icon {
+  font-size: 16px;
+}
+
+.k-doc-clarification-msg {
+  margin: 0;
+  line-height: 1.45;
+  color: var(--sumi);
+}
+
+.k-doc-clarification-guide {
+  background: var(--washi-2);
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+}
+
+.k-doc-clarification-guide ul {
+  margin: 4px 0 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.k-doc-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--stone-3);
+}
+
+.k-doc-cancel-btn {
+  padding: 9px 18px;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--sumi-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-doc-cancel-btn:hover {
+  background: var(--washi-2);
+  color: var(--sumi);
+}
+
+.k-doc-analyze-btn {
+  padding: 9px 22px;
+  border: none;
+  border-radius: var(--r-full);
+  background: var(--shu);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(188, 59, 44, 0.28);
+}
+
+.k-doc-analyze-btn:hover:not(:disabled) {
+  opacity: 0.94;
+  transform: translateY(-1px);
+}
+
+.k-doc-analyze-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.k-doc-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: k-spin 0.8s linear infinite;
+}
+
+/* Step 2: Staging & Review View */
+.k-doc-staging-view {
+  padding: 20px 28px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.k-staging-meta-card {
+  padding: 16px 20px;
+  background: var(--washi-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.k-meta-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .k-meta-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.k-staging-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.k-staging-title-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-2);
+  color: var(--sumi);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.k-staging-dest-select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-2);
+  color: var(--sumi);
+  font-size: 13px;
+}
+
+.k-staging-stats-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--stone-3);
+}
+
+.k-stat-badge {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+  background: var(--washi-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stone-3);
+}
+
+.k-stat-badge.highlight {
+  background: var(--shu-soft);
+  border-color: var(--shu-line);
+}
+
+.k-stat-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--sumi);
+  line-height: 1.2;
+}
+
+.k-stat-badge.highlight .k-stat-val {
+  color: var(--shu);
+}
+
+.k-stat-lbl {
+  font-size: 10.5px;
+  color: var(--sumi-3);
+}
+
+.k-staging-modules-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 48vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.k-staging-module-card {
+  background: var(--washi-card);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.k-module-head {
+  padding: 12px 16px;
+  background: var(--washi-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-module-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.k-module-chevron {
+  font-size: 11px;
+  color: var(--sumi-3);
+  width: 14px;
+}
+
+.k-module-name {
+  font-size: 13.5px;
+  color: var(--sumi);
+}
+
+.k-module-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--washi-3);
+  color: var(--sumi-2);
+}
+
+.k-module-select-all-btn {
+  background: none;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  color: var(--sumi-2);
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-module-select-all-btn:hover {
+  background: var(--washi-3);
+  color: var(--sumi);
+}
+
+.k-module-tasks-list {
+  display: flex;
+  flex-direction: column;
+  divide-y: 1px solid var(--stone-3);
+}
+
+.k-staging-task-card {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background 140ms ease;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.k-staging-task-card:last-child {
+  border-bottom: none;
+}
+
+.k-staging-task-card.is-unselected {
+  opacity: 0.45;
+  background: var(--washi-2);
+}
+
+.k-task-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.k-task-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+
+.k-task-checkbox-label input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--shu);
+  cursor: pointer;
+}
+
+.k-task-text {
+  font-size: 13px;
+  color: var(--sumi);
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.k-task-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.k-diff-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.k-diff-badge.light {
+  background: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+}
+
+.k-diff-badge.standard {
+  background: rgba(245, 124, 0, 0.1);
+  color: #d84315;
+  border: 1px solid rgba(245, 124, 0, 0.25);
+}
+
+.k-diff-badge.intensive {
+  background: rgba(103, 58, 183, 0.1);
+  color: #512da8;
+  border: 1px solid rgba(103, 58, 183, 0.25);
+}
+
+.k-round-stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  background: var(--washi-2);
+  overflow: hidden;
+}
+
+.k-round-stepper button {
+  background: none;
+  border: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sumi-2);
+  cursor: pointer;
+}
+
+.k-round-stepper button:hover:not(:disabled) {
+  background: var(--washi-3);
+  color: var(--sumi);
+}
+
+.k-round-stepper button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.k-rounds-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi);
+  padding: 0 4px;
+  min-width: 38px;
+  text-align: center;
+}
+
+.k-task-sub-toggle {
+  background: none;
+  border: 1px solid var(--stone-3);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  color: var(--sumi-2);
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.k-task-sub-toggle:hover,
+.k-task-sub-toggle.active {
+  background: var(--washi-2);
+  color: var(--shu);
+  border-color: var(--shu-soft);
+}
+
+.k-staging-subtasks-tray {
+  margin-left: 26px;
+  padding: 8px 12px;
+  background: var(--washi-2);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.k-staging-subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--sumi-2);
+}
+
+.k-subtask-bullet {
+  color: var(--sumi-3);
+  font-size: 11px;
+}
+
+.k-preset-chip-btn.k-import-doc-btn {
+  border-color: var(--shu-line);
+  background: var(--shu-soft);
+}
+
+.k-preset-chip-btn.k-import-doc-btn:hover {
+  background: rgba(188, 59, 44, 0.16);
+  border-color: var(--shu);
+}
+
+/* --- Logo Variant Selector in Settings ------------------------------------ */
+.k-logo-variants-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+  .k-logo-variants-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.k-logo-variant-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stone-3);
+  background: var(--washi-card);
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+  position: relative;
+}
+
+.k-logo-variant-card:hover {
+  border-color: var(--stone-2);
+  background: var(--washi-2);
+}
+
+.k-logo-variant-card.is-active {
+  border-color: var(--shu);
+  background: var(--shu-soft);
+  box-shadow: 0 0 0 1px var(--shu);
+}
+
+.k-variant-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  background: var(--washi-2);
+  border: 1px solid var(--stone-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--sumi);
+  transition: all 160ms ease;
+}
+
+.k-logo-variant-card.is-active .k-variant-icon-wrap {
+  background: var(--washi-card);
+  border-color: var(--shu-soft);
+  color: var(--shu);
+}
+
+.k-variant-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.k-variant-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sumi);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-variant-kanji {
+  font-size: 11px;
+  color: var(--shu);
+  font-weight: 500;
+}
+
+.k-variant-desc {
+  font-size: 11px;
+  color: var(--sumi-3);
+  line-height: 1.35;
+  margin-top: 2px;
+  white-space: normal;
+}
