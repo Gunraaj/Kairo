@@ -22,6 +22,7 @@ import {
   type AiProviderType,
   type AiCapabilityStatus,
 } from '../utils/geminiAi';
+import { notificationPermission, requestNotificationPermission } from '../utils/notify';
 import { listModels, fallbackModels, type ModelOption } from '../utils/modelCatalog';
 import {
   backupToSupabase,
@@ -223,6 +224,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   });
   const [supabaseUrl, setSupabaseUrl] = useState(() => getSupabaseConfig().url);
   const [supabaseKey, setSupabaseKey] = useState(() => getSupabaseConfig().anonKey);
+  const [notifPerm, setNotifPerm] = useState(() => notificationPermission());
   const [liveModels, setLiveModels] = useState<ModelOption[] | null>(null);
   useEffect(() => {
     setLiveModels(null);
@@ -477,6 +479,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </label>
             ))}
+          </div>
+        </section>
+
+        <section className="k-settings-section">
+          <div className="k-settings-section-title">Notifications</div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Tell me when a session ends</b>
+              <small>
+                {notifPerm === 'granted' && 'On. You will be notified when a focus session or break ends.'}
+                {notifPerm === 'default' && 'Get a notification when the timer ends, even if the tab is in the background.'}
+                {notifPerm === 'denied' && 'Blocked in your browser. Allow notifications for this site in the address bar, then reload.'}
+                {notifPerm === 'unsupported' && 'This browser does not support notifications.'}
+              </small>
+            </div>
+            {notifPerm === 'default' && (
+              <button type="button" className="k-btn" onClick={async () => setNotifPerm(await requestNotificationPermission())}>Turn on</button>
+            )}
           </div>
         </section>
 

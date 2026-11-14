@@ -85,9 +85,11 @@ Loop = observe -> compute -> propose -> approve -> apply.
 
 ## Build status (2026-11-14, end of day)
 
-Done and committed locally (171 tests): upgrade-path steps 1 (AI layer, live model lists, Chrome AI, evals; qwen2.5 7B scores 6/6 valid plans), 3 (deadlines, estimate multiplier, pace, schedule, Today screen), 4 (paste bridge with share links and import preview), and the core of step 2 (Today home, first-run onboarding, extras behind Settings). Not yet built: the full four-place nav (Focus/Plan/Progress as separate screens), component splitting, AI "re-plan diff" proposals, PWA/notifications (step 5), hosting move (step 6), and everything backend (steps 7-10). Not pushed; see git log.
+Done, tested (177 tests) and checked in a real browser: upgrade-path steps 1 (AI layer), 2 (Today home, onboarding, mobile tab bar Today/Focus/Plan/Progress, extras behind Settings), 3 (deadlines, pace, schedule, AI re-plan with approve-a-diff), 4 (paste bridge, share links), 5 (installable app: manifest, icons, offline service worker, session-end notifications from Settings) and the config half of 6 (`public/_headers` for Cloudflare Pages, README deploy notes).
 
-Next for a cheaper model: step 5 (PWA + notifications), then step 6 (Cloudflare Pages), then the AI re-plan diff (use `paceStatus` + `generateStructured`, schema in the Phase 2 section), then the four-place nav.
+Needs you (accounts or decisions, cannot be done from code): create the Cloudflare Pages project and point it at the repo (step 6), then update `OLLAMA_ORIGINS` on Helios for the new address; Supabase + Google sign-in project (step 7); connector host (step 8); payment provider eligibility check (step 9).
+
+Not built: component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.
 
 ## Status (2026-11-14, earlier)
 

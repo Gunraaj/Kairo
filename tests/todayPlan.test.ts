@@ -69,7 +69,7 @@ test('estimate multiplier from finished tasks scales what is left', () => {
 });
 
 test('falling behind is reported and an impossible deadline overflows', () => {
-  const sessions = [session('2026-03-09', 25), session('2026-03-10', 25)];
+  const sessions = [session('2026-03-07', 25), session('2026-03-08', 25), session('2026-03-09', 25), session('2026-03-10', 25)];
   const behind = buildTodayState({ projects: [project('a', [task('t1', 20)], '2026-03-20')], sessions, today: '2026-03-10' });
   assert.ok(['behind', 'at-risk'].includes(behind.projects[0]!.pace!.status));
   assert.equal(behind.roundsToday, 1);
@@ -98,4 +98,15 @@ test('a student with no study history is not marked behind', () => {
   const state = buildTodayState({ projects: [project('a', [task('t1', 10)], '2026-03-20')], sessions: [], today: '2026-03-10' });
   assert.equal(state.projects[0]!.pace!.status, 'on-track');
   assert.equal(state.projects[0]!.pace!.projectedDays, null);
+});
+
+test('one or two sessions are not treated as a pace', () => {
+  const state = buildTodayState({ projects: [project('a', [task('t1', 20)], '2026-03-20')], sessions: [session('2026-03-10', 25)], today: '2026-03-10' });
+  assert.equal(state.projects[0]!.pace!.projectedDays, null);
+});
+
+test('heavy plans are flagged infeasible against a realistic daily capacity', () => {
+  const state = buildTodayState({ projects: [project('a', [task('t1', 32)], '2026-03-14')], sessions: [], today: '2026-03-10', dailyGoal: 4 });
+  assert.equal(state.projects[0]!.capPerDay, 6);
+  assert.equal(state.projects[0]!.pace!.status, 'infeasible');
 });

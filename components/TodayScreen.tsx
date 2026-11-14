@@ -10,6 +10,7 @@ interface TodayScreenProps {
   onOpenFocus: () => void;
   onOpenProgress: () => void;
   onOpenPlanBridge?: () => void;
+  onReplan?: (projectId: string) => void;
 }
 
 const num = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
@@ -35,7 +36,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -110,6 +111,9 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                     <b>{plan.name}</b>
                     <small>{plan.doneRounds}/{plan.totalRounds} rounds{daysLabel(plan) ? ` · ${daysLabel(plan)}` : ''}</small>
                     {chip && <span className={`k-today-chip is-${chip.tone}`}>{chip.text}</span>}
+                    {onReplan && plan.pace && ['behind', 'at-risk', 'infeasible'].includes(plan.pace.status) && (
+                      <button type="button" className="k-btn k-today-replan" onClick={() => onReplan(plan.projectId)}>Re-plan with AI</button>
+                    )}
                     {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} rounds will not fit before the deadline. Move the date or drop topics.</small>}
                   </div>
                   <label className="k-today-deadline">

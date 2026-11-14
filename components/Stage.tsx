@@ -1,3 +1,4 @@
+import { showSessionNotification } from '../utils/notify';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import type { FocusTarget, KairoSession, SessionType, UserSettings, StageLayoutVariation } from '../types';
@@ -278,15 +279,10 @@ export const Stage: React.FC<StageProps> = ({
       `${completedLabel} ${autoStart ? 'Break started automatically.' : 'Choose when to continue.'}`,
     );
     setCompletionTimestamp(Date.now());
-    if (
-      typeof window !== 'undefined' &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
-    ) {
-      new Notification(sessionType === 'focus' ? 'Focus session complete' : 'Break complete', {
-        body: autoStart ? 'Your next break has started.' : 'Choose what to do next in Kairo.',
-      });
-    }
+    void showSessionNotification(
+      sessionType === 'focus' ? 'Focus session complete' : 'Break complete',
+      autoStart ? 'Your next break has started.' : 'Choose what to do next in Kairo.',
+    );
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate?.(80);
   }, [
     activeTarget,

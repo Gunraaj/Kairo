@@ -93,11 +93,16 @@ npx netlify deploy --prod --dir=dist
 ```
 Configured via `netlify.toml` with single-page redirects, CSP headers, and asset caching.
 
-### Cloudflare Pages / GitHub Pages
-Simply configure the build settings in your provider dashboard:
+### Cloudflare Pages (recommended free host)
+Connect the repo in the Cloudflare dashboard (no card needed):
 - **Build Command:** `npm run build`
 - **Output Directory:** `dist`
-- **Node Version:** `20+` or `22+`
+- **Node Version:** `22`
+
+Security headers and the SPA redirect ship in `public/_headers` and `public/_redirects`. After moving, add the new site address to `OLLAMA_ORIGINS` if you use a local model (see Help in the app).
+
+### Installable app
+Kairo is a PWA: open the live site in Chrome, Edge or Safari and use "Install" / "Add to Home Screen". It works offline after the first visit. The service worker never caches AI or API calls.
 
 ## Quality gate
 
@@ -105,7 +110,16 @@ Simply configure the build settings in your provider dashboard:
 npm run check
 ```
 
-Runs strict TypeScript, the 24-test unit test suite, and a production build.
+Runs ESLint, strict TypeScript, the unit test suite, and a production build.
+
+```bash
+npx tsx scripts/eval_ai.ts --provider local --model qwen2.5:7b-instruct
+```
+
+Scores any model on the sample syllabi in `evals/syllabi` (valid plans, topic coverage, rounds, seconds).
+
+## Use it with your own AI
+Open **Use my AI** in the sidebar: copy the text, paste it into ChatGPT, Claude, Gemini or a local model, paste the reply back, review, and import. Nothing is sent from Kairo. Plans can also be shared as a link (`#import=...`, never sent to a server).
 
 ---
 

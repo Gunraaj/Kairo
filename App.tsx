@@ -8,6 +8,8 @@ import { ShortcutsModal } from './components/ShortcutsModal';
 import { FaqModal } from './components/FaqModal';
 import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
+import { ReplanModal } from './components/ReplanModal';
+import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
@@ -84,6 +86,7 @@ const App: React.FC = () => {
   const [showFaq, setShowFaq] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
+  const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
   const [linkedPlan, setLinkedPlan] = useState<BridgePlan | null>(() => {
     if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
     return decodePlanLink(location.hash).plan;
@@ -717,6 +720,7 @@ const App: React.FC = () => {
             onOpenFocus={() => setView('focus')}
             onOpenProgress={() => setShowAnalytics(true)}
             onOpenPlanBridge={() => setShowBridge(true)}
+            onReplan={setReplanProjectId}
           />
         )}
         <section className="k-stage" id="focus-workspace">
@@ -863,6 +867,25 @@ const App: React.FC = () => {
         )}
       </main>
 
+      <nav className="k-tabbar" aria-label="Main">
+        {([
+          ['today', 'Today', () => setView('today'), view === 'today'],
+          ['focus', 'Focus', () => setView('focus'), view === 'focus'],
+          ['plan', 'Plan', () => setMobileNavOpen(open => !open), mobileNavOpen],
+          ['progress', 'Progress', () => setShowAnalytics(true), false],
+        ] as const).map(([key, label, onClick, active]) => (
+          <button key={key} type="button" className={`k-tabbar-item ${active ? 'is-active' : ''}`} onClick={onClick} aria-current={active ? 'page' : undefined}>
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {key === 'today' && <><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" /><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" /></>}
+              {key === 'focus' && <><circle cx="8" cy="8.5" r="5" /><path d="M8 5.5v3l2 1.2M6.5 1.5h3" /></>}
+              {key === 'plan' && <><path d="M3 4h10M3 8h10M3 12h6" /></>}
+              {key === 'progress' && <><path d="M3 13V8M7 13V4M11 13V9M14 13H2" /></>}
+            </svg>
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
+
       {/* 4. Modals */}
       {showWelcome && (
         <WelcomeModal
@@ -925,6 +948,21 @@ const App: React.FC = () => {
           onImport={plans => plans.forEach(handleImportedPlan)}
         />
       )}
+
+      {replanProjectId && (() => {
+        const project = projects.find(p => p.id === replanProjectId);
+        const plan = todayState.projects.find(p => p.projectId === replanProjectId);
+        return project && plan ? (
+          <ReplanModal
+            project={project}
+            plan={plan}
+            multiplier={todayState.multiplier}
+            onClose={() => setReplanProjectId(null)}
+            onApply={(projectId: string, ops: ReplanOp[]) =>
+              setProjects(previous => previous.map(p => (p.id === projectId ? applyReplanOps(p, ops) : p)))}
+          />
+        ) : null;
+      })()}
 
       {showOnboarding && (
         <OnboardingModal

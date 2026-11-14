@@ -25,6 +25,7 @@ export type ProjectPlan = {
   remainingRounds: number;
   pace?: Pace;
   overflowRounds: number;
+  capPerDay: number;
 };
 
 export type TodayState = {
@@ -72,7 +73,10 @@ export const buildTodayState = (input: {
   const recentDailyRounds = recentRounds(input.sessions, today);
   const roundsToday = recentDailyRounds[recentDailyRounds.length - 1] ?? 0;
   // No study at all yet means no pace data, not a pace of zero.
-  const paceHistory = recentDailyRounds.some(r => r > 0) ? recentDailyRounds : [];
+  // A couple of sessions is not a pace either: need at least 3 active days.
+  const paceHistory = recentDailyRounds.filter(r => r > 0).length >= 3 ? recentDailyRounds : [];
+  // Realistic daily capacity: the goal with some stretch, or 1.5x the student's best recent day.
+  const capPerDay = Math.max(goal * 1.5, Math.ceil(Math.max(0, ...recentDailyRounds) * 1.5));
 
   const finished: Array<{ estimatedRounds: number; actualRounds: number }> = [];
   for (const project of input.projects) {
@@ -101,16 +105,16 @@ export const buildTodayState = (input: {
 
     const plan: ProjectPlan = {
       projectId: project.id, name: project.name, deadline: project.deadline,
-      totalRounds, doneRounds, remainingRounds, overflowRounds: 0,
+      totalRounds, doneRounds, remainingRounds, overflowRounds: 0, capPerDay,
     };
 
     if (project.deadline && remaining.length > 0) {
-      plan.pace = paceStatus({ remainingRounds, today, deadline: project.deadline, recentDailyRounds: paceHistory, dailyCap: Math.max(goal * 2, 8) });
+      plan.pace = paceStatus({ remainingRounds, today, deadline: project.deadline, recentDailyRounds: paceHistory, dailyCap: capPerDay });
       const spread = spreadRounds({
         tasks: remaining.map(r => ({ id: r.task.id, rounds: r.rounds })),
         today,
         deadline: project.deadline,
-        dailyCap: Math.max(goal * 2, 8),
+        dailyCap: capPerDay,
       });
       plan.overflowRounds = spread.overflowRounds;
       for (const block of spread.blocks.filter(b => b.date === today)) {
