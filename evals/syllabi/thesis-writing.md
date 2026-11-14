@@ -1,0 +1,1 @@
+Thesis plan: literature review (30 papers), methodology chapter, data collection with 40 interviews, coding and analysis in NVivo, results chapter, discussion, abstract, formatting and citations, supervisor review rounds. Submission in 14 weeks.

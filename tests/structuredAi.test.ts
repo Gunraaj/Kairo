@@ -120,3 +120,29 @@ test('generateStructured refuses offline mode and missing keys without calling t
   await assert.rejects(generateStructured({ schema, schemaName: 'p', system: 's', prompt: 'p' }, { config: { ...local, provider: 'offline' }, fetchImpl: never }), /offline/);
   await assert.rejects(generateStructured({ schema, schemaName: 'p', system: 's', prompt: 'p' }, { config: { ...local, provider: 'openai' }, fetchImpl: never }), /API key/);
 });
+
+test('generateStructured uses Chrome built-in AI when no key is set and the model is ready', async () => {
+  const calls: Array<{ prompt: string; constraint: unknown }> = [];
+  (globalThis as any).LanguageModel = {
+    availability: async () => 'available',
+    create: async () => ({
+      prompt: async (text: string, options: { responseConstraint: unknown }) => {
+        calls.push({ prompt: text, constraint: options.responseConstraint });
+        return '{"tasks":[{"name":"On device","rounds":2}]}';
+      },
+      destroy() {},
+    }),
+  };
+  try {
+    const never = (async () => { throw new Error('network must not be used'); }) as typeof fetch;
+    const out = await generateStructured<{ tasks: Array<{ name: string }> }>(
+      { schema, schemaName: 'plan', system: 's', prompt: 'p' },
+      { config: { provider: 'gemini', apiKey: '', baseUrl: '', model: 'g', temperature: 0 }, fetchImpl: never },
+    );
+    assert.equal(out.tasks[0]!.name, 'On device');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0]!.constraint, schema);
+  } finally {
+    delete (globalThis as any).LanguageModel;
+  }
+});

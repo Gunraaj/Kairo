@@ -5,7 +5,8 @@
  * cognitively-weighted Pomodoro sprints with true pedagogical understanding.
  */
 
-import { getAiConfig, queryAi } from './geminiAi';
+import { getAiConfig } from './geminiAi';
+import { generateStructured, extractJson, type JsonSchema } from './structuredAi';
 import { detectPresetCategory, PresetCategory } from './slicePresets';
 
 export type CognitiveDifficulty = 'light' | 'standard' | 'intensive';
@@ -337,28 +338,7 @@ export const parseOutlineOffline = (
  * Deep Document Breakdown using Gemini 2.5 Flash API or On-Device Chrome AI.
  * Supports PDF documents (native inline multimodal base64), text files, and pasted outlines.
  */
-export const analyzeDocumentWithAi = async (
-  input: DocumentAnalysisInput,
-): Promise<BreakdownPlan> => {
-  const check = checkInputSufficiency(input.text || '', Boolean(input.fileBase64));
-  if (!check.isSufficient) {
-    throw new Error(
-      `Insufficient Context: ${check.reason} To ensure an accurate breakdown without generic guessing, please list 2-3 specific topics or paste your syllabus/outline.`
-    );
-  }
-
-  const config = getAiConfig();
-
-  // If in offline mode, or no key for remote providers, use offline parser
-  if (config.provider === 'offline' || (!config.apiKey && config.provider !== 'local')) {
-    return parseOutlineOffline(input.text || '', {
-      archetype: input.archetype,
-      deadline: input.deadline,
-      fileName: input.fileName,
-    });
-  }
-
-  const systemInstruction = `You are an expert cognitive learning scientist and principal engineering architect.
+export const PLAN_SYSTEM_PROMPT = `You are an expert cognitive learning scientist and principal engineering architect.
 Your goal is to transform the provided document (course syllabus, lecture schedule, PRD, or topic list) into a sequenced, deeply understood Pomodoro study/work plan.
 CRITICAL RULES FOR ACTUAL UNDERSTANDING:
 1. Taxonomy: Group related topics into 2-5 logical modules or units matching the document.
@@ -368,7 +348,7 @@ CRITICAL RULES FOR ACTUAL UNDERSTANDING:
    - Standard (2 rounds = 50m): Core exercises, coding features, labs, practice problem sets.
    - Intensive (3-4 rounds = 75-100m): Mathematical derivations, complex architectural components, proofs, mock exams.
 4. Grounded Pedagogical Subtasks: Provide 2-4 concrete, non-generic subtasks derived directly from the document material.
-5. Return ONLY valid, raw JSON with this exact schema:
+5. Return the plan as JSON with this shape:
 {
   "projectName": "Precise Course / Spec Title",
   "summary": "1-sentence executive overview of the curriculum or sprint scope",
@@ -390,8 +370,69 @@ CRITICAL RULES FOR ACTUAL UNDERSTANDING:
 }
 Do NOT include markdown backticks like \`\`\`json. Output raw JSON only.`;
 
+export const PLAN_SCHEMA: JsonSchema = {
+  type: 'object',
+  properties: {
+    projectName: { type: 'string', maxLength: 80 },
+    summary: { type: 'string', maxLength: 300 },
+    archetype: { type: 'string', enum: ['study', 'learning', 'working', 'writing'] },
+    modules: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 8,
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', maxLength: 100 },
+          tasks: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 12,
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', maxLength: 120 },
+                targetRounds: { type: 'integer', minimum: 1, maximum: 6 },
+                difficulty: { type: 'string', enum: ['light', 'standard', 'intensive'] },
+                topicTag: { type: 'string', maxLength: 40 },
+                subTasks: { type: 'array', maxItems: 5, items: { type: 'string', maxLength: 120 } },
+              },
+              required: ['name', 'targetRounds', 'difficulty'],
+            },
+          },
+        },
+        required: ['name', 'tasks'],
+      },
+    },
+  },
+  required: ['projectName', 'modules'],
+};
+
+export const analyzeDocumentWithAi = async (
+  input: DocumentAnalysisInput,
+): Promise<BreakdownPlan> => {
+  const check = checkInputSufficiency(input.text || '', Boolean(input.fileBase64));
+  if (!check.isSufficient) {
+    throw new Error(
+      `Insufficient Context: ${check.reason} To ensure an accurate breakdown without generic guessing, please list 2-3 specific topics or paste your syllabus/outline.`
+    );
+  }
+
+  const config = getAiConfig();
+
+  // If in offline mode, or no key for remote providers, use offline parser
+  if (config.provider === 'offline' || (!config.apiKey && config.provider !== 'local')) {
+    return parseOutlineOffline(input.text || '', {
+      archetype: input.archetype,
+      deadline: input.deadline,
+      fileName: input.fileName,
+    });
+  }
+
+  const systemInstruction = PLAN_SYSTEM_PROMPT;
+
   try {
-    let rawText = '';
+    let parsed: any;
 
     // If Gemini provider with raw PDF base64
     if (config.provider === 'gemini' && input.fileBase64 && input.mimeType) {
@@ -429,20 +470,24 @@ Do NOT include markdown backticks like \`\`\`json. Output raw JSON only.`;
       }
 
       const data = await response.json();
-      rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!rawText) throw new Error('Empty AI response');
+      parsed = extractJson(rawText);
     } else {
       // Universal text-based breakdown via configured provider (OpenRouter, Ollama, OpenAI, Gemini text)
       const prompt = input.text
         ? `Please analyze this topic list / syllabus text (${input.fileName || 'Outline'}) and break it down into an actionable Pomodoro plan:\n\n${input.text}`
         : `Please break down the following topic curriculum into an actionable Pomodoro study plan: ${input.fileName || 'Curriculum'}`;
 
-      rawText = await queryAi(prompt, systemInstruction);
+      parsed = await generateStructured({
+        schemaName: 'study_plan',
+        schema: PLAN_SCHEMA,
+        system: systemInstruction,
+        prompt,
+        maxTokens: 3500,
+        timeoutMs: 180_000,
+      });
     }
-
-    if (!rawText) throw new Error('Empty AI response');
-
-    const cleaned = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned);
 
     if (parsed && Array.isArray(parsed.modules)) {
       const modules: ProposedModule[] = parsed.modules.map((m: any, mIdx: number) => ({

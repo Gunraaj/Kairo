@@ -1,0 +1,1 @@
+JEE Physics revision: kinematics, laws of motion, work energy power, rotational motion, gravitation, thermodynamics, oscillations and waves, electrostatics, current electricity, magnetism, EM induction, optics, modern physics. 10 weeks. Weak areas: rotational motion and EM induction.

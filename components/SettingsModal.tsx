@@ -22,6 +22,7 @@ import {
   type AiProviderType,
   type AiCapabilityStatus,
 } from '../utils/geminiAi';
+import { listModels, fallbackModels, type ModelOption } from '../utils/modelCatalog';
 import {
   backupToSupabase,
   getSupabaseConfig,
@@ -218,6 +219,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   });
   const [supabaseUrl, setSupabaseUrl] = useState(() => getSupabaseConfig().url);
   const [supabaseKey, setSupabaseKey] = useState(() => getSupabaseConfig().anonKey);
+  const [liveModels, setLiveModels] = useState<ModelOption[] | null>(null);
+  useEffect(() => {
+    setLiveModels(null);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      listModels(aiConfig, { signal: controller.signal }).then(models => {
+        if (!controller.signal.aborted) setLiveModels(models);
+      });
+    }, 700);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [aiConfig.provider, aiConfig.baseUrl, aiConfig.apiKey]);
+  const modelOptions: ModelOption[] = (() => {
+    const list = liveModels ?? fallbackModels(aiConfig.provider);
+    return list.some(m => m.id === aiConfig.model) || !aiConfig.model ? list : [{ id: aiConfig.model, label: aiConfig.model }, ...list];
+  })();
   const [supabaseEmail, setSupabaseEmail] = useState('');
   const [supabasePassword, setSupabasePassword] = useState('');
   const [supabaseSession, setSupabaseSession] = useState<SupabaseSession | null>(null);
@@ -749,7 +768,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           maxWidth: 210,
                         }}
                       >
-                        {(POPULAR_MODELS[aiConfig.provider] || []).map(m => (
+                        {modelOptions.map(m => (
                           <option key={m.id} value={m.id}>
                             {m.label} {m.free ? '🎁' : ''}
                           </option>

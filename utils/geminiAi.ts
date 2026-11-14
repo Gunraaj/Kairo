@@ -51,7 +51,7 @@ export const DEFAULT_AI_CONFIGS: Record<
   },
   anthropic: {
     baseUrl: 'https://api.anthropic.com/v1',
-    model: 'claude-3-5-sonnet-latest',
+    model: 'claude-sonnet-5-5',
     placeholderKey: 'sk-ant-api03-...',
     label: 'Anthropic Claude',
   },
@@ -97,9 +97,9 @@ export const POPULAR_MODELS: Record<
     { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Deep Reasoning, Free Tier)', free: true },
   ],
   anthropic: [
-    { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (State-of-the-Art)' },
-    { id: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku (Fast & Precise)' },
-    { id: 'claude-3-opus-latest', label: 'Claude 3 Opus (Deep Analysis)' },
+    { id: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 (Balanced)' },
+    { id: 'claude-haiku-5-5', label: 'Claude Haiku 5.5 (Fast & Cheap)' },
+    { id: 'claude-opus-5-5', label: 'Claude Opus 5.5 (Deepest)' },
   ],
   openai: [
     { id: 'gpt-4o-mini', label: 'GPT-4o Mini (Fast & Cost-Effective)' },

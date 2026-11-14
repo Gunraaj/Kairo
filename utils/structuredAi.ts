@@ -241,6 +241,36 @@ const callProvider = async (a: CallArgs): Promise<unknown> => {
   return data?.choices?.[0]?.message?.content ?? '';
 };
 
+type ChromeLanguageModel = {
+  availability: () => Promise<string>;
+  create: (options: Record<string, unknown>) => Promise<{ prompt: (text: string, options?: Record<string, unknown>) => Promise<string>; destroy?: () => void }>;
+};
+
+const chromeModel = (): ChromeLanguageModel | null => {
+  const scope = globalThis as unknown as { LanguageModel?: ChromeLanguageModel };
+  return scope.LanguageModel ?? null;
+};
+
+/** True when Chrome's on-device model is ready to use right now (no download needed). */
+export const chromeAiAvailable = async (): Promise<boolean> => {
+  try {
+    return (await chromeModel()?.availability()) === 'available';
+  } catch {
+    return false;
+  }
+};
+
+const callChrome = async (a: Pick<CallArgs, 'system' | 'prompt' | 'schema' | 'signal'>): Promise<string> => {
+  const api = chromeModel();
+  if (!api) throw new Error('Chrome built-in AI is not available.');
+  const session = await api.create({ initialPrompts: [{ role: 'system', content: a.system }], signal: a.signal });
+  try {
+    return await session.prompt(a.prompt, { responseConstraint: a.schema, signal: a.signal });
+  } finally {
+    session.destroy?.();
+  }
+};
+
 export type StructuredRequest = {
   schema: JsonSchema;
   /** Letters, digits and underscores only (used as the tool / schema name). */
@@ -263,7 +293,10 @@ export const generateStructured = async <T>(request: StructuredRequest, deps: St
   const config = deps.config ?? getAiConfig();
   const fetchImpl = deps.fetchImpl ?? fetch;
   if (config.provider === 'offline') throw new StructuredOutputError('AI is in offline mode.');
-  if (!config.apiKey.trim() && config.provider !== 'local') {
+  const wantsChrome = (config.provider === 'local' && config.model === 'chrome-nano')
+    || (config.provider === 'gemini' && !config.apiKey.trim());
+  const useChrome = wantsChrome && await chromeAiAvailable();
+  if (!useChrome && !config.apiKey.trim() && config.provider !== 'local') {
     throw new StructuredOutputError('No API key configured.');
   }
 
@@ -284,6 +317,10 @@ export const generateStructured = async <T>(request: StructuredRequest, deps: St
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let raw: unknown;
       for (;;) {
+        if (useChrome) {
+          raw = await callChrome({ system, prompt, schema: request.schema, signal: controller.signal });
+          break;
+        }
         try {
           raw = await callProvider({
             config, system, prompt, schema: request.schema, schemaName: request.schemaName,
