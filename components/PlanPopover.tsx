@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDurationCompact } from '../utils/subtaskTime';
+import { NumberField } from './NumberField';
 
 interface PlanPopoverProps {
   kind: 'task' | 'subtask';
@@ -65,8 +66,12 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
           <div className="k-pomo-stepper">
             <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(Math.max(1, target - 1))} aria-label="Fewer sessions">−</button>
             <span className="k-pomo-stepper-val" aria-live="polite">{target}</span>
-            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(Math.min(24, target + 1))} aria-label="More sessions">+</button>
+            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(Math.min(48, target + 1))} aria-label="More sessions">+</button>
           </div>
+          <label className="k-plan-type">
+            <span>or type</span>
+            <NumberField value={target} min={1} max={48} width={40} ariaLabel="Number of sessions" onCommit={onTarget} />
+          </label>
           <div className="k-pomo-quick-chips">
             {SESSION_PRESETS.map(n => (
               <button key={n} type="button" className={`k-pomo-chip ${target === n ? 'active' : ''}`} onClick={() => onTarget(n)}>{n}</button>
@@ -74,7 +79,11 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
           </div>
         </div>
         <div className="k-pomo-time-calc-chips">
-          <span className="k-pomo-sublabel">Or pick a total time (rounded up to whole sessions)</span>
+          <span className="k-pomo-sublabel">Or set a total time (rounded up to whole sessions)</span>
+          <label className="k-plan-type">
+            <span>type minutes</span>
+            <NumberField value={planned} min={1} max={999} unit="min" width={40} ariaLabel="Total time in minutes" onCommit={mins => onTarget(Math.min(48, Math.max(1, Math.ceil(mins / length))))} />
+          </label>
           <div className="k-pomo-quick-chips">
             {totalChips.map(mins => {
               const sessions = Math.max(1, Math.ceil(mins / length));
@@ -99,6 +108,10 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
           <span className="k-pomo-pop-title-sm">2. How long is each session?</span>
           <span className="k-pomo-pop-hint">★ = your default</span>
         </div>
+        <label className="k-plan-type">
+          <span>or type</span>
+          <NumberField value={length} min={1} max={180} unit="min" width={40} ariaLabel="Minutes per session" onCommit={onLength} />
+        </label>
         <div className="k-pomo-time-chips">
           {LENGTH_PRESETS.map(mins => (
             <button key={mins} type="button" className={`k-pomo-chip ${length === mins ? 'active' : ''}`} onClick={() => onLength(mins)}>

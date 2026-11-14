@@ -3,6 +3,7 @@ import { Modal } from './Modal';
 import type { Project } from '../types';
 import { buildSprint, PHASE_ADVICE, TECHNIQUE_TIPS, type ExamPhase } from '../utils/examMode';
 import { taskRounds } from '../utils/todayPlan';
+import { NumberField } from './NumberField';
 
 interface ExamSprintModalProps {
   project: Project;
@@ -16,7 +17,7 @@ const HOURS = [1, 2, 3, 4, 6];
 const time = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase, daysLeft, onStart, onClose }) => {
-  const [hours, setHours] = useState(2);
+  const [minutes, setMinutes] = useState(120);
   const [protectSleep, setProtectSleep] = useState(phase !== 'exam-day');
   const advice = PHASE_ADVICE[phase];
 
@@ -32,11 +33,11 @@ export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase
       });
     return buildSprint({
       tasks,
-      minutes: hours * 60,
+      minutes,
       start,
       stopBy: protectSleep && bedtime.getTime() > start.getTime() ? bedtime : undefined,
     });
-  }, [project, hours, protectSleep]);
+  }, [project, minutes, protectSleep]);
 
   const first = sprint.blocks.find(b => b.kind === 'focus');
 
@@ -56,8 +57,9 @@ export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase
           <p className="k-onboarding-note" id="sprint-hours-label">How long can you study right now?</p>
           <div className="k-faq-tabs" role="group" aria-labelledby="sprint-hours-label">
             {HOURS.map(h => (
-              <button key={h} type="button" className={`k-faq-tab ${hours === h ? 'is-active' : ''}`} aria-pressed={hours === h} onClick={() => setHours(h)}>{h} h</button>
+              <button key={h} type="button" className={`k-faq-tab ${minutes === h * 60 ? 'is-active' : ''}`} aria-pressed={minutes === h * 60} onClick={() => setMinutes(h * 60)}>{h} h</button>
             ))}
+            <label className="k-plan-type"><span>or type</span><NumberField value={minutes} min={25} max={720} unit="min" width={44} ariaLabel="Minutes available" onCommit={setMinutes} /></label>
           </div>
         </div>
         <label className="k-sprint-check">

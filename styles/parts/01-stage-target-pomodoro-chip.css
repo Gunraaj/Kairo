@@ -388,22 +388,19 @@
 }
 
 .k-infotip-btn {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 1px solid var(--stone-3);
+  border: 1px solid transparent;
   background: transparent;
-  color: var(--sumi-4);
-  font-family: var(--serif);
-  font-size: 11px;
-  font-style: italic;
-  font-weight: 700;
+  color: var(--sumi-3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  flex: none;
   transition: all 120ms ease;
 }
 

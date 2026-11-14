@@ -208,3 +208,24 @@
 .k-history-tasks small, .k-history-recent small { color: var(--sumi-3); font-size: 12px; display: block; }
 .k-history-recent li { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items: center; font-size: 13px; color: var(--sumi); padding: 6px 0; border-top: 1px solid var(--stone-3); }
 @media (max-width: 640px) { .k-history-stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* Timer area alignment: tabs stay centered, the info button sits inside with a matching spacer */
+.k-mode-pill-bar { justify-content: center; align-self: center; width: fit-content; max-width: 100%; }
+.k-mode-pill-bar::before { content: ''; flex: none; width: 24px; }
+.k-mode-pill-bar .k-infotip-wrap { margin-left: 0; flex: none; }
+.k-mode-pill-bar .k-mode-pill { flex: none; }
+@media (max-width: 480px) { .k-mode-pill-bar .k-mode-pill { padding: 6px 12px; } }
+
+/* Typed number fields */
+.k-numfield { display: inline-flex; align-items: center; gap: 2px; }
+.k-numfield input {
+  width: 36px; height: 28px; box-sizing: border-box; padding: 0 4px; text-align: center;
+  font: 600 13px var(--mono); color: var(--sumi); background: var(--washi); border: 1px solid var(--stone-2); border-radius: var(--r-sm);
+}
+.k-numfield input:focus { outline: none; border-color: var(--shu); box-shadow: 0 0 0 2px var(--shu-soft); }
+.k-numfield-unit { font: 500 12px var(--mono); color: var(--sumi-3); }
+.k-numfield.is-disabled input { opacity: .5; }
+.k-break-stepper .k-numfield input { width: 30px; height: 22px; font-size: 12px; background: transparent; border-color: transparent; }
+.k-break-stepper .k-numfield input:hover { border-color: var(--stone-2); }
+.k-plan-type { display: inline-flex; align-items: center; gap: 6px; margin: 6px 8px 0 0; font-size: 12px; color: var(--sumi-3); }
+.k-pomo-stepper-wrap { flex-wrap: wrap; }

@@ -2,6 +2,7 @@ import { showSessionNotification } from '../utils/notify';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { AnalogDial } from './AnalogDial';
+import { NumberField } from './NumberField';
 import type { FocusTarget, KairoSession, SessionType, UserSettings, StageLayoutVariation } from '../types';
 import { calculateElapsedSeconds, clearTimerSnapshot, readTimerSnapshot, remainingSeconds, type TimerSnapshot, writeTimerSnapshot } from '../utils/timerState';
 import { workerTimer } from '../utils/workerTimer';
@@ -789,7 +790,7 @@ export const Stage: React.FC<StageProps> = ({
             value={isActive ? sessionIntentionRef.current : intention}
             onChange={e => setIntention(e.target.value)}
             disabled={isActive}
-            placeholder="What is your single focus for this session?"
+            placeholder="Your one focus for this session"
             maxLength={200}
             aria-label="Session intention"
           />
@@ -848,6 +849,26 @@ export const Stage: React.FC<StageProps> = ({
   const renderMetaStrip = () => (
     <div className="k-dock-meta-strip">
       <div className="k-meta-group">
+        <span className="k-meta-subtle-label">Focus:</span>
+        <NumberField
+          className="k-focus-field"
+          value={settings.focusDuration}
+          min={1}
+          max={180}
+          unit="m"
+          width={34}
+          disabled={isActive}
+          ariaLabel="Focus length in minutes"
+          onCommit={next => {
+            updateDuration('focusDuration', next);
+            if (sessionType === 'focus' && !startedAtRef.current) setTimeLeft(next * 60);
+          }}
+        />
+      </div>
+
+      <div className="k-meta-divider" aria-hidden="true" />
+
+      <div className="k-meta-group">
         <span className="k-meta-subtle-label">Break:</span>
         <div className="k-chips-compact" role="group" aria-label="Break duration">
           {breakChoices.map(choice => (
@@ -882,9 +903,20 @@ export const Stage: React.FC<StageProps> = ({
             >
               -
             </button>
-            <span className="k-break-stepper-value" title="Custom break duration">
-              {settings.shortBreakDuration}m
-            </span>
+            <NumberField
+              className="k-break-stepper-value"
+              value={settings.shortBreakDuration}
+              min={1}
+              max={60}
+              unit="m"
+              width={30}
+              disabled={isActive}
+              ariaLabel="Break length in minutes"
+              onCommit={next => {
+                updateDuration('shortBreakDuration', next);
+                if (sessionType === 'shortBreak' && !isActive && !startedAtRef.current) setTimeLeft(next * 60);
+              }}
+            />
             <button
               type="button"
               className="k-break-stepper-btn"
