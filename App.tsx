@@ -9,7 +9,9 @@ import { WelcomeModal } from './components/WelcomeModal';
 import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
 import { ReplanModal } from './components/ReplanModal';
-import { ExamSprintModal } from './components/ExamSprintModal';
+import { SprintModal, type SprintRequest } from './components/SprintModal';
+import { PHASE_ADVICE } from './utils/examMode';
+import { taskRounds } from './utils/todayPlan';
 import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
@@ -26,7 +28,7 @@ import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTar
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
-import { calculateEffectiveTaskTime, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
+import { calculateEffectiveTaskTime, calculateFinishEstimate, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
 import { ALLOWED_PALETTES, DEFAULT_SETTINGS, normalizeActiveTaskId, normalizePalette, normalizeProjects, normalizeSessions, normalizeSettings } from './data/validation';
 
@@ -85,7 +87,7 @@ const App: React.FC = () => {
   const [showFileImport, setShowFileImport] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
   const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
-  const [showSprint, setShowSprint] = useState(false);
+  const [sprint, setSprint] = useState<SprintRequest | null>(null);
   const [historyProjectId, setHistoryProjectId] = useState<string | null>(null);
   const [linkedPlan, setLinkedPlan] = useState<BridgePlan | null>(() => {
     if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
@@ -98,6 +100,32 @@ const App: React.FC = () => {
   const [view, setView] = useState<'today' | 'focus'>(() =>
     projects.some(project => project.tasks.some(task => !task.completed)) ? 'today' : 'focus');
   const todayState = useMemo(() => buildTodayState({ projects, sessions }), [projects, sessions]);
+  const todayFinish = useMemo(
+    () => calculateFinishEstimate(todayState.blocks.map(b => ({ targetRounds: b.rounds, timeSpent: 0, pomodoroLength: userSettings.focusDuration })), userSettings),
+    [todayState, userSettings],
+  );
+  const remainingTasks = useCallback((projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return (project?.tasks ?? []).filter(t => !t.completed).map(t => {
+      const { target, done } = taskRounds(t);
+      return { id: t.id, name: t.name, rounds: Math.max(0, target - done) };
+    }).filter(t => t.rounds > 0);
+  }, [projects]);
+  const openSprint = useCallback((target: { kind: 'today' } | { kind: 'project'; projectId: string } | { kind: 'exam' }) => {
+    if (target.kind === 'today') {
+      setSprint({ title: "Sprint: today's plan", subtitle: 'Your planned sessions for today, timed with breaks.', tasks: todayState.blocks.map(b => ({ id: b.taskId, name: b.taskName, rounds: b.rounds })), minutes: Math.max(30, todayFinish.totalMinutes) });
+      return;
+    }
+    const projectId = target.kind === 'exam' ? todayState.exam?.projectId : target.projectId;
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    const exam = target.kind === 'exam' ? todayState.exam : undefined;
+    setSprint({
+      title: exam ? `${PHASE_ADVICE[exam.phase].title}: ${project.name}` : `Sprint: ${project.name}`,
+      subtitle: exam ? `${exam.daysLeft <= 0 ? 'Exam today.' : `${exam.daysLeft} day${exam.daysLeft === 1 ? '' : 's'} to go.`} ${PHASE_ADVICE[exam.phase].advice}` : 'Mixed topics, active recall and practice, with breaks.',
+      tasks: remainingTasks(project.id),
+    });
+  }, [projects, remainingTasks, todayFinish.totalMinutes, todayState]);
   const [showScience, setShowScience] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -729,7 +757,9 @@ const App: React.FC = () => {
             onNewPlan={() => setShowInterview(true)}
             onOpenFocus={() => setView('focus')}
             onReplan={setReplanProjectId}
-            onExamSprint={() => setShowSprint(true)}
+            onExamSprint={() => openSprint({ kind: 'exam' })}
+            onSprint={openSprint}
+            finish={todayFinish}
             onHistory={setHistoryProjectId}
           />
         )}
@@ -818,7 +848,7 @@ const App: React.FC = () => {
             totalFocusMinutes={totalFocusMinutes}
             todaySummary={todaySummary}
             onActiveChange={setIsSessionActive}
-            onOpenCapsule={() => setShowCapsuleModal(true)}
+            onOpenCapsule={showExtras ? () => setShowCapsuleModal(true) : undefined}
             nextReward={nextReward}
             startSessionTrigger={startSessionTrigger}
             toggleSessionTrigger={toggleSessionTrigger}
@@ -962,19 +992,9 @@ const App: React.FC = () => {
         />
       )}
 
-      {showSprint && todayState.exam && (() => {
-        const exam = todayState.exam;
-        const project = projects.find(p => p.id === exam.projectId);
-        return project ? (
-          <ExamSprintModal
-            project={project}
-            phase={exam.phase}
-            daysLeft={exam.daysLeft}
-            onClose={() => setShowSprint(false)}
-            onStart={handleStartFromToday}
-          />
-        ) : null;
-      })()}
+      {sprint && (
+        <SprintModal {...sprint} onClose={() => setSprint(null)} onStart={handleStartFromToday} />
+      )}
 
       {historyProjectId && (() => {
         const project = projects.find(p => p.id === historyProjectId);

@@ -310,3 +310,8 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-auto-tone-row select, .k-settings-select { padding: 6px 8px; font: 13px var(--sans); color: var(--sumi); background: var(--washi); border: 1px solid var(--stone-2); border-radius: var(--r-sm); }
 
 .k-setup-row .k-btn { align-self: flex-start; }
+
+/* Done-by time and project actions */
+.k-done-by { color: var(--shu); font-weight: 700; }
+.k-today-finish { margin: 4px 0 0; font-size: 14px; color: var(--sumi-2); }
+.k-today-project-actions { display: flex; gap: 6px; align-self: center; }

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { PlanPopover } from './PlanPopover';
 import type { Project, SubTask, Task, UserSettings } from '../types';
-import { InfoTip } from './InfoTip';
 import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
 import {
   calculateDonePomodoros,
@@ -222,9 +221,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     return list;
   }, [projects]);
 
-  const finishCalc = React.useMemo(() => {
-    return calculateFinishEstimate(allTasks, settings);
-  }, [allTasks, settings]);
 
   const toggleTaskSubtasks = (taskId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -722,23 +718,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
 
       <div className="k-nav-tree">
         {/* Pomofocus-style compiled target & finish time summary */}
-        {allTasks.length > 0 && (
-          <div className="k-pomo-summary-bar" title="Overall Pomodoro target & estimated finish time across all tasks">
-            <div className="k-pomo-sum-item">
-              <span className="k-pomo-sum-label">Pomos</span>
-              <span className="k-pomo-sum-val"><b>{finishCalc.donePomos}</b>/<b>{finishCalc.totalPomos}</b></span>
-            </div>
-            <div className="k-pomo-sum-divider">•</div>
-            <div className="k-pomo-sum-item">
-              <span className="k-pomo-sum-label">Finish</span>
-              <span className="k-pomo-sum-val"><b>{finishCalc.finishTimeFormatted}</b> <small>({finishCalc.hoursFormatted})</small></span>
-            </div>
-            <InfoTip title="Estimated Finish Time" position="bottom">
-              Calculates total planned focus rounds plus short & long breaks based on your settings.
-            </InfoTip>
-          </div>
-        )}
-
         {/* Quick Focus default item */}
         <div className={`k-tree-task k-quick-focus-item ${activeTaskId === null ? 'active' : ''}`}>
           <div className="k-quick-focus-indicator" aria-hidden="true" />
@@ -747,8 +726,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
             onClick={() => setActiveTaskId(null)}
             title="General unassigned focus session"
           >
-            <span>Quick Focus</span>
-            <small style={{ color: 'var(--sumi-3)', marginLeft: 6, fontSize: 11 }}>Untracked</small>
+            <span>Focus without a task</span>
           </button>
         </div>
 

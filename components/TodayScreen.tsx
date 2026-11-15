@@ -2,6 +2,7 @@ import React from 'react';
 import type { Pace } from '../utils/planMath';
 import type { ProjectPlan, TodayState } from '../utils/todayPlan';
 import { PHASE_ADVICE } from '../utils/examMode';
+import type { FinishCalculation } from '../utils/subtaskTime';
 
 interface TodayScreenProps {
   state: TodayState;
@@ -11,10 +12,13 @@ interface TodayScreenProps {
   onOpenFocus: () => void;
   onReplan?: (projectId: string) => void;
   onExamSprint?: () => void;
+  onSprint?: (target: { kind: 'today' } | { kind: 'project'; projectId: string }) => void;
+  finish?: FinishCalculation;
   onHistory?: (projectId: string) => void;
 }
 
 const num = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+const formatMinutes = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`);
 
 const paceChip = (pace: Pace | undefined): { text: string; tone: 'good' | 'warn' | 'bad' } | null => {
   if (!pace) return null;
@@ -37,7 +41,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onReplan, onExamSprint, onHistory,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onReplan, onExamSprint, onSprint, finish, onHistory,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -52,11 +56,17 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             <h2 id="today-title">Today</h2>
             <p className="k-today-sub">
               {state.hasPlan
-                ? `${num(roundsToday)} round${roundsToday === 1 ? '' : 's'} done · ${plannedToday} to go today (goal ${goal})`
+                ? `${num(roundsToday)} session${roundsToday === 1 ? '' : 's'} done · ${plannedToday} to go today (goal ${goal})`
                 : 'Tell Kairo what you are studying and it plans each day for you.'}
             </p>
+            {state.hasPlan && plannedToday > 0 && finish && (
+              <p className="k-today-finish" title="If you start now, with your break settings">
+                <b className="k-done-by">Done by {finish.finishTimeFormatted}</b> if you start now · {formatMinutes(finish.totalMinutes)} with breaks
+              </p>
+            )}
           </div>
           <div className="k-today-head-actions">
+            {onSprint && state.hasPlan && plannedToday > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'today' })}>Sprint today</button>}
             <button type="button" className="k-btn k-today-open-timer" onClick={onOpenFocus}>Open timer</button>
           </div>
         </header>
@@ -125,7 +135,10 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                     )}
                     {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} rounds will not fit before the deadline. Move the date or drop topics.</small>}
                   </div>
-                  {onHistory && <button type="button" className="k-btn k-today-history-btn" onClick={() => onHistory(plan.projectId)}>History</button>}
+                  <div className="k-today-project-actions">
+                    {onSprint && plan.remainingRounds > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'project', projectId: plan.projectId })}>Sprint</button>}
+                    {onHistory && <button type="button" className="k-btn" onClick={() => onHistory(plan.projectId)}>History</button>}
+                  </div>
                   <label className="k-today-deadline">
                     <small>Deadline</small>
                     <input type="date" value={plan.deadline ?? ''} onChange={e => onSetDeadline(plan.projectId, e.target.value)} aria-label={`Deadline for ${plan.name}`} />

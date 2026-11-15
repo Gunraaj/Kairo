@@ -1,14 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { Modal } from './Modal';
-import type { Project } from '../types';
-import { buildSprint, PHASE_ADVICE, TECHNIQUE_TIPS, type ExamPhase } from '../utils/examMode';
-import { taskRounds } from '../utils/todayPlan';
+import { buildSprint, TECHNIQUE_TIPS, type SprintTask } from '../utils/examMode';
 import { NumberField } from './NumberField';
 
-interface ExamSprintModalProps {
-  project: Project;
-  phase: Exclude<ExamPhase, 'normal'>;
-  daysLeft: number;
+export type SprintRequest = { title: string; subtitle?: string; tasks: SprintTask[]; minutes?: number };
+
+interface SprintModalProps extends SprintRequest {
   onStart: (taskId: string) => void;
   onClose: () => void;
 }
@@ -16,28 +13,21 @@ interface ExamSprintModalProps {
 const HOURS = [1, 2, 3, 4, 6];
 const time = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase, daysLeft, onStart, onClose }) => {
-  const [minutes, setMinutes] = useState(120);
-  const [protectSleep, setProtectSleep] = useState(phase !== 'exam-day');
-  const advice = PHASE_ADVICE[phase];
+export const SprintModal: React.FC<SprintModalProps> = ({ title, subtitle, tasks, minutes: initialMinutes = 120, onStart, onClose }) => {
+  const [minutes, setMinutes] = useState(initialMinutes);
+  const [protectSleep, setProtectSleep] = useState(true);
 
   const sprint = useMemo(() => {
     const start = new Date();
     const bedtime = new Date(start);
     bedtime.setHours(22, 0, 0, 0);
-    const tasks = project.tasks
-      .filter(t => !t.completed)
-      .map(t => {
-        const { target, done } = taskRounds(t);
-        return { id: t.id, name: t.name, rounds: Math.max(0, target - done) };
-      });
     return buildSprint({
       tasks,
       minutes,
       start,
       stopBy: protectSleep && bedtime.getTime() > start.getTime() ? bedtime : undefined,
     });
-  }, [project, minutes, protectSleep]);
+  }, [tasks, minutes, protectSleep]);
 
   const first = sprint.blocks.find(b => b.kind === 'focus');
 
@@ -45,8 +35,8 @@ export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase
     <Modal titleId="sprint-title" onClose={onClose} className="k-aibridge">
       <header className="k-modal-header">
         <div>
-          <h2 id="sprint-title">{advice.title}: {project.name}</h2>
-          <p className="k-modal-sub">{daysLeft <= 0 ? 'Exam today.' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} to go.`} {advice.advice}</p>
+          <h2 id="sprint-title">{title}</h2>
+          {subtitle && <p className="k-modal-sub">{subtitle}</p>}
         </div>
         <button className="k-modal-close" onClick={onClose} aria-label="Close">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
@@ -71,7 +61,7 @@ export const ExamSprintModal: React.FC<ExamSprintModalProps> = ({ project, phase
           <p className="k-onboarding-note">Nothing to schedule in that time. Pick more hours or turn off the 10 pm limit.</p>
         ) : (
           <>
-            <p className="k-onboarding-note">{sprint.rounds} round{sprint.rounds === 1 ? '' : 's'}, finishing about {time(sprint.endsAt)}. Topics are mixed on purpose: it helps you remember more than finishing one topic at a time.</p>
+            <p className="k-onboarding-note"><b className="k-done-by">Done by {time(sprint.endsAt)}</b> · {sprint.rounds} session{sprint.rounds === 1 ? '' : 's'} with breaks. Topics are mixed on purpose: it helps you remember more than finishing one topic at a time.</p>
             <ol className="k-sprint-list">
               {sprint.blocks.map((block, i) => (
                 <li key={i} className={`k-sprint-row is-${block.kind}`}>
