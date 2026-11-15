@@ -7,7 +7,6 @@ import {
   calculateFinishEstimate,
   calculatePlannedMinutes,
   calculateSubtaskSum,
-  cycleTimeCalcMode,
   estimatePomodorosFromSubtasks,
   formatDurationCompact,
   formatPomodoroRatio,
@@ -26,89 +25,23 @@ test('calculateSubtaskSum aggregates minutes correctly and ignores non-finite', 
   assert.equal(calculateSubtaskSum(undefined), 0);
 });
 
-test('calculateEffectiveTaskTime respects auto, direct, and hybrid modes', () => {
-  // 1. Task without subtasks uses task.timeSpent directly
-  const soloTask: Task = {
-    id: 'solo',
-    name: 'Solo Task',
-    completed: false,
-    timeSpent: 50,
-  };
-  assert.equal(calculateEffectiveTaskTime(soloTask), 50);
-
-  // 2. Task with subtasks in 'auto' mode sums subtasks
-  const autoTask: Task = {
-    id: 't1',
-    name: 'Auto Task',
-    completed: false,
-    timeSpent: 10, // stale or overridden
-    timeCalcMode: 'auto',
-    subTasks: [
-      { id: 's1', name: 'Sub 1', completed: true, timeSpent: 25 },
-      { id: 's2', name: 'Sub 2', completed: false, timeSpent: 30 },
-    ],
-  };
-  assert.equal(calculateEffectiveTaskTime(autoTask), 55);
-
-  // 3. Task in 'hybrid' mode combines direct parent overhead + subtasks
-  const hybridTask: Task = {
-    id: 't2',
-    name: 'Hybrid Task',
-    completed: false,
-    timeSpent: 75,
-    directTimeSpent: 20, // 20 min direct overview
-    timeCalcMode: 'hybrid',
-    subTasks: [
-      { id: 's1', name: 'Sub 1', completed: true, timeSpent: 25 },
-      { id: 's2', name: 'Sub 2', completed: false, timeSpent: 30 },
-    ],
-  };
-  // 20 direct + 55 subtasks = 75
-  assert.equal(calculateEffectiveTaskTime(hybridTask), 75);
-
-  // 4. Task in 'direct' mode ignores subtasks for the task total
-  const directTask: Task = {
-    id: 't3',
-    name: 'Direct Task',
-    completed: false,
-    timeSpent: 40,
-    timeCalcMode: 'direct',
-    subTasks: [
-      { id: 's1', name: 'Sub 1', completed: true, timeSpent: 90 },
-    ],
-  };
-  assert.equal(calculateEffectiveTaskTime(directTask), 40);
+test('task total is always time on the task itself plus time on its subtasks', () => {
+  assert.equal(calculateEffectiveTaskTime({ id: 'a', name: 'A', completed: false, timeSpent: 50 }), 50);
+  const subs = [{ id: 's1', name: 'S1', completed: true, timeSpent: 25 }, { id: 's2', name: 'S2', completed: false, timeSpent: 30 }];
+  // only subtask time recorded (old "auto sum" data): total is the subtask sum, even if timeSpent is stale
+  assert.equal(calculateEffectiveTaskTime({ id: 'b', name: 'B', completed: false, timeSpent: 10, subTasks: subs }), 55);
+  // explicit direct time (old "hybrid" data)
+  assert.equal(calculateEffectiveTaskTime({ id: 'c', name: 'C', completed: false, timeSpent: 75, directTimeSpent: 20, subTasks: subs }), 75);
+  // old "direct" data: a total larger than the subtasks keeps the difference as direct time
+  assert.equal(calculateEffectiveTaskTime({ id: 'd', name: 'D', completed: false, timeSpent: 90, subTasks: subs }), 90);
 });
 
-test('updateSubtaskMinutes recalculates parent task time automatically', () => {
-  const task: Task = {
-    id: 'parent',
-    name: 'Parent Task',
-    completed: false,
-    timeSpent: 0,
-    timeCalcMode: 'auto',
-    subTasks: [
-      { id: 'sub-1', name: 'First step', completed: false, timeSpent: 15 },
-      { id: 'sub-2', name: 'Second step', completed: false, timeSpent: 0 },
-    ],
-  };
-
-  // Add 25m to sub-2
-  const updated1 = updateSubtaskMinutes(task, 'sub-2', 25, 'add');
-  assert.equal(updated1.subTasks?.[1].timeSpent, 25);
-  assert.equal(updated1.timeSpent, 40); // 15 + 25 = 40
-
-  // Set sub-1 to 50m
-  const updated2 = updateSubtaskMinutes(updated1, 'sub-1', 50, 'set');
-  assert.equal(updated2.subTasks?.[0].timeSpent, 50);
-  assert.equal(updated2.timeSpent, 75); // 50 + 25 = 75
-});
-
-test('cycleTimeCalcMode cycles seamlessly', () => {
-  assert.equal(cycleTimeCalcMode(undefined), 'hybrid');
-  assert.equal(cycleTimeCalcMode('auto'), 'hybrid');
-  assert.equal(cycleTimeCalcMode('hybrid'), 'direct');
-  assert.equal(cycleTimeCalcMode('direct'), 'auto');
+test('adding subtask time never loses time already logged on the task itself', () => {
+  const task: Task = { id: 't', name: 'T', completed: false, timeSpent: 50, subTasks: [{ id: 's', name: 'S', completed: false, timeSpent: 20 }] };
+  const next = updateSubtaskMinutes(task, 's', 25, 'add');
+  assert.equal(next.directTimeSpent, 30);
+  assert.equal(next.subTasks![0]!.timeSpent, 45);
+  assert.equal(next.timeSpent, 75);
 });
 
 test('formatDurationCompact formats clean strings', () => {

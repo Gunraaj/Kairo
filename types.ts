@@ -1,6 +1,5 @@
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
-export type TimeCalcMode = 'auto' | 'direct' | 'hybrid';
 
 export interface SubTask {
   id: string;
@@ -21,8 +20,7 @@ export interface Task {
   targetRounds?: number;
   pomodoroLength?: number; // duration of each pomodoro in minutes (default 25 or settings.focusDuration)
   subTasks?: SubTask[];
-  timeCalcMode?: TimeCalcMode; // 'auto' (sum of subtasks), 'direct' (standalone), 'hybrid' (direct + subtasks)
-  directTimeSpent?: number; // unassigned direct minutes spent on parent task (used in hybrid mode)
+  directTimeSpent?: number; // minutes focused on the task itself, excluding subtasks
   estimatedRounds?: number; // rounds originally estimated (kept when targetRounds is re-planned)
 }
 
@@ -77,6 +75,8 @@ export interface AudioSettings {
   masterVolume: number;
 }
 
+export type FocusSound = 'off' | 'brown' | 'alpha' | 'beta';
+
 export interface UserSettings {
   focusDuration: number;
   shortBreakDuration: number;
@@ -84,6 +84,7 @@ export interface UserSettings {
   autoStartBreaks: boolean;
   sessionsPerRound: number;
   deepFocusMode: boolean;
+  focusSound: FocusSound;
 }
 
 export type Settings = UserSettings;

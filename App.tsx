@@ -14,6 +14,7 @@ import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { PlanInterviewModal } from './components/PlanInterviewModal';
+import { FocusSetupModal } from './components/FocusSetupModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
 import { applyImportedPlan, type ImportedPlan } from './utils/importPlan';
@@ -25,7 +26,7 @@ import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTar
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
-import { calculateEffectiveTaskTime, updateSubtaskMinutes } from './utils/subtaskTime';
+import { calculateEffectiveTaskTime, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
 import { ALLOWED_PALETTES, DEFAULT_SETTINGS, normalizeActiveTaskId, normalizePalette, normalizeProjects, normalizeSessions, normalizeSettings } from './data/validation';
 
@@ -78,6 +79,9 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
   const [showInterview, setShowInterview] = useState(false);
+  const [showFocusSetup, setShowFocusSetup] = useState(() => {
+    try { return Boolean(localStorage.getItem('kairo_seen_welcome')) && !localStorage.getItem('kairo_focus_setup'); } catch { return false; }
+  });
   const [showFileImport, setShowFileImport] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
   const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
@@ -351,7 +355,10 @@ const App: React.FC = () => {
   }, [setProjects]);
 
   const closeInterview = useCallback(() => {
-    try { localStorage.setItem('kairo_seen_welcome', '1'); } catch { /* storage unavailable */ }
+    try {
+      localStorage.setItem('kairo_seen_welcome', '1');
+      if (!localStorage.getItem('kairo_focus_setup')) setShowFocusSetup(true);
+    } catch { /* storage unavailable */ }
     setShowInterview(false);
   }, []);
 
@@ -463,10 +470,8 @@ const App: React.FC = () => {
               if (isDirect) {
                 // Focus was directed to the parent task directly
                 const hasSubs = Array.isArray(task.subTasks) && task.subTasks.length > 0;
-                const mode = task.timeCalcMode || (hasSubs ? 'hybrid' : 'direct');
-                if (mode === 'hybrid') {
-                  const directTime = (task.directTimeSpent || 0) + session.duration;
-                  const updated: Task = { ...task, directTimeSpent: directTime, timeCalcMode: 'hybrid' };
+                if (hasSubs) {
+                  const updated: Task = { ...task, directTimeSpent: directTimeOf(task) + session.duration };
                   return { ...updated, timeSpent: calculateEffectiveTaskTime(updated) };
                 }
                 return { ...task, timeSpent: (task.timeSpent || 0) + session.duration };
@@ -543,9 +548,14 @@ const App: React.FC = () => {
           setAudioSettings(previous => ({ ...previous, isPlaying: false }));
         });
       }
-      setAudioSettings(previous => ({ ...previous, isPlaying }));
+      const tone: Partial<AudioSettings> = !isPlaying ? {}
+        : userSettings.focusSound === 'brown' ? { mode: 'noise', noiseType: 'brown', noiseVolume: 0.5 }
+        : userSettings.focusSound === 'alpha' ? { mode: 'binaural', beatFrequency: 10, binauralVolume: 0.25 }
+        : userSettings.focusSound === 'beta' ? { mode: 'binaural', beatFrequency: 14, binauralVolume: 0.25 }
+        : {};
+      setAudioSettings(previous => ({ ...previous, ...tone, isPlaying }));
     },
-    [audioEngine],
+    [audioEngine, userSettings.focusSound],
   );
 
   const handleToggleSidebar = useCallback(() => {
@@ -841,6 +851,8 @@ const App: React.FC = () => {
         {/* 3. Sound Studio Drawer / Panel */}
         <aside className={`k-sound-lib ${soundStudioOpen ? 'is-open' : 'is-closed'}`} aria-label="Sound library">
           <ControlPanel
+            focusSound={userSettings.focusSound}
+            onFocusSound={focusSound => setUserSettings({ ...userSettings, focusSound })}
             audioSettings={audioSettings}
             setAudioSettings={setAudioSettings}
             resumeAudio={audioEngine.resume}
@@ -983,6 +995,17 @@ const App: React.FC = () => {
           />
         ) : null;
       })()}
+
+      {showFocusSetup && !showInterview && (
+        <FocusSetupModal
+          settings={userSettings}
+          setSettings={setUserSettings}
+          onDone={() => {
+            try { localStorage.setItem('kairo_focus_setup', '1'); } catch { /* storage unavailable */ }
+            setShowFocusSetup(false);
+          }}
+        />
+      )}
 
       {showInterview && (
         <PlanInterviewModal

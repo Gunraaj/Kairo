@@ -9,7 +9,6 @@ import {
   calculateEffectiveTaskTime,
   calculateFinishEstimate,
   calculatePlannedMinutes,
-  cycleTimeCalcMode,
   estimatePomodorosFromSubtasks,
   formatDurationCompact,
   formatPomodoroRatio,
@@ -38,7 +37,8 @@ export const NavIcon: React.FC<{
     | 'book'
     | 'sparkles'
     | 'help'
-    | 'today';
+    | 'today'
+    | 'timer';
 }> = ({ name }) => {
   const shared = {
     className: 'k-nav-icon',
@@ -63,7 +63,9 @@ export const NavIcon: React.FC<{
     case 'chart':
       return <svg {...shared}><path d="M3 13V6M7 13V3M11 13V9" /></svg>;
     case 'settings':
-      return <svg {...shared}><circle cx="8" cy="8" r="2.2" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4" /></svg>;
+      return <svg {...shared}><circle cx="8" cy="8" r="2" /><path d="M6.9 1.8h2.2l.4 1.7 1.1.6 1.6-.6 1.1 1.9-1.3 1.2v1.2l1.3 1.2-1.1 1.9-1.6-.6-1.1.6-.4 1.7H6.9l-.4-1.7-1.1-.6-1.6.6-1.1-1.9 1.3-1.2V6.6L2.7 5.4l1.1-1.9 1.6.6 1.1-.6z" /></svg>;
+    case 'timer':
+      return <svg {...shared}><circle cx="8" cy="9" r="5" /><path d="M8 6.5V9l1.6 1M6.5 2h3M12.2 4.3l.9-.9" /></svg>;
     case 'archive':
       return <svg {...shared}><rect x="2" y="3" width="12" height="3" rx="0.5" /><path d="M3 6v7a1 1 0 001 1h8a1 1 0 001-1V6M6.5 9h3" /></svg>;
     case 'chevron':
@@ -353,27 +355,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
             if (t.id !== taskId) return t;
             return updateSubtaskMinutes(t, subtaskId, delta, 'add');
-          }),
-        };
-      }),
-    );
-  };
-
-  const toggleTaskCalcMode = (projectId: string, taskId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setProjects(prev =>
-      (Array.isArray(prev) ? prev : []).map(p => {
-        if (p.id !== projectId) return p;
-        return {
-          ...p,
-          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
-            if (t.id !== taskId) return t;
-            const nextMode = cycleTimeCalcMode(t.timeCalcMode);
-            const updated: Task = { ...t, timeCalcMode: nextMode };
-            return {
-              ...updated,
-              timeSpent: calculateEffectiveTaskTime(updated),
-            };
           }),
         };
       }),
@@ -700,7 +681,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         )}
         {onFocus && (
           <button className={`k-nav-item ${currentView === 'focus' ? 'active' : ''}`} onClick={onFocus} aria-current={currentView === 'focus' ? 'page' : undefined}>
-            <NavIcon name="system" />
+            <NavIcon name="timer" />
             <span className="k-nav-label">Focus</span>
           </button>
         )}
@@ -1049,21 +1030,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                 <span className="k-subtasks-header-title">
                                   Subtasks <span className="k-subtasks-header-ratio">({doneSubs}/{subTasks.length})</span>
                                 </span>
-                                <button
-                                  type="button"
-                                  className="k-task-calc-badge"
-                                  onClick={e => toggleTaskCalcMode(project.id, task.id, e)}
-                                  title={
-                                    task.timeCalcMode === 'hybrid'
-                                      ? '⚡ Hybrid Mode: Direct time + subtasks sum. Click to switch.'
-                                      : task.timeCalcMode === 'direct'
-                                      ? '📌 Direct Mode: Standalone parent task time. Click to switch.'
-                                      : '🎯 Auto Mode: Total time is calculated as the sum of all subtasks. Click to switch.'
-                                  }
-                                  aria-label="Toggle time calculation mode (Auto, Hybrid, Direct)"
-                                >
-                                  {task.timeCalcMode === 'hybrid' ? '⚡ Hybrid' : task.timeCalcMode === 'direct' ? '📌 Direct' : '🎯 Auto Sum'}
-                                </button>
                               </div>
                             )}
                             {subTasks.map(st => {

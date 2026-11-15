@@ -59,10 +59,6 @@ const normalizeTask = (value: unknown): Task | null => {
     ? source.status as TaskStatus
     : completed ? 'done' : 'todo';
 
-  const allowedCalcModes = ['auto', 'direct', 'hybrid'];
-  const timeCalcMode = allowedCalcModes.includes(source.timeCalcMode as string)
-    ? (source.timeCalcMode as 'auto' | 'direct' | 'hybrid')
-    : undefined;
 
   const subTasks = Array.isArray(source.subTasks)
     ? source.subTasks.slice(0, 50).flatMap(sub => {
@@ -83,7 +79,6 @@ const normalizeTask = (value: unknown): Task | null => {
     directTimeSpent: typeof source.directTimeSpent === 'number'
       ? Math.round(boundedNumber(source.directTimeSpent, 0, 0, 1_000_000))
       : undefined,
-    timeCalcMode,
     targetRounds: typeof source.targetRounds === 'number'
       ? Math.round(boundedNumber(source.targetRounds, 4, 1, 24))
       : undefined,
@@ -150,6 +145,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   autoStartBreaks: false,
   sessionsPerRound: 4,
   deepFocusMode: false,
+  focusSound: 'off',
 };
 
 export const normalizeSettings = (value: unknown): UserSettings => {
@@ -162,6 +158,7 @@ export const normalizeSettings = (value: unknown): UserSettings => {
     sessionsPerRound: Math.round(boundedNumber(source.sessionsPerRound, 4, 1, 12)),
     deepFocusMode: source.deepFocusMode === true,
     autoStartBreaks: source.autoStartBreaks === true,
+    focusSound: source.focusSound === 'brown' || source.focusSound === 'alpha' || source.focusSound === 'beta' ? source.focusSound : 'off',
   };
 };
 

@@ -151,7 +151,7 @@ export const Stage: React.FC<StageProps> = ({
     sessionIntentionRef.current = recoverySession.intention || '';
     if (recoverySession.intention) setIntention(recoverySession.intention);
     setIsActive(true);
-    toggleAudio(true);
+    if (settings.focusSound !== 'off') toggleAudio(true);
     setRecoverySession(null);
   };
 
@@ -413,7 +413,7 @@ export const Stage: React.FC<StageProps> = ({
     }
     deadlineRef.current = now + timeLeft * 1000;
     setIsActive(true);
-    if (sessionType === 'focus') toggleAudio(true);
+    if (sessionType === 'focus' && settings.focusSound !== 'off') toggleAudio(true);
   };
 
   useEffect(() => {

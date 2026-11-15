@@ -290,3 +290,23 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-today-project { display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: 12px; }
 .k-today-project .k-today-history-btn { align-self: center; }
 @media (max-width: 640px) { .k-today-project { grid-template-columns: 1fr auto; } .k-today-project .k-today-deadline { grid-column: 1 / -1; } }
+
+.k-aibridge-copied { margin: 0; padding: 10px 12px; font-size: 13px; color: var(--sumi-2); border: 1px solid var(--stone-3); border-radius: var(--r-sm); background: var(--washi-2); }
+
+/* Sound Studio: even mix tiles, tabs that fit the panel */
+.k-atmosphere-chips { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px; }
+.k-atmosphere-chips .k-atmo-chip-wrap, .k-atmosphere-chips .k-atmo-chip-wrap > button:first-child { width: 100%; }
+.k-atmosphere-chips .k-atmo-chip-wrap > button:first-child { justify-content: flex-start; }
+.k-sl-tabs { display: flex; gap: 2px; overflow-x: auto; }
+.k-sl-tab { flex: 1 1 auto; white-space: nowrap; }
+
+/* Focus setup and automatic focus sound */
+.k-focus-setup { width: min(560px, 94vw); }
+.k-setup-row { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--sumi-2); }
+.k-setup-row b { color: var(--sumi); font-size: 14px; }
+.k-setup-row small { color: var(--sumi-3); font-size: 12px; }
+.k-setup-toggles label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.k-auto-tone-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--stone-3); border-radius: var(--r-sm); background: var(--washi-2); font-size: 13px; color: var(--sumi); }
+.k-auto-tone-row select, .k-settings-select { padding: 6px 8px; font: 13px var(--sans); color: var(--sumi); background: var(--washi); border: 1px solid var(--stone-2); border-radius: var(--r-sm); }
+
+.k-setup-row .k-btn { align-self: flex-start; }

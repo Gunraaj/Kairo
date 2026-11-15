@@ -1,4 +1,4 @@
-import type { SubTask, Task, TimeCalcMode } from '../types';
+import type {SubTask, Task} from '../types';
 
 /**
  * Sums all minutes spent on a list of subtasks.
@@ -11,36 +11,17 @@ export const calculateSubtaskSum = (subTasks: SubTask[] | undefined): number => 
   }, 0);
 };
 
-/**
- * Calculates the effective total time for a task depending on its timeCalcMode:
- * - 'auto': strictly the sum of all subtasks (default when subtasks exist)
- * - 'direct': manual/standalone time on the parent task
- * - 'hybrid': direct time spent on parent task + sum of all subtasks
- * - if no subtasks exist, returns task.timeSpent directly
- */
+/** Minutes focused on the task itself (not on any subtask). */
+export const directTimeOf = (task: Task): number => {
+  if (Number.isFinite(task.directTimeSpent)) return Math.max(0, task.directTimeSpent || 0);
+  return Math.max(0, (task.timeSpent || 0) - calculateSubtaskSum(task.subTasks));
+};
+
+/** A task's total = time on the task itself + time on its subtasks. */
 export const calculateEffectiveTaskTime = (task: Task): number => {
   const subTasks = Array.isArray(task.subTasks) ? task.subTasks : [];
-  if (subTasks.length === 0) {
-    return Math.max(0, task.timeSpent || 0);
-  }
-
-  const mode: TimeCalcMode = task.timeCalcMode || 'auto';
-  const subtaskSum = calculateSubtaskSum(subTasks);
-
-  switch (mode) {
-    case 'auto':
-      return subtaskSum;
-    case 'hybrid': {
-      const direct = Number.isFinite(task.directTimeSpent)
-        ? Math.max(0, task.directTimeSpent || 0)
-        : Math.max(0, (task.timeSpent || 0) - subtaskSum);
-      return direct + subtaskSum;
-    }
-    case 'direct':
-      return Math.max(0, task.timeSpent || 0);
-    default:
-      return subtaskSum;
-  }
+  if (subTasks.length === 0) return Math.max(0, task.timeSpent || 0);
+  return directTimeOf(task) + calculateSubtaskSum(subTasks);
 };
 
 /**
@@ -52,6 +33,7 @@ export const updateSubtaskMinutes = (
   minutes: number,
   operation: 'set' | 'add' = 'set',
 ): Task => {
+  const direct = directTimeOf(task);
   const subTasks = (task.subTasks || []).map(st => {
     if (st.id !== subtaskId) return st;
     const current = Math.max(0, st.timeSpent || 0);
@@ -62,6 +44,7 @@ export const updateSubtaskMinutes = (
   const updatedTask: Task = {
     ...task,
     subTasks,
+    directTimeSpent: direct,
   };
 
   const nextTotal = calculateEffectiveTaskTime(updatedTask);
@@ -69,15 +52,6 @@ export const updateSubtaskMinutes = (
     ...updatedTask,
     timeSpent: nextTotal,
   };
-};
-
-/**
- * Cycles calculation mode: 'auto' -> 'hybrid' -> 'direct' -> 'auto'
- */
-export const cycleTimeCalcMode = (current?: TimeCalcMode): TimeCalcMode => {
-  if (!current || current === 'auto') return 'hybrid';
-  if (current === 'hybrid') return 'direct';
-  return 'auto';
 };
 
 /**
@@ -172,7 +146,6 @@ export const calculateFinishEstimate = (
     timeSpent?: number;
     pomodoroLength?: number;
     subTasks?: SubTask[];
-    timeCalcMode?: TimeCalcMode;
   }>,
   settings?: FinishCalculationSettings,
   now: Date = new Date(),

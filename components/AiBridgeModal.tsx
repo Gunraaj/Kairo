@@ -17,6 +17,7 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
   const [reply, setReply] = useState('');
   const [copied, setCopied] = useState<'context' | 'link' | null>(null);
   const [clipboardError, setClipboardError] = useState('');
+  const [openedBot, setOpenedBot] = useState<string | null>(null);
 
   const pasteFromClipboard = async () => {
     try {
@@ -70,14 +71,33 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
         {tab === 'copy' && (
           <>
             <ol className="k-faq-steps">
-              <li>Open your AI below. It interviews you about your exam, one question at a time.</li>
+              <li>Open your AI below (the prompt is copied too, in case it does not appear). It interviews you about your exam, one question at a time.</li>
               <li>When it shows the plan, copy its last reply (the copy icon under the message) and come back.</li>
             </ol>
             <div className="k-onboarding-actions">
-              <a className="k-btn k-btn-primary" href={`https://chatgpt.com/?q=${encodeURIComponent(context)}`} target="_blank" rel="noopener noreferrer" onClick={() => setTab('paste')}>Open in ChatGPT</a>
-              <a className="k-btn k-btn-primary" href={`https://claude.ai/new?q=${encodeURIComponent(context)}`} target="_blank" rel="noopener noreferrer" onClick={() => setTab('paste')}>Open in Claude</a>
-              <button type="button" className="k-btn" onClick={() => { void copy(context, 'context'); setTab('paste'); }}>{copied === 'context' ? 'Copied' : 'Copy for Gemini or others'}</button>
+              {[
+                { name: 'ChatGPT', href: `https://chatgpt.com/?q=${encodeURIComponent(context)}` },
+                { name: 'Claude', href: `https://claude.ai/new?q=${encodeURIComponent(context)}` },
+                { name: 'Gemini', href: 'https://gemini.google.com/app' },
+              ].map(bot => (
+                <a key={bot.name} className="k-btn k-btn-primary" href={bot.href} target="_blank" rel="noopener noreferrer"
+                  onClick={() => { void copy(context, 'context'); setOpenedBot(bot.name); }}>
+                  Open {bot.name}
+                </a>
+              ))}
+              <button type="button" className="k-btn" onClick={() => { void copy(context, 'context'); setOpenedBot('other'); }}>
+                {copied === 'context' && openedBot === 'other' ? 'Copied' : 'Copy prompt'}
+              </button>
             </div>
+            {openedBot && (
+              <p className="k-aibridge-copied" role="status">
+                {copied === 'context' ? 'The prompt is also copied. ' : ''}
+                {openedBot === 'Gemini' || openedBot === 'other'
+                  ? 'Paste it into the chat (Ctrl+V, or long-press then Paste) and send.'
+                  : `If ${openedBot} opened with an empty chat box, paste it (Ctrl+V, or long-press then Paste) and send.`}
+                {' '}When the AI shows the plan, <button type="button" className="k-link-btn" onClick={() => setTab('paste')}>bring it back here</button>.
+              </p>
+            )}
             <details className="k-aibridge-details">
               <summary>See what is sent</summary>
               <pre className="k-aibridge-context">{context}</pre>

@@ -103,6 +103,19 @@ UX pass: the Pomodoro target popover (task and subtask copies) is now one `PlanP
 
 Product pass (2026-11-15): one planning door ("New plan" interview: Kairo asks the basics, the AI asks one follow-up and writes topic-specific subtasks, Kairo enforces date/hours/weak-first/fit); ChatGPT/Claude open with the interview prompt prefilled and the reply is read from the clipboard. Sidebar: primary nav pinned top, projects scroll (only the active project open), tools pinned as an icon row. Focus screen uses the Cockpit layout automatically on screens 1280px+ with an active task. Fixed: phone drawer was hidden under its blurred backdrop.
 
+Keep / merge / cut decisions (2026-11-15):
+| Thing | Decision | Why |
+|---|---|---|
+| Sound library popup + "in-drawer browser" + quick deck | Merged into one panel with tabs Mixes, Sounds, Focus tones, Music | Same content existed in three places; 50 buttons on first view became 18; nothing removed |
+| Duplicate "Atmospheres" block (~150 lines) | Cut | Exact copy of the Mixes content |
+| Focus tones starting on every focus session | Now a setting, default Off (Off / Brown noise / Alpha 10 Hz / Beta 14 Hz) | Audio that starts without asking is surprising; binaural evidence is mixed |
+| First run | Plan interview, then a one-time "Set up your focus" (length, sound, auto-breaks, pause on tab switch, notifications); existing users see the setup once | Choices that change behaviour should be asked, not assumed |
+| Task time modes (Auto sum / Direct / Hybrid) | One rule: time on the task + time on its subtasks; switch removed | That rule equals all three modes on existing data; also fixed subtask updates losing direct time |
+| Settings order | Timer, How sessions run, Notifications, AI, Appearance, Data, Cloud backup, Extras | Most-changed first; plain names |
+| Settings icon | Real gear (was drawn as a sun, like the theme toggle); Focus uses a timer icon | Icons must not look like other controls |
+| ChatGPT / Claude / Gemini | Each "Open" button also copies the prompt; "Copy prompt" for anything else | Prefilled links can fail or be blocked; copying always works |
+| Top-bar Sound pill and sidebar sound icon | Keep both | The pill shows what is playing; the icon is the nav entry |
+
 TODO later: decide whether the Zen and Cockpit layouts earn a place beyond "Extras" (Cockpit is now the automatic wide layout; the manual switcher only lives in Settings > Extras). Consider merging the fullscreen Zen with the minimal Zen layout.
 
 Code health done: `washi.css` split into ordered `styles/parts/*.css` (built CSS byte-identical), `WelcomeModal`, `AnalogDial` and `soundStudio/soundCatalog` extracted (App 1108 -> 1027 lines, Stage 1535 -> 1180, ControlPanel 2648 -> 2189). Further splitting of the `ControlPanel` and `SidebarNav` bodies is left; their state is tightly coupled.

@@ -23,6 +23,8 @@ import {
   type AiCapabilityStatus,
 } from '../utils/geminiAi';
 import { notificationPermission, requestNotificationPermission } from '../utils/notify';
+import { FOCUS_SOUND_OPTIONS } from './FocusSetupModal';
+import type { FocusSound } from '../types';
 import { listModels, fallbackModels, type ModelOption } from '../utils/modelCatalog';
 import {
   backupToSupabase,
@@ -417,51 +419,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="k-modal-body">
         {/* Atmosphere & Theme Selector */}
         <section className="k-settings-section">
-          <div className="k-settings-section-title">Atmosphere & Aesthetics</div>
-          <p className="k-settings-section-help">Choose your light/dark mode and atmospheric visual world.</p>
-
-          <div className="k-theme-mode-row">
-            <button
-              type="button"
-              className={`k-theme-mode-btn ${theme === 'dark' ? 'is-active' : ''}`}
-              onClick={() => setTheme?.('dark')}
-            >
-              <span>🌙</span> Dark
-            </button>
-            <button
-              type="button"
-              className={`k-theme-mode-btn ${theme === 'light' ? 'is-active' : ''}`}
-              onClick={() => setTheme?.('light')}
-            >
-              <span>☀️</span> Light
-            </button>
-          </div>
-
-          <div className="k-palette-grid">
-            {PALETTES.map(p => (
-              <button
-                key={p.id}
-                type="button"
-                className={`k-palette-card ${palette === p.id ? 'is-active' : ''}`}
-                onClick={() => setPalette?.(p.id as 'obsidian' | 'zen' | 'indigo' | 'washi')}
-              >
-                <div className="k-palette-swatches">
-                  {p.swatches.map((color, idx) => (
-                    <span
-                      key={idx}
-                      className="k-palette-dot"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-                <div className="k-palette-title">{p.name}</div>
-                <div className="k-palette-desc">{p.subtitle}</div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="k-settings-section">
           <div className="k-settings-section-title">Timer lengths</div>
           <p className="k-settings-section-help">Choose a pace you can repeat. Changes apply after the current timer is reset.</p>
           <div className="k-settings-grid">
@@ -486,39 +443,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         <section className="k-settings-section">
-          <div className="k-settings-section-title">Notifications</div>
-          <div className="k-settings-row">
-            <div className="k-settings-row-label">
-              <b>Tell me when a session ends</b>
-              <small>
-                {notifPerm === 'granted' && 'On. You will be notified when a focus session or break ends.'}
-                {notifPerm === 'default' && 'Get a notification when the timer ends, even if the tab is in the background.'}
-                {notifPerm === 'denied' && 'Blocked in your browser. Allow notifications for this site in the address bar, then reload.'}
-                {notifPerm === 'unsupported' && 'This browser does not support notifications.'}
-              </small>
-            </div>
-            {notifPerm === 'default' && (
-              <button type="button" className="k-btn" onClick={async () => setNotifPerm(await requestNotificationPermission())}>Turn on</button>
-            )}
-          </div>
-        </section>
-
-        {setShowExtras && (
-          <section className="k-settings-section">
-            <div className="k-settings-section-title">Extras</div>
-            <div className="k-settings-row">
-              <div className="k-settings-row-label">
-                <b id="extras-label">Show extras: Time Capsule, Focus Guide, experimental layouts</b>
-                <small>Optional features that stay out of the way by default.</small>
-              </div>
-              <Toggle labelId="extras-label" enabled={showExtras} onChange={setShowExtras} />
-            </div>
-          </section>
-        )}
-
-        <section className="k-settings-section">
-          <div className="k-settings-section-title">Round structure</div>
-          <p className="k-settings-section-help">A long break follows each completed round.</p>
+          <div className="k-settings-section-title">How sessions run</div>
+          <p className="k-settings-section-help">Sound, breaks and what happens when you leave the tab.</p>
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
@@ -540,7 +466,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
-              <b id="deep-focus-label">Deep focus guard</b>
+              <b id="focus-sound-label">Sound when focus starts</b>
+              <small>{FOCUS_SOUND_OPTIONS.find(o => o.id === local.focusSound)?.hint}</small>
+            </div>
+            <select
+              className="k-settings-select"
+              aria-labelledby="focus-sound-label"
+              value={local.focusSound}
+              onChange={e => setLocal(prev => ({ ...prev, focusSound: e.target.value as FocusSound }))}
+            >
+              {FOCUS_SOUND_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </select>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="deep-focus-label">Pause when I switch tabs</b>
               <small>Pause the timer when this tab becomes hidden.</small>
             </div>
             <Toggle
@@ -564,7 +505,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         <section className="k-settings-section">
-          <div className="k-settings-section-title">Focus AI Assistant & Models</div>
+          <div className="k-settings-section-title">Notifications</div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b>Tell me when a session ends</b>
+              <small>
+                {notifPerm === 'granted' && 'On. You will be notified when a focus session or break ends.'}
+                {notifPerm === 'default' && 'Get a notification when the timer ends, even if the tab is in the background.'}
+                {notifPerm === 'denied' && 'Blocked in your browser. Allow notifications for this site in the address bar, then reload.'}
+                {notifPerm === 'unsupported' && 'This browser does not support notifications.'}
+              </small>
+            </div>
+            {notifPerm === 'default' && (
+              <button type="button" className="k-btn" onClick={async () => setNotifPerm(await requestNotificationPermission())}>Turn on</button>
+            )}
+          </div>
+        </section>
+
+        <section className="k-settings-section">
+          <div className="k-settings-section-title">AI</div>
           <p className="k-settings-section-help">
             Choose your AI engine: Google Gemini (Free tier), OpenRouter (Free & Any open-source model), Local AI via Ollama / LM Studio, Custom OpenAI-compatible endpoints, or 100% Offline Heuristics.
           </p>
@@ -897,6 +856,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         <section className="k-settings-section">
+          <div className="k-settings-section-title">Appearance</div>
+          <p className="k-settings-section-help">Choose your light/dark mode and atmospheric visual world.</p>
+
+          <div className="k-theme-mode-row">
+            <button
+              type="button"
+              className={`k-theme-mode-btn ${theme === 'dark' ? 'is-active' : ''}`}
+              onClick={() => setTheme?.('dark')}
+            >
+              <span>🌙</span> Dark
+            </button>
+            <button
+              type="button"
+              className={`k-theme-mode-btn ${theme === 'light' ? 'is-active' : ''}`}
+              onClick={() => setTheme?.('light')}
+            >
+              <span>☀️</span> Light
+            </button>
+          </div>
+
+          <div className="k-palette-grid">
+            {PALETTES.map(p => (
+              <button
+                key={p.id}
+                type="button"
+                className={`k-palette-card ${palette === p.id ? 'is-active' : ''}`}
+                onClick={() => setPalette?.(p.id as 'obsidian' | 'zen' | 'indigo' | 'washi')}
+              >
+                <div className="k-palette-swatches">
+                  {p.swatches.map((color, idx) => (
+                    <span
+                      key={idx}
+                      className="k-palette-dot"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+                <div className="k-palette-title">{p.name}</div>
+                <div className="k-palette-desc">{p.subtitle}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="k-settings-section">
           <div className="k-settings-section-title">Your data</div>
           <p className="k-settings-section-help">
             Everything stays in this browser. Export a snapshot to move Kairo to another device or browser, or as a personal backup before clearing site data.
@@ -929,7 +933,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         <section className="k-settings-section">
-          <div className="k-settings-section-title">Optional Cloud Sync (Supabase)</div>
+          <div className="k-settings-section-title">Cloud backup (optional)</div>
           <p className="k-settings-section-help">
             Kairo is 100% offline-first. To optionally back up or sync across browsers, provide your Supabase project credentials. Your keys stay in this browser.
           </p>
@@ -1048,6 +1052,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             )}
           </div>
         </section>
+
+        {setShowExtras && (
+          <section className="k-settings-section">
+            <div className="k-settings-section-title">Extras</div>
+            <div className="k-settings-row">
+              <div className="k-settings-row-label">
+                <b id="extras-label">Show extras: Time Capsule, Focus Guide, experimental layouts</b>
+                <small>Optional features that stay out of the way by default.</small>
+              </div>
+              <Toggle labelId="extras-label" enabled={showExtras} onChange={setShowExtras} />
+            </div>
+          </section>
+        )}
       </div>
 
       <footer className="k-modal-footer">
