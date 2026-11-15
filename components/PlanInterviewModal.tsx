@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import type { KairoSession, Project } from '../types';
+import type { KairoSession, Project, UserSettings } from '../types';
+import { FocusSetupFields } from './FocusSetupModal';
 import type { ImportedPlan } from '../utils/importPlan';
 import { bridgeToImports } from '../utils/aiBridge';
 import {
@@ -16,12 +17,15 @@ interface PlanInterviewModalProps {
   sessions: KairoSession[];
   onImport: (plans: ImportedPlan[]) => void;
   onSessionLength?: (minutes: number) => void;
+  onSkip?: () => void;
+  /** When set, the focus setup is asked as the last step instead of a separate dialog. */
+  setup?: { settings: UserSettings; setSettings: (settings: UserSettings) => void; onDone: () => void };
   onClose: () => void;
   onUploadFile: () => void;
   onUseChatbot: () => void;
 }
 
-type Phase = 'asking' | 'thinking' | 'planning' | 'review';
+type Phase = 'asking' | 'thinking' | 'planning' | 'review' | 'setup';
 type Result = FitResult & { sessionsPerDay: number };
 
 const aiConfigured = () => {
@@ -29,7 +33,7 @@ const aiConfigured = () => {
   return c.provider !== 'offline' && (c.provider === 'local' || Boolean(c.apiKey.trim()));
 };
 
-export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects, sessions, onImport, onSessionLength, onClose, onUploadFile, onUseChatbot }) => {
+export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects, sessions, onImport, onSessionLength, onSkip, setup, onClose, onUploadFile, onUseChatbot }) => {
   const today = useMemo(() => toDayKey(new Date()), []);
   const profile = useMemo(() => studentProfile(projects, sessions, today), [projects, sessions, today]);
   const first = SCRIPT[0]!.question({});
@@ -44,6 +48,7 @@ export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<Result | null>(null);
   const [notice, setNotice] = useState('');
+  const [setupLocal, setSetupLocal] = useState<UserSettings | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement & HTMLInputElement>(null);
 
@@ -183,6 +188,7 @@ export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects
             <div className="k-chat-footer">
               {answers.topics !== undefined && <button type="button" className="k-link-btn" onClick={() => buildPlan({ ...answers, extra: answers.extra ?? '' })}>Plan it now</button>}
               <button type="button" className="k-link-btn" onClick={onUploadFile}>Upload a syllabus file</button>
+              {onSkip && <button type="button" className="k-link-btn" onClick={onSkip}>Skip, just give me a timer</button>}
               <button type="button" className="k-link-btn" onClick={onUseChatbot}>Use ChatGPT or Claude instead</button>
             </div>
           </div>
@@ -205,10 +211,29 @@ export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects
               ))}
             </ol>
             <div className="k-onboarding-actions">
-              <button type="button" className="k-btn k-btn-primary" disabled={!project.tasks.length} onClick={() => { if (answers.length) onSessionLength?.(parseLength(answers.length)); onImport(bridgeToImports(result.plan, projects)); onClose(); }}>
+              <button type="button" className="k-btn k-btn-primary" disabled={!project.tasks.length} onClick={() => {
+                onImport(bridgeToImports(result.plan, projects));
+                const length = answers.length ? parseLength(answers.length) : undefined;
+                if (setup) {
+                  setSetupLocal({ ...setup.settings, focusDuration: length ?? setup.settings.focusDuration });
+                  setLines(prev => [...prev, { role: 'coach', text: 'Plan added. Last thing: how do you like to focus?' }]);
+                  setPhase('setup');
+                } else {
+                  if (length) onSessionLength?.(length);
+                  onClose();
+                }
+              }}>
                 Add to Kairo
               </button>
               <button type="button" className="k-btn" onClick={restart}>Start over</button>
+            </div>
+          </div>
+        )}
+        {phase === 'setup' && setup && setupLocal && (
+          <div className="k-aibridge-body">
+            <FocusSetupFields local={setupLocal} setLocal={setSetupLocal as React.Dispatch<React.SetStateAction<UserSettings>>} />
+            <div className="k-onboarding-actions">
+              <button type="button" className="k-btn k-btn-primary" onClick={() => { setup.setSettings(setupLocal); setup.onDone(); onClose(); }}>Done, show my day</button>
             </div>
           </div>
         )}

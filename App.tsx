@@ -5,7 +5,6 @@ import { SettingsModal } from './components/SettingsModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { FaqModal } from './components/FaqModal';
-import { WelcomeModal } from './components/WelcomeModal';
 import { TodayScreen } from './components/TodayScreen';
 import { AiBridgeModal } from './components/AiBridgeModal';
 import { ReplanModal } from './components/ReplanModal';
@@ -16,6 +15,7 @@ import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { PlanInterviewModal } from './components/PlanInterviewModal';
+import { backupDue, downloadSnapshot, LAST_BACKUP_KEY } from './utils/backup';
 import { FocusSetupModal } from './components/FocusSetupModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
@@ -81,6 +81,16 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
   const [showInterview, setShowInterview] = useState(false);
+  const [afterSession, setAfterSession] = useState<{ taskId?: string; name?: string; reached: boolean; done: number; target: number } | null>(null);
+  const [undo, setUndo] = useState<{ snapshot: Project[]; label: string } | null>(null);
+  const [localFlags, setLocalFlags] = useState(() => {
+    const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
+    return { lastBackup: read(LAST_BACKUP_KEY), backupSnooze: read('kairo_backup_snooze'), triedSound: read('kairo_tried_sound'), startedHidden: read('kairo_started_hidden'), focusSetup: read('kairo_focus_setup') };
+  });
+  const setFlag = useCallback((key: string, field: string, value: string) => {
+    try { localStorage.setItem(key, value); } catch { /* storage unavailable */ }
+    setLocalFlags(prev => ({ ...prev, [field]: value }));
+  }, []);
   const [showFocusSetup, setShowFocusSetup] = useState(() => {
     try { return Boolean(localStorage.getItem('kairo_seen_welcome')) && !localStorage.getItem('kairo_focus_setup'); } catch { return false; }
   });
@@ -208,7 +218,6 @@ const App: React.FC = () => {
     toastTimerRef.current = window.setTimeout(() => setToast(null), 2600);
   }, []);
 
-  const [showWelcome, setShowWelcome] = useState(false);
   const [zenMode, setZenMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -344,7 +353,6 @@ const App: React.FC = () => {
     const search = typeof window !== 'undefined' ? window.location.search : '';
     const params = new URLSearchParams(search);
     if (params.get('welcome') === '0') {
-      setShowWelcome(false);
       return;
     }
     // If user already has projects or sessions, they are an existing user with data — never show welcome
@@ -352,16 +360,11 @@ const App: React.FC = () => {
       try {
         localStorage.setItem('kairo_seen_welcome', '1');
       } catch {}
-      setShowWelcome(false);
       return;
     }
     if (!localStorage.getItem('kairo_seen_welcome')) setShowInterview(true);
   }, [projects.length, sessions.length]);
 
-  const dismissWelcome = () => {
-    localStorage.setItem('kairo_seen_welcome', '1');
-    setShowWelcome(false);
-  };
 
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [startSessionTrigger, setStartSessionTrigger] = useState<number>(0);
@@ -381,6 +384,31 @@ const App: React.FC = () => {
     setProjects(previous => previous.map(project =>
       project.id === projectId ? { ...project, deadline: deadline || undefined } : project));
   }, [setProjects]);
+
+  const finishTask = useCallback((taskId: string) => {
+    setProjects(previous => previous.map(p => ({ ...p, tasks: p.tasks.map(t => (t.id === taskId ? { ...t, completed: true, status: 'done' as const } : t)) })));
+  }, [setProjects]);
+  const addOneSession = useCallback((taskId: string) => {
+    setProjects(previous => previous.map(p => ({ ...p, tasks: p.tasks.map(t => (t.id === taskId ? { ...t, targetRounds: Math.max(1, t.targetRounds ?? 1) + 1 } : t)) })));
+  }, [setProjects]);
+
+  const previousProjects = useRef(projects);
+  const skipUndo = useRef(false);
+  useEffect(() => {
+    const previous = previousProjects.current;
+    previousProjects.current = projects;
+    if (skipUndo.current) { skipUndo.current = false; return; }
+    const count = (list: Project[]) => list.reduce((sum, p) => sum + 1 + p.tasks.reduce((n, t) => n + 1 + (t.subTasks?.length ?? 0), 0), 0);
+    const removed = count(previous) - count(projects);
+    if (removed <= 0) return;
+    setUndo({ snapshot: previous, label: projects.length < previous.length ? 'Project deleted' : removed === 1 ? 'Deleted' : `${removed} items removed` });
+    const timer = window.setTimeout(() => setUndo(null), 10000);
+    return () => window.clearTimeout(timer);
+  }, [projects]);
+
+  useEffect(() => {
+    if (soundStudioOpen && !localFlags.triedSound) setFlag('kairo_tried_sound', 'triedSound', '1');
+  }, [soundStudioOpen, localFlags.triedSound, setFlag]);
 
   const closeInterview = useCallback(() => {
     try {
@@ -483,6 +511,17 @@ const App: React.FC = () => {
       if (sessionIdsRef.current.has(session.id)) return;
       sessionIdsRef.current.add(session.id);
       setSessions(prev => [session, ...prev]);
+      if (session.type === 'focus' && session.completed) {
+        const task = projects.flatMap(p => p.tasks).find(t => t.id === session.taskId);
+        if (task) {
+          const length = task.pomodoroLength || userSettings.focusDuration || 25;
+          const target = Math.max(1, task.targetRounds ?? 1);
+          const done = Math.floor(((task.timeSpent || 0) + session.duration) / length);
+          setAfterSession({ taskId: task.id, name: task.name, reached: !task.completed && done >= target, done, target });
+        } else {
+          setAfterSession({ reached: false, done: 0, target: 0 });
+        }
+      }
       if (session.type === 'focus' && session.taskId && session.duration > 0) {
         const addTime = (items: Project[]): Project[] =>
           (items || []).map(project => ({
@@ -522,7 +561,7 @@ const App: React.FC = () => {
         }
       }
     },
-    [announceToast, capsules, completedPomodoros, setCapsules, setProjects, setSessions],
+    [announceToast, capsules, completedPomodoros, projects, setCapsules, setProjects, setSessions, userSettings.focusDuration],
   );
 
   useEffect(() => {
@@ -760,6 +799,18 @@ const App: React.FC = () => {
             onExamSprint={() => openSprint({ kind: 'exam' })}
             onSprint={openSprint}
             finish={todayFinish}
+            backup={todayState.hasPlan && backupDue({ sessionCount: sessions.length, lastBackup: localFlags.lastBackup, snoozedUntil: localFlags.backupSnooze }) ? {
+              onDownload: () => { downloadSnapshot('kairo-backup'); setFlag(LAST_BACKUP_KEY, 'lastBackup', String(Date.now())); announceToast('Backup saved to your downloads'); },
+              onLater: () => setFlag('kairo_backup_snooze', 'backupSnooze', String(Date.now() + 24 * 60 * 60 * 1000)),
+            } : undefined}
+            started={(() => {
+              const steps = [
+                { label: 'Make a plan', done: todayState.hasPlan || projects.length > 0 },
+                { label: 'Finish your first focus session', done: sessions.some(x => x.type === 'focus' && x.completed) },
+                { label: 'Try a background sound (speaker icon)', done: Boolean(localFlags.triedSound) },
+              ];
+              return localFlags.startedHidden || steps.every(x => x.done) ? undefined : { steps, onDismiss: () => setFlag('kairo_started_hidden', 'startedHidden', '1') };
+            })()}
             onHistory={setHistoryProjectId}
           />
         )}
@@ -930,19 +981,6 @@ const App: React.FC = () => {
       </nav>
 
       {/* 4. Modals */}
-      {showWelcome && (
-        <WelcomeModal
-          onClose={dismissWelcome}
-          onOpenScience={() => {
-            dismissWelcome();
-            setShowScience(true);
-          }}
-          onOpenSettings={() => {
-            dismissWelcome();
-            setShowSettings(true);
-          }}
-        />
-      )}
 
       {showSettings && (
         <SettingsModal
@@ -957,6 +995,39 @@ const App: React.FC = () => {
           showExtras={showExtras}
           setShowExtras={setShowExtras}
         />
+      )}
+
+      {afterSession && (() => {
+        const next = todayState.blocks.find(b => b.taskId !== afterSession.taskId || !afterSession.reached);
+        return (
+          <div className="k-after-session" role="status">
+            <div>
+              {afterSession.reached
+                ? <b>{afterSession.name}: {afterSession.done} of {afterSession.target} sessions done. Finished?</b>
+                : <b>Session done{afterSession.name ? `: ${afterSession.name} (${afterSession.done}/${afterSession.target})` : ''}.</b>}
+              {next && <small>Up next: {next.taskName}</small>}
+            </div>
+            <div className="k-after-session-actions">
+              {afterSession.reached && afterSession.taskId && (
+                <>
+                  <button type="button" className="k-btn k-btn-primary" onClick={() => { finishTask(afterSession.taskId!); setAfterSession(null); }}>Yes, done</button>
+                  <button type="button" className="k-btn" onClick={() => { addOneSession(afterSession.taskId!); setAfterSession(null); }}>Need 1 more</button>
+                </>
+              )}
+              {next && !afterSession.reached && (
+                <button type="button" className="k-btn" onClick={() => { setActiveTaskId(next.taskId); setAfterSession(null); }}>Line it up</button>
+              )}
+              <button type="button" className="k-link-btn" onClick={() => setAfterSession(null)} aria-label="Dismiss">Close</button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {undo && (
+        <div className="k-undo-bar" role="status">
+          <span>{undo.label}</span>
+          <button type="button" className="k-btn" onClick={() => { skipUndo.current = true; setProjects(undo.snapshot); setUndo(null); }}>Undo</button>
+        </div>
       )}
 
       {toast && (
@@ -1034,6 +1105,12 @@ const App: React.FC = () => {
           onClose={closeInterview}
           onImport={plans => plans.forEach(handleImportedPlan)}
           onSessionLength={minutes => setUserSettings({ ...userSettings, focusDuration: minutes })}
+          onSkip={() => { closeInterview(); setView('focus'); }}
+          setup={localFlags.focusSetup ? undefined : {
+            settings: userSettings,
+            setSettings: setUserSettings,
+            onDone: () => { setFlag('kairo_focus_setup', 'focusSetup', '1'); setShowFocusSetup(false); },
+          }}
           onUploadFile={() => { closeInterview(); setShowFileImport(true); }}
           onUseChatbot={() => { closeInterview(); setShowBridge(true); }}
         />

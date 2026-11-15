@@ -17,10 +17,49 @@ interface FocusSetupModalProps {
   onDone: () => void;
 }
 
-export const FocusSetupModal: React.FC<FocusSetupModalProps> = ({ settings, setSettings, onDone }) => {
-  const [local, setLocal] = useState(settings);
+export const FocusSetupFields: React.FC<{ local: UserSettings; setLocal: React.Dispatch<React.SetStateAction<UserSettings>> }> = ({ local, setLocal }) => {
   const [notif, setNotif] = useState(() => notificationPermission());
   const set = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => setLocal(prev => ({ ...prev, [key]: value }));
+  return (
+    <>
+      <section className="k-setup-row">
+        <b>Focus session length</b>
+        <div className="k-chat-options">
+          {[25, 45, 50].map(m => (
+            <button key={m} type="button" className={`k-faq-tab ${local.focusDuration === m ? 'is-active' : ''}`} aria-pressed={local.focusDuration === m} onClick={() => set('focusDuration', m)}>{m} min</button>
+          ))}
+          <label className="k-plan-type"><span>or type</span><NumberField value={local.focusDuration} min={5} max={180} unit="min" width={40} ariaLabel="Focus length in minutes" onCommit={v => set('focusDuration', v)} /></label>
+        </div>
+      </section>
+
+      <section className="k-setup-row">
+        <b>Sound when a focus session starts</b>
+        <div className="k-chat-options" role="radiogroup" aria-label="Sound when a focus session starts">
+          {FOCUS_SOUND_OPTIONS.map(o => (
+            <button key={o.id} type="button" role="radio" aria-checked={local.focusSound === o.id} className={`k-faq-tab ${local.focusSound === o.id ? 'is-active' : ''}`} onClick={() => set('focusSound', o.id)}>{o.label}</button>
+          ))}
+        </div>
+        <small>{FOCUS_SOUND_OPTIONS.find(o => o.id === local.focusSound)?.hint}</small>
+      </section>
+
+      <section className="k-setup-row k-setup-toggles">
+        <label><input type="checkbox" checked={local.autoStartBreaks} onChange={e => set('autoStartBreaks', e.target.checked)} /> Start breaks automatically when focus ends</label>
+        <label><input type="checkbox" checked={local.deepFocusMode} onChange={e => set('deepFocusMode', e.target.checked)} /> Pause the timer if I switch to another tab</label>
+      </section>
+
+      <section className="k-setup-row">
+        <b>Tell me when a session ends</b>
+        {notif === 'granted' && <small>Notifications are on.</small>}
+        {notif === 'denied' && <small>Blocked by your browser. You can allow them from the address bar later.</small>}
+        {notif === 'unsupported' && <small>This browser does not support notifications.</small>}
+        {notif === 'default' && <button type="button" className="k-btn" onClick={async () => setNotif(await requestNotificationPermission())}>Turn on notifications</button>}
+      </section>
+    </>
+  );
+};
+
+export const FocusSetupModal: React.FC<FocusSetupModalProps> = ({ settings, setSettings, onDone }) => {
+  const [local, setLocal] = useState(settings);
   const finish = () => { setSettings(local); onDone(); };
 
   return (
@@ -32,39 +71,7 @@ export const FocusSetupModal: React.FC<FocusSetupModalProps> = ({ settings, setS
         </div>
       </header>
       <div className="k-modal-body k-aibridge-body">
-        <section className="k-setup-row">
-          <b>Focus session length</b>
-          <div className="k-chat-options">
-            {[25, 45, 50].map(m => (
-              <button key={m} type="button" className={`k-faq-tab ${local.focusDuration === m ? 'is-active' : ''}`} aria-pressed={local.focusDuration === m} onClick={() => set('focusDuration', m)}>{m} min</button>
-            ))}
-            <label className="k-plan-type"><span>or type</span><NumberField value={local.focusDuration} min={5} max={180} unit="min" width={40} ariaLabel="Focus length in minutes" onCommit={v => set('focusDuration', v)} /></label>
-          </div>
-        </section>
-
-        <section className="k-setup-row">
-          <b>Sound when a focus session starts</b>
-          <div className="k-chat-options" role="radiogroup" aria-label="Sound when a focus session starts">
-            {FOCUS_SOUND_OPTIONS.map(o => (
-              <button key={o.id} type="button" role="radio" aria-checked={local.focusSound === o.id} className={`k-faq-tab ${local.focusSound === o.id ? 'is-active' : ''}`} onClick={() => set('focusSound', o.id)}>{o.label}</button>
-            ))}
-          </div>
-          <small>{FOCUS_SOUND_OPTIONS.find(o => o.id === local.focusSound)?.hint}</small>
-        </section>
-
-        <section className="k-setup-row k-setup-toggles">
-          <label><input type="checkbox" checked={local.autoStartBreaks} onChange={e => set('autoStartBreaks', e.target.checked)} /> Start breaks automatically when focus ends</label>
-          <label><input type="checkbox" checked={local.deepFocusMode} onChange={e => set('deepFocusMode', e.target.checked)} /> Pause the timer if I switch to another tab</label>
-        </section>
-
-        <section className="k-setup-row">
-          <b>Tell me when a session ends</b>
-          {notif === 'granted' && <small>Notifications are on.</small>}
-          {notif === 'denied' && <small>Blocked by your browser. You can allow them from the address bar later.</small>}
-          {notif === 'unsupported' && <small>This browser does not support notifications.</small>}
-          {notif === 'default' && <button type="button" className="k-btn" onClick={async () => setNotif(await requestNotificationPermission())}>Turn on notifications</button>}
-        </section>
-
+        <FocusSetupFields local={local} setLocal={setLocal} />
         <div className="k-onboarding-actions">
           <button type="button" className="k-btn k-btn-primary" onClick={finish}>Done</button>
         </div>

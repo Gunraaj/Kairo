@@ -24,6 +24,7 @@ import {
 } from '../utils/geminiAi';
 import { notificationPermission, requestNotificationPermission } from '../utils/notify';
 import { FOCUS_SOUND_OPTIONS } from './FocusSetupModal';
+import { KAIRO_KEYS, downloadSnapshot, getSnapshotPayload } from '../utils/backup';
 import type { FocusSound } from '../types';
 import { listModels, fallbackModels, type ModelOption } from '../utils/modelCatalog';
 import {
@@ -79,40 +80,7 @@ const PALETTES = [
 /* Kairo is local-first: everything lives in this browser's localStorage.
    Export lets you carry it to another browser or back it up before clearing
    data; import restores it. Only Kairo-owned keys are touched. */
-const KAIRO_KEYS = [
-  'kairo_projects',
-  'kairo_sessions',
-  'kairo_active_task',
-  'kairo_settings',
-  'kairo_active_timer',
-  'kairo_theme',
-  'kairo_palette',
-  'kairo_seen_welcome',
-  'kairo_custom_atmospheres',
-  'kairo_custom_beats',
-  'kairo_saved_streams',
-  'kairo_treat_capsules',
-  'kairo_time_capsules',
-  'kairo_logo_variant',
-];
-
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
-
-const exportSnapshot = (): string => {
-  return JSON.stringify(getSnapshotPayload(), null, 2);
-};
-
-const getSnapshotPayload = (): Record<string, unknown> => {
-  const payload: Record<string, unknown> = { version: 1, exportedAt: new Date().toISOString(), data: {} as Record<string, unknown> };
-  const data = payload.data as Record<string, unknown>;
-  KAIRO_KEYS.forEach(k => {
-    const raw = localStorage.getItem(k);
-    if (raw !== null) {
-      try { data[k] = JSON.parse(raw); } catch { data[k] = raw; }
-    }
-  });
-  return payload;
-};
 
 const unwrapStoredData = (value: unknown): unknown => {
   if (value && typeof value === 'object' && !Array.isArray(value) && 'data' in value) {
@@ -336,19 +304,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else {
       setSupabaseStatus(res.message);
     }
-  };
-
-  const downloadSnapshot = (prefix: string) => {
-    const blob = new Blob([exportSnapshot()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const stamp = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `${prefix}-${stamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
   };
 
   const handleExport = () => {

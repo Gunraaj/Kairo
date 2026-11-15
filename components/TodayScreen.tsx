@@ -14,6 +14,8 @@ interface TodayScreenProps {
   onExamSprint?: () => void;
   onSprint?: (target: { kind: 'today' } | { kind: 'project'; projectId: string }) => void;
   finish?: FinishCalculation;
+  backup?: { onDownload: () => void; onLater: () => void };
+  started?: { steps: Array<{ label: string; done: boolean }>; onDismiss: () => void };
   onHistory?: (projectId: string) => void;
 }
 
@@ -41,7 +43,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onReplan, onExamSprint, onSprint, finish, onHistory,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onReplan, onExamSprint, onSprint, finish, backup, started, onHistory,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -70,6 +72,28 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             <button type="button" className="k-btn k-today-open-timer" onClick={onOpenFocus}>Open timer</button>
           </div>
         </header>
+
+        {started && (
+          <div className="k-today-started" role="region" aria-label="Getting started">
+            <b>Getting started</b>
+            <ul>
+              {started.steps.map(step => (
+                <li key={step.label} className={step.done ? 'is-done' : ''}><span aria-hidden="true">{step.done ? '✓' : '○'}</span> {step.label}</li>
+              ))}
+            </ul>
+            <button type="button" className="k-link-btn" onClick={started.onDismiss}>Hide</button>
+          </div>
+        )}
+
+        {backup && (
+          <div className="k-today-backup" role="region" aria-label="Backup reminder">
+            <span>Your plan lives only in this browser. Save a backup file once a week.</span>
+            <span className="k-today-backup-actions">
+              <button type="button" className="k-btn" onClick={backup.onDownload}>Download backup</button>
+              <button type="button" className="k-link-btn" onClick={backup.onLater}>Later</button>
+            </span>
+          </div>
+        )}
 
         {state.exam && (
           <div className={`k-today-exam is-${state.exam.phase}`} role="region" aria-label="Exam mode">

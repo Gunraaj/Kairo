@@ -315,3 +315,20 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-done-by { color: var(--shu); font-weight: 700; }
 .k-today-finish { margin: 4px 0 0; font-size: 14px; color: var(--sumi-2); }
 .k-today-project-actions { display: flex; gap: 6px; align-self: center; }
+
+/* After-session prompt, undo, backup and getting-started */
+.k-after-session, .k-undo-bar {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px 16px; border-radius: var(--r-md); background: var(--washi-card); border: 1px solid var(--stone-2);
+  box-shadow: 0 12px 40px rgba(0,0,0,.35); color: var(--sumi); font-size: 13.5px; max-width: min(620px, calc(100vw - 24px));
+}
+.k-after-session { bottom: 84px; }
+.k-undo-bar { bottom: 28px; }
+.k-after-session small { display: block; color: var(--sumi-3); font-size: 12px; margin-top: 2px; }
+.k-after-session-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 768px) { .k-after-session { bottom: 136px; } .k-undo-bar { bottom: 80px; } }
+.k-today-backup, .k-today-started { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--stone-3); border-radius: var(--r-md); background: var(--washi-2); font-size: 13px; color: var(--sumi-2); }
+.k-today-backup-actions { display: flex; gap: 10px; align-items: center; }
+.k-today-started ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; flex-wrap: wrap; flex: 1; }
+.k-today-started b { color: var(--sumi); }
+.k-today-started li.is-done { color: var(--sumi-3); text-decoration: line-through; }
