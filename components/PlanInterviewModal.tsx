@@ -4,7 +4,7 @@ import type { KairoSession, Project } from '../types';
 import type { ImportedPlan } from '../utils/importPlan';
 import { bridgeToImports } from '../utils/aiBridge';
 import {
-  aiBuildPlan, aiFollowUp, planFromAnswers, SCRIPT, scriptedNext, studentProfile,
+  aiBuildPlan, aiFollowUp, parseLength, planFromAnswers, SCRIPT, scriptedNext, studentProfile,
   type Answers, type ChatLine, type FitResult, type Question, type SlotId,
 } from '../utils/aiInterview';
 import { getAiConfig } from '../utils/geminiAi';
@@ -15,20 +15,21 @@ interface PlanInterviewModalProps {
   projects: Project[];
   sessions: KairoSession[];
   onImport: (plans: ImportedPlan[]) => void;
+  onSessionLength?: (minutes: number) => void;
   onClose: () => void;
   onUploadFile: () => void;
   onUseChatbot: () => void;
 }
 
 type Phase = 'asking' | 'thinking' | 'planning' | 'review';
-type Result = FitResult & { hoursPerDay: number };
+type Result = FitResult & { sessionsPerDay: number };
 
 const aiConfigured = () => {
   const c = getAiConfig();
   return c.provider !== 'offline' && (c.provider === 'local' || Boolean(c.apiKey.trim()));
 };
 
-export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects, sessions, onImport, onClose, onUploadFile, onUseChatbot }) => {
+export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects, sessions, onImport, onSessionLength, onClose, onUploadFile, onUseChatbot }) => {
   const today = useMemo(() => toDayKey(new Date()), []);
   const profile = useMemo(() => studentProfile(projects, sessions, today), [projects, sessions, today]);
   const first = SCRIPT[0]!.question({});
@@ -191,9 +192,9 @@ export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects
           <div className="k-aibridge-preview">
             <p>
               <b>{project.name}</b>{project.deadline ? ` · exam ${project.deadline}` : ''} · {result.total} sessions
-              {result.scaledFrom ? ` (cut from ${result.scaledFrom} to fit ${result.hoursPerDay}h a day)` : ` · fits ${result.hoursPerDay}h a day`}
+              {result.scaledFrom ? ` (cut from ${result.scaledFrom} to fit ${result.sessionsPerDay} sessions a day)` : ` · fits ${result.sessionsPerDay} sessions a day`}
             </p>
-            {result.overflow > 0 && <p className="k-today-warn">Even trimmed, this needs about {result.overflow} more sessions than you have. Consider fewer topics or more hours.</p>}
+            {result.overflow > 0 && <p className="k-today-warn">Even trimmed, this needs about {result.overflow} more sessions than you have. Consider fewer topics or more sessions a day.</p>}
             <ol className="k-interview-tasks">
               {project.tasks.map(task => (
                 <li key={task.name}>
@@ -204,7 +205,7 @@ export const PlanInterviewModal: React.FC<PlanInterviewModalProps> = ({ projects
               ))}
             </ol>
             <div className="k-onboarding-actions">
-              <button type="button" className="k-btn k-btn-primary" disabled={!project.tasks.length} onClick={() => { onImport(bridgeToImports(result.plan, projects)); onClose(); }}>
+              <button type="button" className="k-btn k-btn-primary" disabled={!project.tasks.length} onClick={() => { if (answers.length) onSessionLength?.(parseLength(answers.length)); onImport(bridgeToImports(result.plan, projects)); onClose(); }}>
                 Add to Kairo
               </button>
               <button type="button" className="k-btn" onClick={restart}>Start over</button>

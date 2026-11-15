@@ -1033,6 +1033,7 @@ const App: React.FC = () => {
           sessions={sessions}
           onClose={closeInterview}
           onImport={plans => plans.forEach(handleImportedPlan)}
+          onSessionLength={minutes => setUserSettings({ ...userSettings, focusDuration: minutes })}
           onUploadFile={() => { closeInterview(); setShowFileImport(true); }}
           onUseChatbot={() => { closeInterview(); setShowBridge(true); }}
         />

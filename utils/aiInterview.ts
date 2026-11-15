@@ -13,7 +13,7 @@ export type ChatLine = { role: 'coach' | 'student'; text: string };
 /* Fixed questions: used with no AI, and for the first question always */
 /* ------------------------------------------------------------------ */
 
-export type SlotId = 'subject' | 'date' | 'topics' | 'weak' | 'hours' | 'papers' | 'extra';
+export type SlotId = 'subject' | 'date' | 'topics' | 'weak' | 'sessions' | 'length' | 'papers' | 'extra';
 export type Answers = Partial<Record<SlotId, string>>;
 
 export const SCRIPT: Array<{ id: SlotId; question: (a: Partial<Record<SlotId, string>>) => Question }> = [
@@ -21,7 +21,8 @@ export const SCRIPT: Array<{ id: SlotId; question: (a: Partial<Record<SlotId, st
   { id: 'date', question: () => ({ message: 'When is it?', input: 'date', options: ['Tomorrow', 'In 3 days', 'In 1 week', 'In 2 weeks'] }) },
   { id: 'topics', question: () => ({ message: 'List the topics, or paste the syllabus. One per line or separated by commas.', input: 'topics', options: [] }) },
   { id: 'weak', question: a => ({ message: 'Which of these feel weakest? Pick any, or type.', input: 'multi', options: [...splitTopics(a.topics ?? '').slice(0, 6), 'None really'] }) },
-  { id: 'hours', question: () => ({ message: 'How many hours a day can you study until then?', input: 'number', options: ['1', '2', '3', '4', '6'] }) },
+  { id: 'sessions', question: () => ({ message: 'How many focus sessions can you do on a normal day?', input: 'number', options: ['2', '3', '4', '6'] }) },
+  { id: 'length', question: () => ({ message: 'How long is each focus session?', input: 'choice', options: ['25 min', '45 min', '50 min'] }) },
   { id: 'papers', question: () => ({ message: 'Do you have past papers or practice questions?', input: 'choice', options: ['Yes', 'No'] }) },
 ];
 
@@ -69,6 +70,21 @@ export const parseWhen = (text: string, today: string): string | undefined => {
   return undefined;
 };
 
+/** "3", "4 sessions", "about 2" -> sessions per day (1..16), or undefined. */
+export const parseSessions = (text: string): number | undefined => {
+  const m = /(\d+)/.exec(text);
+  if (!m) return undefined;
+  const n = Number(m[1]);
+  return n >= 1 ? Math.min(16, n) : undefined;
+};
+
+/** "25 min", "45", "50 minutes" -> minutes per session (15..120), default 25. */
+export const parseLength = (text: string): number => {
+  const m = /(\d+)/.exec(text);
+  const n = m ? Number(m[1]) : 25;
+  return Math.min(120, Math.max(15, n));
+};
+
 /** "3", "2-3 hours", "90 min", "1.5h" -> hours per day (0.5..16), or undefined. */
 export const parseHours = (text: string): number | undefined => {
   const m = /(\d+(?:\.\d+)?)\s*(?:-\s*\d+(?:\.\d+)?)?\s*(min|minutes|m\b)?/i.exec(text);
@@ -82,9 +98,9 @@ export const parseHours = (text: string): number | undefined => {
 /* ------------------------------------------------------------------ */
 
 /** One round = 25 min focus + 5 min break. Keep 15% slack for real life. */
-export const roundsAvailable = (input: { hoursPerDay: number; today: string; deadline?: string }): number => {
+export const roundsAvailable = (input: { sessionsPerDay: number; today: string; deadline?: string }): number => {
   const days = input.deadline ? Math.max(1, daysBetween(input.today, input.deadline)) : 14;
-  return Math.max(1, Math.floor(Math.floor((input.hoursPerDay * 60) / 30) * days * 0.85));
+  return Math.max(1, Math.floor(input.sessionsPerDay * days * 0.85));
 };
 
 export type FitResult = { plan: BridgePlan; total: number; available: number; scaledFrom?: number; overflow: number };
@@ -110,11 +126,10 @@ export const fitPlan = (plan: BridgePlan, available: number): FitResult => {
 /* Plan without AI                                                     */
 /* ------------------------------------------------------------------ */
 
-const TECHNIQUE_STEPS = ['Recall: write what you know, notes closed', 'Practice questions', 'Fix what you got wrong'];
 
-export const planFromAnswers = (answers: Partial<Record<SlotId, string>>, today: string): FitResult & { hoursPerDay: number } => {
+export const planFromAnswers = (answers: Partial<Record<SlotId, string>>, today: string): FitResult & { sessionsPerDay: number } => {
   const deadline = answers.date ? parseWhen(answers.date, today) : undefined;
-  const hoursPerDay = parseHours(answers.hours ?? '') ?? 2;
+  const sessionsPerDay = parseSessions(answers.sessions ?? '') ?? 3;
   const raw = (answers.topics ?? '').trim();
   const looksLikeOutline = /^\s*(#|[-*•]|\d+[.)])/m.test(raw);
   const list = splitTopics(raw);
@@ -124,7 +139,7 @@ export const planFromAnswers = (answers: Partial<Record<SlotId, string>>, today:
     const outline = parseOutlineOffline(raw || answers.subject || 'Exam', { archetype: 'study', deadline });
     tasks = outline.modules.flatMap(m => m.tasks).map(t => ({ name: t.name, rounds: t.targetRounds, subtasks: t.subTasks.map(s => s.name).slice(0, 6) }));
   } else {
-    tasks = list.map(name => ({ name, rounds: 2, subtasks: [...TECHNIQUE_STEPS] }));
+    tasks = list.map(name => ({ name, rounds: 2, subtasks: [] }));
   }
 
   const weak = new Set(splitTopics(answers.weak ?? '').map(w => w.toLowerCase()).filter(w => w !== 'none really'));
@@ -139,7 +154,7 @@ export const planFromAnswers = (answers: Partial<Record<SlotId, string>>, today:
   tasks.push({ name: 'Final revision: mistake list and key formulas', rounds: 2, subtasks: ['Light pass only, then rest'] });
 
   const plan: BridgePlan = { projects: [{ name: (answers.subject ?? '').trim().slice(0, 80) || 'Exam plan', deadline, tasks: tasks.slice(0, 40) }] };
-  return { ...fitPlan(plan, roundsAvailable({ hoursPerDay, today, deadline })), hoursPerDay };
+  return { ...fitPlan(plan, roundsAvailable({ sessionsPerDay, today, deadline })), sessionsPerDay };
 };
 
 /* ------------------------------------------------------------------ */
@@ -164,14 +179,15 @@ export const studentProfile = (projects: Project[], sessions: KairoSession[], to
 /** What Kairo already knows for sure, stated plainly for the model. */
 export const factsText = (answers: Answers, today: string): string => {
   const deadline = answers.date ? parseWhen(answers.date, today) : undefined;
-  const hours = parseHours(answers.hours ?? '');
+  const sessions = parseSessions(answers.sessions ?? '');
   const weak = splitTopics(answers.weak ?? '').filter(w => !/^none/i.test(w));
   return [
     `Subject or exam: ${answers.subject?.trim() || 'not given'}`,
     `Exam date: ${deadline ? `${deadline} (${daysBetween(today, deadline)} days from today)` : answers.date?.trim() || 'not given'}`,
     `Topics: ${splitTopics(answers.topics ?? '').join('; ') || answers.topics?.trim() || 'not given'}`,
     `Weak topics: ${weak.length ? weak.join('; ') : 'none named'}`,
-    `Hours per day: ${hours ?? 'not given (assume 2)'}`,
+    `Focus sessions per day: ${sessions ?? 'not given (assume 3)'}`,
+    `Session length: ${answers.length?.trim() || 'not given (assume 25 min)'}`,
     `Past papers or practice questions: ${answers.papers?.trim() || 'not given'}`,
     answers.extra ? `Extra detail from the student: ${answers.extra.trim()}` : '',
   ].filter(Boolean).join('\n');
@@ -204,8 +220,8 @@ export const aiFollowUp = async (input: { answers: Answers; profile: string; tod
   }, deps);
   const message = r.message.trim();
   if (!r.ask || !message) return null;
-  const known = [input.answers.subject, input.answers.date, input.answers.hours].filter(Boolean).map(s => s!.toLowerCase());
-  if (/\b(when is|what date|how many hours|hours per day|past papers?)\b/i.test(message) && known.length >= 3) return null;
+  const known = [input.answers.subject, input.answers.date, input.answers.sessions].filter(Boolean).map(s => s!.toLowerCase());
+  if (/\b(when is|what date|how many sessions|sessions a day|session length|past papers?)\b/i.test(message) && known.length >= 3) return null;
   const options = r.options.map(o => o.trim()).filter(o => o && !/^(text|choice|multi|topics|date|number)$/i.test(o));
   return { message, input: r.input, options: options.slice(0, 6) };
 };
@@ -235,18 +251,19 @@ const PLAN_SCHEMA: JsonSchema = {
 const PLANNER = `You write a study plan for Kairo. One round = 25 min focus + 5 min break.
 - name: short project name (the exam or subject).
 - tasks: in study order. One task per real topic from the student's list, using their words. Do not invent topics.
-- Weak topics and high-mark topics get more rounds. Use the extra detail (exam format etc.) to shape subtasks.
-- Each topic task gets 2-4 short subtasks that are active study, specific to that topic: recall with notes closed, practice questions or numericals, fix mistakes. No rereading.
+- Weak topics and high-mark topics get more rounds. Use the extra detail (exam format etc.) to choose which topics get more sessions.
+- Keep it simple: one task per topic, with a number of sessions. Do NOT add subtasks unless the student asked for them (subtasks: []).
+- Session length is given by the student; plan in sessions (rounds), not hours.
 - If they have past papers, add timed past paper tasks near the end. Always end with one short final revision task.
 - Total rounds must fit the budget given.`;
 
 export const aiBuildPlan = async (
   input: { answers: Answers; profile: string; today: string },
   deps: StructuredDeps = {},
-): Promise<FitResult & { hoursPerDay: number }> => {
+): Promise<FitResult & { sessionsPerDay: number }> => {
   const deadline = input.answers.date ? parseWhen(input.answers.date, input.today) : undefined;
-  const hoursPerDay = parseHours(input.answers.hours ?? '') ?? 2;
-  const budget = roundsAvailable({ hoursPerDay, today: input.today, deadline });
+  const sessionsPerDay = parseSessions(input.answers.sessions ?? '') ?? 3;
+  const budget = roundsAvailable({ sessionsPerDay, today: input.today, deadline });
   const result = await generateStructured<{ name: string; tasks: Array<{ name: string; rounds: number; subtasks: string[] }> }>({
     schemaName: 'study_plan',
     schema: PLAN_SCHEMA,
@@ -266,5 +283,5 @@ export const aiBuildPlan = async (
 
   const name = result.name.trim() || input.answers.subject?.trim() || 'Exam plan';
   const plan: BridgePlan = { projects: [{ name: name.slice(0, 80), deadline, tasks }] };
-  return { ...fitPlan(plan, budget), hoursPerDay };
+  return { ...fitPlan(plan, budget), sessionsPerDay };
 };
