@@ -101,6 +101,10 @@ Netlify warning (2026-11-14): Netlify emailed that the team used its full credit
 
 UX pass: the Pomodoro target popover (task and subtask copies) is now one `PlanPopover` component: summary sentence, progress bar, step 1 sessions, step 2 session length, all original controls kept. Per-project history screen (`utils/projectHistory.ts`, `ProjectHistoryModal`): totals, 30-day chart, per-task progress, recent sessions; opened from Today > project > History. Touch devices now always show the per-task action icons (they were hover-only).
 
+Product pass (2026-11-15): one planning door ("New plan" interview: Kairo asks the basics, the AI asks one follow-up and writes topic-specific subtasks, Kairo enforces date/hours/weak-first/fit); ChatGPT/Claude open with the interview prompt prefilled and the reply is read from the clipboard. Sidebar: primary nav pinned top, projects scroll (only the active project open), tools pinned as an icon row. Focus screen uses the Cockpit layout automatically on screens 1280px+ with an active task. Fixed: phone drawer was hidden under its blurred backdrop.
+
+TODO later: decide whether the Zen and Cockpit layouts earn a place beyond "Extras" (Cockpit is now the automatic wide layout; the manual switcher only lives in Settings > Extras). Consider merging the fullscreen Zen with the minimal Zen layout.
+
 Code health done: `washi.css` split into ordered `styles/parts/*.css` (built CSS byte-identical), `WelcomeModal`, `AnalogDial` and `soundStudio/soundCatalog` extracted (App 1108 -> 1027 lines, Stage 1535 -> 1180, ControlPanel 2648 -> 2189). Further splitting of the `ControlPanel` and `SidebarNav` bodies is left; their state is tightly coupled.
 
 Not built: further component splitting (`ControlPanel`, `Stage`, `SidebarNav`, `washi.css`), a dedicated Plan/Focus split screen on desktop (the sidebar is the Plan view), and everything in steps 7-10. Web Push when the app is closed needs step 7.

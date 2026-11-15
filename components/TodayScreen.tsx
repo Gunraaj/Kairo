@@ -9,7 +9,6 @@ interface TodayScreenProps {
   onSetDeadline: (projectId: string, deadline: string) => void;
   onNewPlan: () => void;
   onOpenFocus: () => void;
-  onOpenProgress: () => void;
   onReplan?: (projectId: string) => void;
   onExamSprint?: () => void;
   onHistory?: (projectId: string) => void;
@@ -25,8 +24,8 @@ const paceChip = (pace: Pace | undefined): { text: string; tone: 'good' | 'warn'
       return pace.projectedDays === null
         ? { text: `Plan: about ${num(pace.requiredPerDay)} round(s) a day`, tone: 'good' }
         : { text: 'On track', tone: 'good' };
-    case 'behind': return { text: `Behind: need ${num(pace.requiredPerDay)}/day, doing ${num(pace.actualPerDay)}`, tone: 'warn' };
-    case 'at-risk': return { text: `At risk: about ${Math.max(1, Math.abs(pace.slackDays ?? 0))} day(s) short`, tone: 'bad' };
+    case 'behind': return { text: `Behind: need ${num(pace.requiredPerDay)} a day, you average ${num(pace.actualPerDay)}`, tone: 'warn' };
+    case 'at-risk': return { text: `At risk: at your pace (${num(pace.actualPerDay)} a day) this takes ~${pace.projectedDays ?? '?'} days, you have ${pace.daysLeft}`, tone: 'bad' };
     case 'infeasible': return { text: `Too much for the time: ${num(pace.requiredPerDay)} rounds/day needed`, tone: 'bad' };
   }
 };
@@ -38,7 +37,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onReplan, onExamSprint, onHistory,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onReplan, onExamSprint, onHistory,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -58,8 +57,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             </p>
           </div>
           <div className="k-today-head-actions">
-            <button type="button" className="k-btn" onClick={onOpenProgress}>Progress</button>
-            <button type="button" className="k-btn" onClick={onOpenFocus}>Open timer</button>
+            <button type="button" className="k-btn k-today-open-timer" onClick={onOpenFocus}>Open timer</button>
           </div>
         </header>
 

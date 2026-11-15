@@ -675,6 +675,11 @@ const App: React.FC = () => {
             setMobileNavOpen(false);
             setView('today');
           }}
+          onFocus={() => {
+            setMobileNavOpen(false);
+            setView('focus');
+          }}
+          currentView={view}
           onTimeCapsule={showExtras ? () => {
             setMobileNavOpen(false);
             setShowCapsuleModal(true);
@@ -713,7 +718,6 @@ const App: React.FC = () => {
             onSetDeadline={handleSetDeadline}
             onNewPlan={() => setShowInterview(true)}
             onOpenFocus={() => setView('focus')}
-            onOpenProgress={() => setShowAnalytics(true)}
             onReplan={setReplanProjectId}
             onExamSprint={() => setShowSprint(true)}
             onHistory={setHistoryProjectId}

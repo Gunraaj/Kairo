@@ -258,3 +258,35 @@
 .k-interview-tasks small { color: var(--sumi-3); font-size: 12px; }
 .k-aibridge-details summary { cursor: pointer; font-size: 12.5px; color: var(--sumi-3); }
 a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Sidebar: pinned primary nav, scrolling projects, pinned tool row */
+.k-nav { overflow: hidden; gap: 0; }
+.k-nav-primary { display: flex; flex-direction: column; gap: 2px; padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid var(--stone-3); flex: none; }
+.k-nav-item.active { color: var(--sumi); background: var(--washi-hover); }
+.k-nav-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.k-nav-footer { flex: none; display: flex; justify-content: space-between; gap: 2px; padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--stone-3); }
+.k-nav-tool { position: relative; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: var(--sumi-3); cursor: pointer; }
+.k-nav-tool:hover, .k-nav-tool:focus-visible, .k-nav-tool.active { color: var(--sumi); background: var(--washi-hover); }
+.k-nav-tool .k-badge-dot { position: absolute; top: 7px; right: 7px; }
+.app-shell[data-sidebar="collapsed"] .k-nav-footer { flex-direction: column; align-items: center; }
+.app-shell[data-sidebar="collapsed"] .k-nav-primary { align-items: center; }
+
+/* Calmer task rows: name first; details on hover, focus or when active */
+.k-tree-task-name em { display: none; }
+@media (hover: hover) {
+  .k-tree-task .k-pomo-badge-len { display: none; }
+  .k-tree-task:hover .k-pomo-badge-len, .k-tree-task:focus-within .k-pomo-badge-len { display: inline; }
+  .k-tree-task:not(:hover):not(:focus-within):not(.active) .k-task-play-btn { opacity: 0; }
+}
+
+/* Mobile drawer must sit above its backdrop (the sidebar is its own stacking context) */
+@media (max-width: 768px) {
+  .app-shell[data-mobile-nav="open"] .k-sidebar { position: relative; z-index: 120; }
+  .app-shell[data-mobile-nav="open"] .k-nav { overflow: hidden; }
+}
+
+/* Today: the sidebar already offers Focus/Progress; keep one timer shortcut for phones only */
+@media (min-width: 769px) { .k-today-open-timer { display: none; } }
+.k-today-project { display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: 12px; }
+.k-today-project .k-today-history-btn { align-self: center; }
+@media (max-width: 640px) { .k-today-project { grid-template-columns: 1fr auto; } .k-today-project .k-today-deadline { grid-column: 1 / -1; } }

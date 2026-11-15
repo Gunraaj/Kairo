@@ -64,7 +64,16 @@ export const Stage: React.FC<StageProps> = ({
     return 'classic';
   });
 
-  const layoutVariation: StageLayoutVariation = showLayouts ? savedLayout : 'classic';
+  const [isWide, setIsWide] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1280px)').matches);
+  useEffect(() => {
+    const query = window.matchMedia?.('(min-width: 1280px)');
+    if (!query) return;
+    const update = () => setIsWide(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  const autoLayout: StageLayoutVariation = isWide && activeTarget?.kind === 'task' ? 'cockpit' : 'classic';
+  const layoutVariation: StageLayoutVariation = showLayouts ? savedLayout : autoLayout;
   const handleVariationChange = (next: StageLayoutVariation) => {
     setLayoutVariation(next);
     try {
@@ -1116,7 +1125,7 @@ export const Stage: React.FC<StageProps> = ({
           {/* Left Column: Target Intelligence */}
           <div className="k-cockpit-card k-cockpit-left">
             <div className="k-cockpit-card-title">
-              <span>Target Intelligence</span>
+              <span>This task</span>
               {activeTarget?.kind === 'task' && <span className="k-target-live-dot" />}
             </div>
             <div className="k-cockpit-target-name">{targetLabel}</div>
@@ -1171,13 +1180,13 @@ export const Stage: React.FC<StageProps> = ({
             {renderDial()}
             {renderToast()}
             {renderPrimaryButton()}
+            {renderMetaStrip()}
           </div>
 
           {/* Right Column: Telemetry & Secondary Controls */}
           <div className="k-cockpit-card k-cockpit-right">
             <div className="k-cockpit-card-title">
-              <span>Focus Telemetry</span>
-              <span>📊</span>
+              <span>Today</span>
             </div>
             <div className="k-cockpit-stat-item">
               <b>{todaySummary?.minutes ?? 0}m</b> focused today

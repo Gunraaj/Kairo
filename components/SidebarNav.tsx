@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { PlanPopover } from './PlanPopover';
 import type { Project, SubTask, Task, UserSettings } from '../types';
@@ -120,6 +120,8 @@ export interface SidebarNavProps {
   capsuleCount?: number;
   onScience?: () => void;
   onToday?: () => void;
+  onFocus?: () => void;
+  currentView?: 'today' | 'focus';
   onNewPlan?: () => void;
   onHelp?: () => void;
   isSessionActive?: boolean;
@@ -142,20 +144,30 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   capsuleCount,
   onScience,
   onToday,
+  onFocus,
+  currentView,
   onNewPlan,
   onHelp,
   isSessionActive,
   onStartTaskFocus,
   onToggleTimer,
 }) => {
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set((Array.isArray(projects) ? projects : []).map(p => p.id)));
+  const [expanded, setExpanded] = useState<Set<string>>(() => {
+    const list = Array.isArray(projects) ? projects : [];
+    const active = list.find(p => p.tasks?.some(t => t.id === activeTaskId || t.subTasks?.some(st => st.id === activeTaskId)));
+    return new Set(active ? [active.id] : list.slice(0, 1).map(p => p.id));
+  });
+  const seenProjectIds = useRef(new Set((Array.isArray(projects) ? projects : []).map(p => p.id)));
 
   useEffect(() => {
     if (Array.isArray(projects) && projects.length > 0) {
       setExpanded(prev => {
         const next = new Set(prev);
         for (const p of projects) {
-          if (p.isExpanded !== false) next.add(p.id);
+          if (!seenProjectIds.current.has(p.id)) {
+            seenProjectIds.current.add(p.id);
+            next.add(p.id);
+          }
         }
         return next;
       });
@@ -678,8 +690,34 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     .filter((p): p is Project => p !== null);
 
   return (
-    <nav className="k-nav custom-scrollbar" aria-label="Workspace">
-      <div className="k-nav-eyebrow">Projects & Tasks</div>
+    <nav className="k-nav" aria-label="Workspace">
+      <div className="k-nav-primary">
+        {onToday && (
+          <button className={`k-nav-item ${currentView === 'today' ? 'active' : ''}`} onClick={onToday} aria-current={currentView === 'today' ? 'page' : undefined}>
+            <NavIcon name="today" />
+            <span className="k-nav-label">Today</span>
+          </button>
+        )}
+        {onFocus && (
+          <button className={`k-nav-item ${currentView === 'focus' ? 'active' : ''}`} onClick={onFocus} aria-current={currentView === 'focus' ? 'page' : undefined}>
+            <NavIcon name="system" />
+            <span className="k-nav-label">Focus</span>
+          </button>
+        )}
+        {onNewPlan && (
+          <button className="k-nav-item" onClick={onNewPlan} title="Plan an exam or project: a few questions, then a day-by-day plan">
+            <NavIcon name="sparkles" />
+            <span className="k-nav-label">New plan</span>
+          </button>
+        )}
+        <button className="k-nav-item" onClick={onProgress}>
+          <NavIcon name="chart" />
+          <span className="k-nav-label">Progress</span>
+        </button>
+      </div>
+
+      <div className="k-nav-scroll custom-scrollbar">
+      <div className="k-nav-eyebrow">Projects</div>
 
       {projects.length > 2 && (
         <div className="k-sidebar-search" style={{ padding: '0 6px 6px' }}>
@@ -1256,80 +1294,40 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </button>
       </div>
 
-      <div style={{ flex: 1, minHeight: 12 }} />
+    </div>
 
-      {onToggleSoundStudio && (
-        <button
-          className={`k-nav-item ${soundStudioOpen ? 'active' : ''}`}
-          onClick={onToggleSoundStudio}
-          title="Toggle Sound Studio"
-        >
-          <NavIcon name="sound" />
-          <span className="k-nav-label">Sound Studio</span>
-          {soundStudioOpen && <span className="k-badge-dot" />}
+      <div className="k-nav-footer" role="group" aria-label="Tools">
+        {onToggleSoundStudio && (
+          <button type="button" className={`k-nav-tool ${soundStudioOpen ? 'active' : ''}`} onClick={onToggleSoundStudio} title="Sound Studio" aria-label="Sound Studio">
+            <NavIcon name="sound" />
+            {soundStudioOpen && <span className="k-badge-dot" />}
+          </button>
+        )}
+        {onTimeCapsule && (
+          <button type="button" className="k-nav-tool" onClick={onTimeCapsule} title="Time Capsule and Future Treat" aria-label="Time Capsule and Future Treat">
+            <NavIcon name="mail" />
+            {Boolean(capsuleCount && capsuleCount > 0) && <span className="k-badge-dot" />}
+          </button>
+        )}
+        {onScience && (
+          <button type="button" className="k-nav-tool" onClick={onScience} title="Focus Guide" aria-label="Focus Guide">
+            <NavIcon name="book" />
+          </button>
+        )}
+        {onHelp && (
+          <button type="button" className="k-nav-tool" onClick={onHelp} title="Help and FAQ" aria-label="Help and FAQ">
+            <NavIcon name="help" />
+          </button>
+        )}
+        <button type="button" className="k-nav-tool" onClick={onSettings} title="Settings" aria-label="Settings">
+          <NavIcon name="settings" />
         </button>
-      )}
-
-      {onTimeCapsule && (
-        <button
-          className="k-nav-item"
-          onClick={onTimeCapsule}
-          title="Time Capsule & Future Treat"
-        >
-          <NavIcon name="mail" />
-          <span className="k-nav-label">Future Treat</span>
-          {Boolean(capsuleCount && capsuleCount > 0) && (
-            <span className="k-badge-dot" title={`${capsuleCount} sealed treat${capsuleCount === 1 ? '' : 's'}`} />
-          )}
-        </button>
-      )}
-
-
-      {onScience && (
-        <button className="k-nav-item" onClick={onScience} title="Focus Science & Pomodoro Guide">
-          <NavIcon name="book" />
-          <span className="k-nav-label">Focus Guide</span>
-        </button>
-      )}
-
-      {onToday && (
-        <button className="k-nav-item" onClick={onToday} title="Today's plan">
-          <NavIcon name="today" />
-          <span className="k-nav-label">Today</span>
-        </button>
-      )}
-
-      {onNewPlan && (
-        <button className="k-nav-item" onClick={onNewPlan} title="Plan an exam or project: a few questions, then a day-by-day plan">
-          <NavIcon name="sparkles" />
-          <span className="k-nav-label">New plan</span>
-        </button>
-      )}
-
-      {onHelp && (
-        <button className="k-nav-item" onClick={onHelp} title="Help & FAQ: AI, Supabase and setup guides">
-          <NavIcon name="help" />
-          <span className="k-nav-label">Help &amp; FAQ</span>
-        </button>
-      )}
-
-      <button className="k-nav-item" onClick={onProgress} title="Progress & Focus Analytics">
-        <NavIcon name="chart" />
-        <span className="k-nav-label">Progress</span>
-      </button>
-
-      <button className="k-nav-item" onClick={onSettings} title="Preferences & Settings">
-        <NavIcon name="settings" />
-        <span className="k-nav-label">Settings</span>
-      </button>
-
-      {onShortcuts && (
-        <button className="k-nav-item" onClick={onShortcuts} title="Keyboard Shortcuts (?)">
-          <NavIcon name="keyboard" />
-          <span className="k-nav-label">Shortcuts</span>
-          <kbd style={{ marginLeft: 'auto', fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.6, padding: '1px 5px', border: '1px solid var(--stone-3)', borderRadius: 3 }}>?</kbd>
-        </button>
-      )}
+        {onShortcuts && (
+          <button type="button" className="k-nav-tool" onClick={onShortcuts} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+            <NavIcon name="keyboard" />
+          </button>
+        )}
+      </div>
 
     </nav>
   );
