@@ -13,7 +13,7 @@ import { ExamSprintModal } from './components/ExamSprintModal';
 import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
-import { OnboardingModal, type OnboardingResult } from './components/OnboardingModal';
+import { PlanInterviewModal } from './components/PlanInterviewModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
 import { applyImportedPlan, type ImportedPlan } from './utils/importPlan';
@@ -77,7 +77,8 @@ const App: React.FC = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showInterview, setShowInterview] = useState(false);
+  const [showFileImport, setShowFileImport] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
   const [replanProjectId, setReplanProjectId] = useState<string | null>(null);
   const [showSprint, setShowSprint] = useState(false);
@@ -86,7 +87,6 @@ const App: React.FC = () => {
     if (typeof location === 'undefined' || !location.hash.startsWith('#import=')) return null;
     return decodePlanLink(location.hash).plan;
   });
-  const [onboardingPlan, setOnboardingPlan] = useState<OnboardingResult | null>(null);
   const [showExtras, setShowExtras] = useLocalStorage<boolean>('kairo_extras', false, {
     version: 1,
     normalize: value => value === true,
@@ -323,7 +323,7 @@ const App: React.FC = () => {
       setShowWelcome(false);
       return;
     }
-    if (!localStorage.getItem('kairo_seen_welcome')) setShowOnboarding(true);
+    if (!localStorage.getItem('kairo_seen_welcome')) setShowInterview(true);
   }, [projects.length, sessions.length]);
 
   const dismissWelcome = () => {
@@ -350,9 +350,9 @@ const App: React.FC = () => {
       project.id === projectId ? { ...project, deadline: deadline || undefined } : project));
   }, [setProjects]);
 
-  const finishOnboarding = useCallback(() => {
+  const closeInterview = useCallback(() => {
     try { localStorage.setItem('kairo_seen_welcome', '1'); } catch { /* storage unavailable */ }
-    setShowOnboarding(false);
+    setShowInterview(false);
   }, []);
 
   const handleImportedPlan = useCallback((imported: ImportedPlan) => {
@@ -667,9 +667,9 @@ const App: React.FC = () => {
             setSoundStudioOpen(v => !v);
           }}
           soundStudioOpen={soundStudioOpen}
-          onBridge={() => {
+          onNewPlan={() => {
             setMobileNavOpen(false);
-            setShowBridge(true);
+            setShowInterview(true);
           }}
           onToday={() => {
             setMobileNavOpen(false);
@@ -711,10 +711,9 @@ const App: React.FC = () => {
             state={todayState}
             onStartBlock={handleStartFromToday}
             onSetDeadline={handleSetDeadline}
-            onNewPlan={() => setShowOnboarding(true)}
+            onNewPlan={() => setShowInterview(true)}
             onOpenFocus={() => setView('focus')}
             onOpenProgress={() => setShowAnalytics(true)}
-            onOpenPlanBridge={() => setShowBridge(true)}
             onReplan={setReplanProjectId}
             onExamSprint={() => setShowSprint(true)}
             onHistory={setHistoryProjectId}
@@ -793,6 +792,7 @@ const App: React.FC = () => {
           </header>
 
           <Stage
+            showLayouts={showExtras}
             settings={userSettings}
             setSettings={setUserSettings}
             addSession={addSession}
@@ -980,22 +980,22 @@ const App: React.FC = () => {
         ) : null;
       })()}
 
-      {showOnboarding && (
-        <OnboardingModal
-          onSkip={() => { finishOnboarding(); setView('focus'); }}
-          onSubmit={result => { finishOnboarding(); setOnboardingPlan(result); }}
+      {showInterview && (
+        <PlanInterviewModal
+          projects={projects}
+          sessions={sessions}
+          onClose={closeInterview}
+          onImport={plans => plans.forEach(handleImportedPlan)}
+          onUploadFile={() => { closeInterview(); setShowFileImport(true); }}
+          onUseChatbot={() => { closeInterview(); setShowBridge(true); }}
         />
       )}
 
-      {onboardingPlan && (
+      {showFileImport && (
         <DocumentBreakdownModal
-          onClose={() => { setOnboardingPlan(null); setView(v => v); }}
+          onClose={() => setShowFileImport(false)}
           onImportPlan={handleImportedPlan}
           existingProjects={projects}
-          initialText={onboardingPlan.text}
-          initialDeadline={onboardingPlan.deadline}
-          initialProjectName={onboardingPlan.name}
-          autoAnalyze
         />
       )}
 

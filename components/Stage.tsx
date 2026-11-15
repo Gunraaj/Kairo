@@ -11,6 +11,7 @@ import { InfoTip } from './InfoTip';
 import { calculateFinishEstimate } from '../utils/subtaskTime';
 
 interface StageProps {
+  showLayouts?: boolean;
   settings: UserSettings;
   setSettings: (settings: UserSettings) => void;
   addSession: (session: KairoSession) => void;
@@ -36,6 +37,7 @@ const sessionCopy: Record<SessionType, { label: string; action: string }> = {
 };
 
 export const Stage: React.FC<StageProps> = ({
+  showLayouts = false,
   settings,
   setSettings,
   addSession,
@@ -53,7 +55,7 @@ export const Stage: React.FC<StageProps> = ({
   toggleSessionTrigger,
   onToggleSubtask,
 }) => {
-  const [layoutVariation, setLayoutVariation] = useState<StageLayoutVariation>(() => {
+  const [savedLayout, setLayoutVariation] = useState<StageLayoutVariation>(() => {
     if (typeof window === 'undefined') return 'classic';
     try {
       const saved = localStorage.getItem('kairo_stage_variation');
@@ -62,6 +64,7 @@ export const Stage: React.FC<StageProps> = ({
     return 'classic';
   });
 
+  const layoutVariation: StageLayoutVariation = showLayouts ? savedLayout : 'classic';
   const handleVariationChange = (next: StageLayoutVariation) => {
     setLayoutVariation(next);
     try {
@@ -1012,7 +1015,7 @@ export const Stage: React.FC<StageProps> = ({
 
       {/* Stage Toolbar: 3 Focus Layout Variations Switcher */}
       <div className="k-stage-toolbar">
-        <div className="k-stage-variation-switcher" role="radiogroup" aria-label="Focus layout variation">
+        {showLayouts && <div className="k-stage-variation-switcher" role="radiogroup" aria-label="Focus layout variation">
           <button
             type="button"
             role="radio"
@@ -1046,7 +1049,7 @@ export const Stage: React.FC<StageProps> = ({
             <span className="k-var-icon">☵</span>
             <span className="k-var-label">Cockpit</span>
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* VARIATION 1: ZEN (Minimalist Pure Analog Focus) */}

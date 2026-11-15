@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { PlanPopover } from './PlanPopover';
-import { applyImportedPlan, type ImportedPlan } from '../utils/importPlan';
 import type { Project, SubTask, Task, UserSettings } from '../types';
-import { DocumentBreakdownModal } from './DocumentBreakdownModal';
 import { InfoTip } from './InfoTip';
 import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
 import {
@@ -122,7 +120,7 @@ export interface SidebarNavProps {
   capsuleCount?: number;
   onScience?: () => void;
   onToday?: () => void;
-  onBridge?: () => void;
+  onNewPlan?: () => void;
   onHelp?: () => void;
   isSessionActive?: boolean;
   onStartTaskFocus?: (taskId: string) => void;
@@ -144,7 +142,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   capsuleCount,
   onScience,
   onToday,
-  onBridge,
+  onNewPlan,
   onHelp,
   isSessionActive,
   onStartTaskFocus,
@@ -194,17 +192,9 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [newSubTaskName, setNewSubTaskName] = useState('');
   const [editingSubTaskId, setEditingSubTaskId] = useState<string | null>(null);
   const [editSubTaskName, setEditSubTaskName] = useState('');
-  const [isDocBreakdownOpen, setIsDocBreakdownOpen] = useState(false);
   const [slicingProjectId, setSlicingProjectId] = useState<string | null>(null);
   const [slicingTaskId, setSlicingTaskId] = useState<string | null>(null);
-  const [docBreakdownTargetProjectId, setDocBreakdownTargetProjectId] = useState<string | null>(null);
 
-  const handleImportDocPlan = (imported: ImportedPlan) => {
-    const result = applyImportedPlan(projects, imported);
-    setProjects(result.projects);
-    if (!imported.targetProjectId) setExpanded(prev => new Set(prev).add(result.projectId));
-    if (!imported.targetProjectId && result.firstTaskId) setActiveTaskId(result.firstTaskId);
-  };
 
   const allTasks = React.useMemo(() => {
     const list: Task[] = [];
@@ -1294,17 +1284,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </button>
       )}
 
-      <button
-        className="k-nav-item"
-        onClick={() => {
-          setDocBreakdownTargetProjectId(null);
-          setIsDocBreakdownOpen(true);
-        }}
-        title="Import Syllabus or Document Outline"
-      >
-        <NavIcon name="doc" />
-        <span className="k-nav-label">Import Syllabus</span>
-      </button>
 
       {onScience && (
         <button className="k-nav-item" onClick={onScience} title="Focus Science & Pomodoro Guide">
@@ -1320,10 +1299,10 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </button>
       )}
 
-      {onBridge && (
-        <button className="k-nav-item" onClick={onBridge} title="Plan with your ChatGPT, Claude or Gemini">
+      {onNewPlan && (
+        <button className="k-nav-item" onClick={onNewPlan} title="Plan an exam or project: a few questions, then a day-by-day plan">
           <NavIcon name="sparkles" />
-          <span className="k-nav-label">Use my AI</span>
+          <span className="k-nav-label">New plan</span>
         </button>
       )}
 
@@ -1352,14 +1331,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </button>
       )}
 
-      {isDocBreakdownOpen && (
-        <DocumentBreakdownModal
-          onClose={() => setIsDocBreakdownOpen(false)}
-          onImportPlan={handleImportDocPlan}
-          existingProjects={projects}
-          defaultProjectId={docBreakdownTargetProjectId}
-        />
-      )}
     </nav>
   );
 };

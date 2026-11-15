@@ -10,7 +10,6 @@ interface TodayScreenProps {
   onNewPlan: () => void;
   onOpenFocus: () => void;
   onOpenProgress: () => void;
-  onOpenPlanBridge?: () => void;
   onReplan?: (projectId: string) => void;
   onExamSprint?: () => void;
   onHistory?: (projectId: string) => void;
@@ -39,7 +38,7 @@ const daysLabel = (plan: ProjectPlan): string | null => {
 };
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({
-  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onOpenPlanBridge, onReplan, onExamSprint, onHistory,
+  state, onStartBlock, onSetDeadline, onNewPlan, onOpenFocus, onOpenProgress, onReplan, onExamSprint, onHistory,
 }) => {
   const { blocks, projects, multiplier, roundsToday, plannedToday, goal } = state;
   const first = blocks[0];
@@ -76,10 +75,9 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
 
         {!state.hasPlan && (
           <div className="k-today-empty">
-            <p>No plan yet. Paste a syllabus or a topic list and set the date. Works offline, and better with an AI.</p>
+            <p>No plan yet. Answer a few questions about your exam and Kairo plans every day until it. Works offline; smarter with an AI.</p>
             <div className="k-today-empty-actions">
               <button type="button" className="k-btn k-btn-primary" onClick={onNewPlan}>Make my plan</button>
-              {onOpenPlanBridge && <button type="button" className="k-btn" onClick={onOpenPlanBridge}>Use my ChatGPT / Claude / Gemini</button>}
             </div>
           </div>
         )}

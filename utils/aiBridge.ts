@@ -70,12 +70,16 @@ export const buildAiContext = (input: { projects: Project[]; sessions: KairoSess
   const avg = state.recentDailyRounds.reduce((sum, r) => sum + r, 0) / Math.max(1, state.recentDailyRounds.length);
 
   const lines: string[] = [
-    'You are helping me plan study sessions for Kairo, a Pomodoro planner. One "round" is one 25-minute focus session.',
-    'Make a realistic plan from what I tell you after this block. Then reply with ONLY one JSON code block in exactly this shape (no other text), so I can paste it back into Kairo:',
+    'Be my study coach for Kairo, a Pomodoro study planner. One "round" = 25 min focus + 5 min break, so 1 hour is about 2 rounds.',
+    `Today is ${input.today ?? new Date().toISOString().slice(0, 10)}.`,
+    'First interview me. Ask ONE short question at a time and wait for my answer. At most 6 questions. Find out:',
+    '1) the exam or subject, 2) the date, 3) the topics or syllabus (I may paste it), 4) which topics feel weak, 5) hours per day I can study, 6) whether I have past papers.',
+    'Then make the plan: one task per real topic in my words, weak topics earlier and with more rounds, 2-4 active subtasks each (recall with notes closed, practice questions, fix mistakes), timed past papers near the end if I have them, and a short final revision. Keep total rounds within (hours per day x 2 x days left) minus 15%.',
+    'Show the plan as a short readable list. Then, at the very end of that same reply, add one JSON code block in exactly this shape. Kairo reads it automatically, so keep the keys exactly:',
     '```json',
     SCHEMA_EXAMPLE,
     '```',
-    'Rules: 1-12 rounds per task; deadline is YYYY-MM-DD and optional; at most 6 subtasks per task; order tasks so prerequisites come first.',
+    'Rules for the block: 1-12 rounds per task, deadline as YYYY-MM-DD, at most 6 subtasks per task.',
     '',
     'About me (from my Kairo history):',
     `- Average focus per day over the last 14 days: ${avg.toFixed(1)} rounds.`,
@@ -94,7 +98,7 @@ export const buildAiContext = (input: { projects: Project[]; sessions: KairoSess
       if (plan.pace && plan.pace.status !== 'on-track') lines.push(`  Pace: ${plan.pace.status}; needs ${plan.pace.requiredPerDay} rounds/day, doing ${plan.pace.actualPerDay}.`);
     }
   }
-  lines.push('', 'What I want to plan: [describe your exam, topics or syllabus here, and the date]');
+  lines.push('', 'Start now with your first question.');
 
   const text = lines.join('\n');
   return text.length <= MAX_CONTEXT_CHARS ? text : `${text.slice(0, MAX_CONTEXT_CHARS - 40)}\n...[trimmed]\n`;

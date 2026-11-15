@@ -16,6 +16,18 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
   const [tab, setTab] = useState<'copy' | 'paste'>(initialPlan ? 'paste' : 'copy');
   const [reply, setReply] = useState('');
   const [copied, setCopied] = useState<'context' | 'link' | null>(null);
+  const [clipboardError, setClipboardError] = useState('');
+
+  const pasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text.trim()) { setClipboardError('Your clipboard is empty. Copy the AI\'s last reply first.'); return; }
+      setClipboardError('');
+      setReply(text);
+    } catch {
+      setClipboardError('Your browser blocked clipboard access. Paste into the box below instead (Ctrl+V or long-press).');
+    }
+  };
 
   const context = useMemo(() => buildAiContext({ projects, sessions }), [projects, sessions]);
   const parsed = useMemo(() => {
@@ -41,8 +53,8 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
     <Modal titleId="aibridge-title" onClose={onClose} className="k-aibridge">
       <header className="k-modal-header">
         <div>
-          <h2 id="aibridge-title">Use my ChatGPT, Claude or Gemini</h2>
-          <p className="k-modal-sub">Your AI plans, Kairo keeps you on it. Works with free chatbots. Nothing is sent from here.</p>
+          <h2 id="aibridge-title">Plan with ChatGPT, Claude or Gemini</h2>
+          <p className="k-modal-sub">Your AI interviews you and plans it; Kairo keeps you on it. Works with free plans. Kairo itself sends nothing.</p>
         </div>
         <button className="k-modal-close" onClick={onClose} aria-label="Close">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
@@ -51,22 +63,25 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
 
       <div className="k-modal-body k-aibridge-body">
         <div className="k-faq-tabs" role="tablist" aria-label="Steps">
-          <button type="button" role="tab" aria-selected={tab === 'copy'} className={`k-faq-tab ${tab === 'copy' ? 'is-active' : ''}`} onClick={() => setTab('copy')}>1. Copy for your AI</button>
-          <button type="button" role="tab" aria-selected={tab === 'paste'} className={`k-faq-tab ${tab === 'paste' ? 'is-active' : ''}`} onClick={() => setTab('paste')}>2. Paste its plan</button>
+          <button type="button" role="tab" aria-selected={tab === 'copy'} className={`k-faq-tab ${tab === 'copy' ? 'is-active' : ''}`} onClick={() => setTab('copy')}>1. Chat with your AI</button>
+          <button type="button" role="tab" aria-selected={tab === 'paste'} className={`k-faq-tab ${tab === 'paste' ? 'is-active' : ''}`} onClick={() => setTab('paste')}>2. Bring the plan back</button>
         </div>
 
         {tab === 'copy' && (
           <>
             <ol className="k-faq-steps">
-              <li>Copy the text below and paste it into any chatbot.</li>
-              <li>Replace the last line with your exam, topics and date.</li>
-              <li>It answers with a plan. Copy that answer and come back to step 2.</li>
+              <li>Open your AI below. It interviews you about your exam, one question at a time.</li>
+              <li>When it shows the plan, copy its last reply (the copy icon under the message) and come back.</li>
             </ol>
-            <pre className="k-aibridge-context">{context}</pre>
             <div className="k-onboarding-actions">
-              <button type="button" className="k-btn k-btn-primary" onClick={() => copy(context, 'context')}>{copied === 'context' ? 'Copied' : 'Copy text'}</button>
-              <button type="button" className="k-btn" onClick={() => setTab('paste')}>I have the plan</button>
+              <a className="k-btn k-btn-primary" href={`https://chatgpt.com/?q=${encodeURIComponent(context)}`} target="_blank" rel="noopener noreferrer" onClick={() => setTab('paste')}>Open in ChatGPT</a>
+              <a className="k-btn k-btn-primary" href={`https://claude.ai/new?q=${encodeURIComponent(context)}`} target="_blank" rel="noopener noreferrer" onClick={() => setTab('paste')}>Open in Claude</a>
+              <button type="button" className="k-btn" onClick={() => { void copy(context, 'context'); setTab('paste'); }}>{copied === 'context' ? 'Copied' : 'Copy for Gemini or others'}</button>
             </div>
+            <details className="k-aibridge-details">
+              <summary>See what is sent</summary>
+              <pre className="k-aibridge-context">{context}</pre>
+            </details>
             <p className="k-onboarding-note">The text has only task names and totals from your Kairo history. No keys, emails or session details.</p>
           </>
         )}
@@ -74,10 +89,14 @@ export const AiBridgeModal: React.FC<AiBridgeModalProps> = ({ projects, sessions
         {tab === 'paste' && (
           <>
             {!initialPlan && (
-              <label className="k-onboarding-field">
-                <span>Paste the AI's reply</span>
-                <textarea value={reply} onChange={e => setReply(e.target.value)} rows={6} placeholder='{"projects":[{"name":"...","tasks":[...]}]}' />
-              </label>
+              <>
+                <button type="button" className="k-btn k-btn-primary" onClick={pasteFromClipboard}>Paste the AI's reply</button>
+                {clipboardError && <p className="k-onboarding-note">{clipboardError}</p>}
+                <label className="k-onboarding-field">
+                  <span>Or paste it here yourself (the whole reply is fine)</span>
+                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={4} placeholder="Paste your AI's last reply" />
+                </label>
+              </>
             )}
             {parsed.errors.length > 0 && (
               <ul className="k-aibridge-errors" role="alert">

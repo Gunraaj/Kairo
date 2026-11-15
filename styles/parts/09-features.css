@@ -229,3 +229,32 @@
 .k-break-stepper .k-numfield input:hover { border-color: var(--stone-2); }
 .k-plan-type { display: inline-flex; align-items: center; gap: 6px; margin: 6px 8px 0 0; font-size: 12px; color: var(--sumi-3); }
 .k-pomo-stepper-wrap { flex-wrap: wrap; }
+
+/* Plan interview chat */
+.k-interview { width: min(680px, 94vw); }
+.k-interview-body { display: flex; flex-direction: column; gap: 12px; }
+.k-chat { display: flex; flex-direction: column; gap: 8px; max-height: 46vh; overflow-y: auto; padding: 4px 2px; }
+.k-chat-line { display: flex; }
+.k-chat-line span { max-width: 85%; padding: 9px 13px; border-radius: 14px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; }
+.k-chat-line.is-coach span { background: var(--washi-2); border: 1px solid var(--stone-3); color: var(--sumi); border-bottom-left-radius: 4px; }
+.k-chat-line.is-student { justify-content: flex-end; }
+.k-chat-line.is-student span { background: var(--shu); color: #fff; border-bottom-right-radius: 4px; }
+.k-chat-line.is-typing span { color: var(--sumi-3); font-style: italic; }
+.k-chat-input { display: flex; flex-direction: column; gap: 8px; }
+.k-chat-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.k-chat-form { display: flex; gap: 8px; align-items: flex-end; }
+.k-chat-form input, .k-chat-form textarea {
+  flex: 1; min-width: 0; padding: 10px 12px; font: 14px var(--sans); border-radius: var(--r-sm);
+  border: 1px solid var(--stone-2); background: var(--washi); color: var(--sumi); resize: vertical;
+}
+.k-chat-form input:focus, .k-chat-form textarea:focus { outline: none; border-color: var(--shu); }
+.k-chat-footer { display: flex; flex-wrap: wrap; gap: 14px; }
+.k-link-btn { background: none; border: 0; padding: 4px 0; font: 500 12.5px var(--sans); color: var(--sumi-3); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.k-link-btn:hover { color: var(--shu); }
+.k-interview-tasks { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+.k-interview-tasks li { font-size: 13px; color: var(--sumi); }
+.k-interview-tasks li > span:first-child { display: inline-flex; flex-direction: column; }
+.k-interview-tasks li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
+.k-interview-tasks small { color: var(--sumi-3); font-size: 12px; }
+.k-aibridge-details summary { cursor: pointer; font-size: 12.5px; color: var(--sumi-3); }
+a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
