@@ -6,6 +6,7 @@ import { parseMediaEmbed } from '../utils/embed';
 import { getCachedAudioUrl } from '../utils/audioCache';
 import { TbBookmark, TbBookmarkFilled, TbTrash, TbPlus } from 'react-icons/tb';
 import { ATMOSPHERE_EMOJIS, AmbientChannelStrip, AtmospherePreset, BeatPreset, CATEGORIES, CURATED_LOFI_STATIONS, CustomBeatPreset, DEFAULT_ATMOSPHERE_PRESETS, FEATURED_NAMES, SOUNDS, Sound, SoundIcon, beats, brainwaveBandFor, carrierCharacterFor, carrierPresets, categoryFor, labelFor } from './soundStudio/soundCatalog';
+import { publishAmbient, useCastStatus } from '../utils/castDisplay';
 
 export interface ControlPanelProps {
   audioSettings: AudioSettings;
@@ -296,6 +297,16 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   const masterRef = useRef(masterVolume);
   const activeSoundsRef = useRef(activeSounds);
   activeSoundsRef.current = activeSounds;
+
+  const { soundOnTv } = useCastStatus();
+  useEffect(() => {
+    players.current.forEach(player => { player.muted = soundOnTv; });
+  }, [soundOnTv, activeSounds]);
+  useEffect(() => {
+    publishAmbient(Object.entries(activeSounds)
+      .filter(([url]) => !mutedSoundUrls.has(url))
+      .map(([url, layer]) => ({ url, volume: Math.min(1, Math.max(0, layer * masterVolume)) })));
+  }, [activeSounds, mutedSoundUrls, masterVolume]);
 
   useEffect(() => {
     masterRef.current = masterVolume;

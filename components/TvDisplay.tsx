@@ -1,5 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { listenForDisplay, secondsLeft, useDisplayState, type DisplayState } from '../utils/castDisplay';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAudioEngine } from '../hooks/useAudioEngine';
+import type { AudioSettings } from '../types';
+import { displayRoom, listenForDisplay, secondsLeft, useDisplayState, type AmbientLayer, type DisplayState } from '../utils/castDisplay';
+
+const SILENT: AudioSettings = {
+  isPlaying: false, engineEnabled: true, mode: 'noise', ambientPreset: 'none', baseFrequency: 200, beatFrequency: 10,
+  waveType: 'sine', noiseType: 'brown', binauralVolume: 0.25, noiseVolume: 0.5, masterVolume: 0.7,
+};
+
+/** Plays Sound Studio layers on the TV. URLs were already checked against Kairo's sound library. */
+const useAmbientPlayers = (layers: AmbientLayer[], enabled: boolean) => {
+  const players = useRef(new Map<string, HTMLAudioElement>());
+  useEffect(() => {
+    const wanted = new Map(enabled ? layers.map(l => [l.url, l.volume]) : []);
+    players.current.forEach((player, url) => {
+      if (!wanted.has(url)) { player.pause(); player.src = ''; players.current.delete(url); }
+    });
+    wanted.forEach((volume, url) => {
+      let player = players.current.get(url);
+      if (!player) {
+        player = new Audio(url);
+        player.loop = true;
+        players.current.set(url, player);
+        void player.play().catch(() => undefined);
+      }
+      player.volume = volume;
+    });
+  }, [layers, enabled]);
+  useEffect(() => () => { players.current.forEach(p => { p.pause(); p.src = ''; }); players.current.clear(); }, []);
+  return () => players.current.forEach(p => void p.play().catch(() => undefined));
+};
 
 const SESSION_LABEL = { focus: 'Focus', shortBreak: 'Short break', longBreak: 'Long break' } as const;
 
@@ -70,10 +100,12 @@ export const TvMode: React.FC<{ onExit: () => void; onToggleTimer: () => void }>
   );
 };
 
-/** The second-screen tab (?display=tv). Driven by messages from the main tab. */
+/** The TV page (/tv). On a Chromecast it is driven over the relay and plays sound itself. */
 export const TvDisplay: React.FC = () => {
   const [state, setState] = useState<DisplayState | null>(null);
   const now = useNow();
+  const onChromecast = useRef(displayRoom() !== null).current;
+  const [soundBlocked, setSoundBlocked] = useState(false);
 
   useEffect(() => listenForDisplay(setState, () => window.close()), []);
   useEffect(() => {
@@ -84,13 +116,36 @@ export const TvDisplay: React.FC = () => {
   }, [state]);
   useEffect(() => { if (state) document.title = `${format(secondsLeft(state, now))} · Kairo`; }, [state, now]);
 
+  const audio = state?.audio?.isPlaying ? state.audio : null;
+  const engine = useAudioEngine(audio ?? SILENT);
+  const ambient = state?.ambient ?? [];
+  const playAmbient = useAmbientPlayers(ambient, onChromecast);
+  const wantsSound = Boolean(audio) || ambient.length > 0;
+
+  const resume = engine.resume;
+  useEffect(() => {
+    if (!wantsSound) { setSoundBlocked(false); return; }
+    // Cast devices allow sound without a tap. A normal browser keeps audio suspended until a
+    // click (the resume promise never settles), so offer a button if it has not started soon.
+    let started = false;
+    void resume().then(() => { started = true; setSoundBlocked(false); });
+    const probe = window.setTimeout(() => { if (!started) setSoundBlocked(true); }, 1500);
+    return () => window.clearTimeout(probe);
+  }, [wantsSound, resume]);
+
   return (
     <main
       className={`k-tv ${state?.isActive ? 'is-running' : 'is-paused'}`}
-      onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined); }}
+      data-sound={wantsSound ? `${audio ? 'tone+' : ''}${ambient.length}` : 'off'}
+      onClick={() => {
+        void resume().then(() => setSoundBlocked(false));
+        playAmbient();
+        if (!onChromecast && !document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined);
+      }}
     >
-      <Dial state={state} now={now} waiting="Waiting for Kairo… Keep Kairo open in another tab." />
-      <p className="k-tv-footnote">Click for full screen. Sound plays from the Kairo tab.</p>
+      <Dial state={state} now={now} waiting={onChromecast ? 'Connecting to Kairo…' : 'Waiting for Kairo… Keep Kairo open in another tab.'} />
+      {soundBlocked && <p className="k-tv-footnote">Click anywhere to turn on sound.</p>}
+      {!onChromecast && <p className="k-tv-footnote">Click for full screen. Sound plays from the Kairo tab.</p>}
     </main>
   );
 };

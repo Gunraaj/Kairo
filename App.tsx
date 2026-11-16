@@ -30,7 +30,7 @@ import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTar
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { CastMenu } from './components/CastMenu';
-import { publishExtras } from './utils/castDisplay';
+import { publishAudio, publishExtras, useCastStatus } from './utils/castDisplay';
 import { TvMode } from './components/TvDisplay';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, calculateFinishEstimate, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
@@ -445,9 +445,13 @@ const App: React.FC = () => {
     setToggleSessionTrigger(Date.now());
   }, []);
 
-  const audioEngine = useAudioEngine(audioSettings);
   const [tvMode, setTvMode] = useState(false);
+  const { soundOnTv } = useCastStatus();
+  // While the TV plays the sound, this device stays quiet so it is not heard twice.
+  const localAudio = useMemo(() => (soundOnTv ? { ...audioSettings, isPlaying: false } : audioSettings), [audioSettings, soundOnTv]);
+  const audioEngine = useAudioEngine(localAudio);
   useEffect(() => { publishExtras({ theme, palette }); }, [theme, palette]);
+  useEffect(() => { publishAudio(audioSettings); }, [audioSettings]);
   const sessionIdsRef = useRef(new Set(sessions.map(session => session.id)));
 
   useEffect(() => {
@@ -855,7 +859,7 @@ const App: React.FC = () => {
                 <kbd className="k-kbd-inline">F</kbd>
               </button>
 
-              <CastMenu onTvMode={() => setTvMode(true)} />
+              <CastMenu onTvMode={() => setTvMode(true)} onMessage={announceToast} />
 
               <button
                 className={`k-sound-pill-btn ${audioSettings.isPlaying ? 'is-playing' : ''} ${soundStudioOpen ? 'is-open' : ''}`}
