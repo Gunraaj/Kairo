@@ -6,6 +6,7 @@ import { NumberField } from './NumberField';
 import type { FocusTarget, KairoSession, SessionType, UserSettings, StageLayoutVariation } from '../types';
 import { calculateElapsedSeconds, clearTimerSnapshot, readTimerSnapshot, remainingSeconds, type TimerSnapshot, writeTimerSnapshot } from '../utils/timerState';
 import { workerTimer } from '../utils/workerTimer';
+import { publishTimer } from '../utils/castDisplay';
 import { sharpenIntention } from '../utils/geminiAi';
 import { InfoTip } from './InfoTip';
 import { calculateFinishEstimate } from '../utils/subtaskTime';
@@ -620,6 +621,10 @@ export const Stage: React.FC<StageProps> = ({
       : activeTarget?.kind === 'project'
       ? activeTarget.name
       : 'Quick Focus';
+
+  useEffect(() => {
+    publishTimer({ sessionType, label: sessionCopy[sessionType].label, target: targetLabel, timeLeft, total: Math.max(1, totalTime), isActive });
+  }, [sessionType, targetLabel, timeLeft, totalTime, isActive]);
 
   const breakChoices: Array<{ min: number; label: string }> = [
     { min: 5, label: '5m' },

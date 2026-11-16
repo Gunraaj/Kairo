@@ -359,3 +359,29 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 
 .k-cloud-ai { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--stone-3); }
 .k-cloud-ai label.k-cloud-row { align-items: flex-start; flex-wrap: nowrap; font-size: 13px; color: var(--sumi-2); }
+
+/* TV / cast */
+.k-cast { position: relative; }
+.k-cast-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; width: min(320px, calc(100vw - 32px));
+  display: grid; gap: 10px; padding: 14px; border-radius: 14px;
+  background: var(--washi-card); color: var(--sumi); border: 1px solid var(--stone-2);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.28);
+}
+.k-cast-title { margin: 0; font-weight: 600; }
+.k-cast-check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.k-tv {
+  min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 2vh;
+  background: var(--washi); color: var(--sumi); text-align: center; padding: 4vh 4vw; box-sizing: border-box; cursor: none;
+}
+.k-tv-label { margin: 0; font-size: clamp(18px, 3vh, 40px); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; }
+.k-tv-dial { position: relative; width: min(70vh, 80vw); aspect-ratio: 1; display: grid; place-items: center; }
+.k-tv-dial svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.k-tv-track, .k-tv-progress { fill: none; stroke-width: 2.4; }
+.k-tv-track { stroke: var(--stone-2); }
+.k-tv-progress { stroke: var(--shu); stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }
+.k-tv-time { font-size: min(16vh, 18vw); font-variant-numeric: tabular-nums; font-weight: 300; letter-spacing: -0.02em; }
+.k-tv-target { margin: 0; font-size: clamp(16px, 3.2vh, 44px); max-width: 80vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-tv.is-paused .k-tv-time { opacity: 0.55; }
+.k-tv-waiting { font-size: clamp(16px, 3vh, 32px); opacity: 0.7; max-width: 30ch; }
+.k-tv-sound { cursor: pointer; }

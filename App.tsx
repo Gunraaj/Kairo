@@ -29,6 +29,8 @@ import { BrandLogo, getLogoSvgDataUri, type LogoVariant } from './components/Bra
 import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule, Palette } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
+import { CastMenu } from './components/CastMenu';
+import { publishExtras, useCastStatus } from './utils/castDisplay';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, calculateFinishEstimate, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
@@ -438,7 +440,11 @@ const App: React.FC = () => {
     setToggleSessionTrigger(Date.now());
   }, []);
 
-  const audioEngine = useAudioEngine(audioSettings);
+  const [soundOnTv, setSoundOnTv] = useLocalStorage<boolean>('kairo_sound_on_tv', true, { version: 1, normalize: v => v !== false });
+  const { casting } = useCastStatus();
+  const localAudio = useMemo(() => (casting && soundOnTv ? { ...audioSettings, isPlaying: false } : audioSettings), [audioSettings, casting, soundOnTv]);
+  const audioEngine = useAudioEngine(localAudio);
+  useEffect(() => { publishExtras({ theme, palette, audio: soundOnTv ? audioSettings : null }); }, [theme, palette, soundOnTv, audioSettings]);
   const sessionIdsRef = useRef(new Set(sessions.map(session => session.id)));
 
   useEffect(() => {
@@ -845,6 +851,8 @@ const App: React.FC = () => {
                 <span className="k-pill-label">{zenMode ? 'Exit Zen' : 'Zen'}</span>
                 <kbd className="k-kbd-inline">F</kbd>
               </button>
+
+              <CastMenu soundOnTv={soundOnTv} onSoundOnTv={setSoundOnTv} onMessage={announceToast} />
 
               <button
                 className={`k-sound-pill-btn ${audioSettings.isPlaying ? 'is-playing' : ''} ${soundStudioOpen ? 'is-open' : ''}`}

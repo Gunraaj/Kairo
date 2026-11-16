@@ -26,6 +26,7 @@ export const NavIcon: React.FC<{
     | 'chevron'
     | 'chevron-down'
     | 'trash'
+    | 'copy'
     | 'check'
     | 'sun'
     | 'moon'
@@ -73,6 +74,8 @@ export const NavIcon: React.FC<{
       return <svg {...shared}><path d="M4 6l4 4 4-4" /></svg>;
     case 'trash':
       return <svg {...shared}><path d="M3 4h10M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M4.5 4l.6 8.5a1 1 0 001 .9h3.8a1 1 0 001-.9L11.5 4" /></svg>;
+    case 'copy':
+      return <svg {...shared}><rect x="5" y="5" width="8.5" height="8.5" rx="1.2" /><path d="M11 5V3.5a1 1 0 00-1-1H3.5a1 1 0 00-1 1V10a1 1 0 001 1H5" /></svg>;
     case 'check':
       return <svg {...shared}><path d="M3 8l3 3 7-7" /></svg>;
     case 'sun':
@@ -614,6 +617,32 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     );
   };
 
+  /** Copies a task right below the original, with fresh ids and progress reset. */
+  const duplicateTask = (projectId: string, taskId: string) => {
+    const copyId = crypto.randomUUID();
+    setProjects(prev =>
+      (Array.isArray(prev) ? prev : []).map(p => {
+        if (p.id !== projectId) return p;
+        const tasks = Array.isArray(p.tasks) ? p.tasks : [];
+        const index = tasks.findIndex(t => t.id === taskId);
+        if (index < 0) return p;
+        const source = tasks[index];
+        const copy: Task = {
+          ...source,
+          id: copyId,
+          name: `${source.name} (copy)`.slice(0, 160),
+          completed: false,
+          status: 'todo',
+          timeSpent: 0,
+          directTimeSpent: 0,
+          subTasks: (Array.isArray(source.subTasks) ? source.subTasks : []).map(st => ({ ...st, id: crypto.randomUUID(), completed: false, timeSpent: 0 })),
+        };
+        return { ...p, tasks: [...tasks.slice(0, index + 1), copy, ...tasks.slice(index + 1)] };
+      }),
+    );
+    if (expandedTasks.has(taskId)) setExpandedTasks(prev => new Set(prev).add(copyId));
+  };
+
   const deleteTask = (taskId: string) => {
     setProjects(prev =>
       (Array.isArray(prev) ? prev : []).map(p => ({
@@ -968,6 +997,15 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               title="Add subtask"
                             >
                               <NavIcon name="plus" />
+                            </button>
+                            <button
+                              type="button"
+                              className="k-tree-icon-btn"
+                              onClick={e => { e.stopPropagation(); duplicateTask(project.id, task.id); }}
+                              aria-label={`Duplicate ${task.name}`}
+                              title="Duplicate task"
+                            >
+                              <NavIcon name="copy" />
                             </button>
                             <button
                               className="k-tree-icon-btn"

@@ -3,6 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { TvDisplay } from './components/TvDisplay';
+import { isDisplayPage } from './utils/castDisplay';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -14,7 +16,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      {isDisplayPage() ? <TvDisplay /> : <App />}
     </ErrorBoundary>
   </React.StrictMode>
 );
