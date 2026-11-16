@@ -232,8 +232,15 @@ export const Stage: React.FC<StageProps> = ({
     return `${minutes}:${seconds}`;
   }, [timeLeft]);
 
+  /**
+   * Breaks are earned, like Focus To-Do and Forest: Kairo picks short or long after each focus
+   * (long every N rounds). You can always go back to focus (skip the break) or take a shorter break.
+   */
+  const canSelect = (type: SessionType) =>
+    type === 'focus' || type === sessionType || (type === 'shortBreak' && sessionType === 'longBreak');
+
   const selectSession = (type: SessionType) => {
-    if (isActive) return;
+    if (isActive || type === sessionType || !canSelect(type)) return;
     deadlineRef.current = null;
     startedAtRef.current = null;
     sessionDurationRef.current = null;
@@ -668,17 +675,24 @@ export const Stage: React.FC<StageProps> = ({
           key={type}
           role="tab"
           aria-selected={sessionType === type}
-          disabled={isActive}
-          className={`k-mode-pill ${sessionType === type ? 'active' : ''}`}
+          disabled={isActive || !canSelect(type)}
+          className={`k-mode-pill ${sessionType === type ? 'active' : ''} ${canSelect(type) ? '' : 'is-locked'}`}
           onClick={() => selectSession(type)}
+          title={canSelect(type) ? undefined : type === 'shortBreak' ? 'Unlocks when you finish a focus session' : `Unlocks after every ${settings.sessionsPerRound} focus sessions`}
         >
+          {!canSelect(type) && (
+            <svg className="k-mode-lock" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+              <rect x="3" y="7" width="10" height="7" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 015 0v2" />
+            </svg>
+          )}
           {sessionCopy[type].label}
         </button>
       ))}
       <InfoTip title="Focus & Break Modes" position="bottom">
-        <p style={{ margin: '0 0 4px' }}><b>Focus:</b> 25m uninterrupted deep work round.</p>
-        <p style={{ margin: '0 0 4px' }}><b>Short Break:</b> 5m restorative breath recharge.</p>
-        <p style={{ margin: 0 }}><b>Long Break:</b> 15-20m deep reset every 4 rounds.</p>
+        <p style={{ margin: '0 0 4px' }}><b>Focus:</b> {settings.focusDuration}m of uninterrupted work.</p>
+        <p style={{ margin: '0 0 4px' }}><b>Short break:</b> {settings.shortBreakDuration}m, unlocks after each focus session.</p>
+        <p style={{ margin: '0 0 4px' }}><b>Long break:</b> {settings.longBreakDuration}m, unlocks after every {settings.sessionsPerRound} focus sessions.</p>
+        <p style={{ margin: 0 }}>Kairo picks the right break for you. You can always skip back to focus.</p>
       </InfoTip>
     </div>
   );

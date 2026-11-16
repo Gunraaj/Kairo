@@ -391,3 +391,5 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
   display: grid; gap: 4px; padding: 12px 16px; border-radius: 12px; font-size: 15px; text-align: left;
   background: var(--washi-card); border: 1px solid var(--stone-2); color: var(--sumi);
 }
+.k-mode-pill.is-locked { opacity: 0.45; cursor: not-allowed; }
+.k-mode-lock { margin-right: 4px; vertical-align: -1px; }

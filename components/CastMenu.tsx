@@ -47,6 +47,7 @@ export const CastMenu: React.FC<Props> = ({ soundOnTv, onSoundOnTv, onMessage })
             <input type="checkbox" checked={soundOnTv} onChange={e => onSoundOnTv(e.target.checked)} />
             <span>Play focus sound on the TV instead of here</span>
           </label>
+          {'brave' in navigator && <p className="k-settings-hint"><b>Brave:</b> casting is off by default. Turn on <b>Media Router</b> in brave://settings/extensions, relaunch, then the Cast option appears in the menu.</p>}
           <p className="k-settings-hint">Works with Chromecast and Google TV on the same Wi-Fi. No Chromecast? Drag the TV tab to a TV plugged in by HDMI, press Win+K (Miracast), or use AirPlay on a Mac.</p>
           {casting && <button type="button" className="k-link-btn" onClick={() => { stopCast(); setOpen(false); }}>Stop showing on TV</button>}
         </div>
