@@ -131,9 +131,37 @@ const callback = async (request: Request, env: Env): Promise<Response> => {
   return new Response(null, { status: 302, headers });
 };
 
+const APP_ORIGINS = new Set(['https://kairo.makekairo.workers.dev', 'https://makekairo.netlify.app', 'http://localhost:3010']);
+
+/** Self-serve account deletion. The caller proves who they are with their own Supabase access token. */
+const deleteAccount = async (request: Request, env: Env): Promise<Response> => {
+  const origin = request.headers.get('Origin') ?? '';
+  const cors: Record<string, string> = APP_ORIGINS.has(origin)
+    ? { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Authorization', Vary: 'Origin' }
+    : {};
+  if (request.method === 'OPTIONS') return new Response(null, { status: APP_ORIGINS.has(origin) ? 204 : 403, headers: cors });
+  if (request.method !== 'POST' || !APP_ORIGINS.has(origin)) return new Response('Forbidden', { status: 403, headers: cors });
+  const token = (request.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
+  if (!token) return new Response('Unauthorized', { status: 401, headers: cors });
+
+  const who = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, { headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` } });
+  const user = who.ok ? await who.json() as { id?: string } : null;
+  if (!user?.id || !UUID.test(user.id)) return new Response('Unauthorized', { status: 401, headers: cors });
+
+  const admin = { apikey: env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}` };
+  // Rows go with the user (on delete cascade); delete them explicitly too in case that ever changes.
+  for (const table of ['kairo_vault', 'kairo_state']) {
+    await fetch(`${env.SUPABASE_URL}/rest/v1/${table}?user_id=eq.${user.id}`, { method: 'DELETE', headers: admin });
+  }
+  const removed = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${user.id}`, { method: 'DELETE', headers: admin });
+  if (!removed.ok) return new Response('Could not delete the account', { status: 502, headers: cors });
+  return new Response(null, { status: 204, headers: cors });
+};
+
 const defaultHandler = {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    if (url.pathname === '/account/delete') return deleteAccount(request, env);
     if (url.pathname === '/authorize') return authorize(request, env);
     if (url.pathname === '/callback') return callback(request, env);
     if (url.pathname === '/') return html(renderMessage('Kairo connector', 'Add this server in Claude or ChatGPT using the address ending in /mcp.'));

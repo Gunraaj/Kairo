@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { loadTurnstile, TURNSTILE_SITEKEY } from '../utils/turnstile';
-import { activeSession, aiShareEnabled, deleteCloudData, pullAiState, pullVault, pushAiState, pushVault, sendLink, setAiShare, signOut } from '../utils/kairoCloud';
+import { activeSession, aiShareEnabled, deleteAccount, deleteCloudData, pullAiState, pullVault, pushAiState, pushVault, sendLink, setAiShare, signOut } from '../utils/kairoCloud';
 
 const CONNECTOR_URL = 'https://kairo-mcp.makekairo.workers.dev/mcp';
 
@@ -139,6 +139,12 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
           await deleteCloudData();
           return 'Cloud copy deleted.';
         })}>Delete cloud copy</button>
+        <button type="button" className="k-link-btn k-danger-link" disabled={busy} onClick={() => run(async () => {
+          if (!window.confirm('Delete your Kairo Cloud account? This erases your email and every cloud copy, and cannot be undone. Data in this browser stays.')) return;
+          await deleteAccount();
+          setSignedIn(false); setSent(false); setShare(false);
+          return 'Account deleted. Everything in the cloud is gone; this browser still has your plan.';
+        })}>Delete my account</button>
       </div>
       {status && <p className="k-settings-hint" role="status">{status}</p>}
     </div>

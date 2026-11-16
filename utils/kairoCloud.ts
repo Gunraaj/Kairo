@@ -196,3 +196,15 @@ export const pullAiState = async (fetchImpl: Fetch = fetch): Promise<number | nu
   localStorage.setItem('kairo_projects', JSON.stringify({ version: 2, data: projects }));
   return projects.length;
 };
+
+/** Deletes the Kairo Cloud account, its email and every stored row. Local data in this browser stays. */
+export const deleteAccount = async (fetchImpl: Fetch = fetch): Promise<void> => {
+  const session = await requireSession(fetchImpl);
+  const response = await fetchImpl('https://kairo-mcp.makekairo.workers.dev/account/delete', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  if (!response.ok) throw new Error(`Could not delete the account (HTTP ${response.status}).`);
+  storeSession(null);
+  try { localStorage.removeItem(SHARE_KEY); } catch { /* storage unavailable */ }
+};
