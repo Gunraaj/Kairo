@@ -16,7 +16,7 @@
     "deploy:netlify": "vite build && netlify deploy --dir dist --no-build --prod"
   },
   "dependencies": {
-    "gsap": "^3.15.0",
+    "gsap": "^3.15.1",
     "motion": "^13.0.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
