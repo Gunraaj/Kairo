@@ -15,6 +15,7 @@ import { ProjectHistoryModal } from './components/ProjectHistoryModal';
 import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { PlanInterviewModal } from './components/PlanInterviewModal';
+import { WelcomeGuide } from './components/WelcomeGuide';
 import { backupDue, downloadSnapshot, LAST_BACKUP_KEY } from './utils/backup';
 import { completeSignInFromUrl } from './utils/kairoCloud';
 import { FocusSetupModal } from './components/FocusSetupModal';
@@ -82,6 +83,7 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
   const [showInterview, setShowInterview] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [afterSession, setAfterSession] = useState<{ taskId?: string; name?: string; reached: boolean; done: number; target: number } | null>(null);
   const [undo, setUndo] = useState<{ snapshot: Project[]; label: string } | null>(null);
   const [localFlags, setLocalFlags] = useState(() => {
@@ -363,7 +365,7 @@ const App: React.FC = () => {
       } catch {}
       return;
     }
-    if (!localStorage.getItem('kairo_seen_welcome')) setShowInterview(true);
+    if (!localStorage.getItem('kairo_seen_welcome')) setShowGuide(true);
   }, [projects.length, sessions.length]);
 
 
@@ -413,7 +415,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     completeSignInFromUrl()
-      .then(ok => { if (ok) { announceToast('Signed in to Kairo Cloud. Open Settings to sync.'); setShowInterview(false); } })
+      .then(ok => { if (ok) { announceToast('Signed in to Kairo Cloud. Open Settings to sync.'); setShowInterview(false); setShowGuide(false); } })
       .catch(() => announceToast('Sign-in link expired or was opened in another browser. Send a new one from Settings.'));
   }, [announceToast]);
 
@@ -1101,6 +1103,23 @@ const App: React.FC = () => {
           onDone={() => {
             try { localStorage.setItem('kairo_focus_setup', '1'); } catch { /* storage unavailable */ }
             setShowFocusSetup(false);
+          }}
+        />
+      )}
+
+      {showGuide && (
+        <WelcomeGuide
+          settings={userSettings}
+          setSettings={setUserSettings}
+          onFinish={next => {
+            try {
+              localStorage.setItem('kairo_seen_welcome', '1');
+              localStorage.setItem('kairo_focus_setup', '1');
+            } catch { /* storage unavailable */ }
+            setFlag('kairo_focus_setup', 'focusSetup', '1');
+            setShowGuide(false);
+            if (next === 'plan') setShowInterview(true);
+            else setView('focus');
           }}
         />
       )}
