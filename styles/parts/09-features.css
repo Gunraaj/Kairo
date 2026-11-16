@@ -354,3 +354,5 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-guide-copy ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .k-guide-choices { display: flex; gap: 10px; flex-wrap: wrap; }
 .k-guide-nav { justify-content: flex-end; gap: 12px; align-items: center; }
+
+.k-cloud-captcha { min-height: 65px; }

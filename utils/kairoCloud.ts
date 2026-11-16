@@ -49,7 +49,7 @@ const storeSession = (session: AuthSession | null) => {
 const VERIFIER_KEY = 'kairo_cloud_verifier';
 
 /** Emails a one-time sign-in link. The PKCE verifier stays in this browser, so the link only works here. */
-export const sendLink = async (email: string, redirectTo: string, fetchImpl: Fetch = fetch): Promise<void> => {
+export const sendLink = async (email: string, redirectTo: string, captchaToken: string, fetchImpl: Fetch = fetch): Promise<void> => {
   const clean = email.trim().toLowerCase();
   if (!EMAIL.test(clean)) throw new Error('Enter a valid email address.');
   const { verifier, challenge } = await createPkcePair();
@@ -57,7 +57,7 @@ export const sendLink = async (email: string, redirectTo: string, fetchImpl: Fet
   const response = await fetchImpl(`${CLOUD.url}/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify({ email: clean, create_user: true, code_challenge: challenge, code_challenge_method: 's256' }),
+    body: JSON.stringify({ email: clean, create_user: true, code_challenge: challenge, code_challenge_method: 's256', gotrue_meta_security: { captcha_token: captchaToken } }),
   });
   if (!response.ok) await failure(response, 'Could not send the link');
 };

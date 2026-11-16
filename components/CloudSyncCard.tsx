@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { loadTurnstile, TURNSTILE_SITEKEY } from '../utils/turnstile';
 import { activeSession, deleteCloudData, pullVault, pushVault, sendLink, signOut } from '../utils/kairoCloud';
 
 type Props = { onRestore: (text: string) => number; onBeforeRestore: () => void };
@@ -14,6 +15,37 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [lastSync, setLastSync] = useState(readLastSync);
+
+  const captchaBox = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | null>(null);
+  const [captcha, setCaptcha] = useState('');
+
+  useEffect(() => {
+    if (signedIn || !captchaBox.current) return;
+    let cancelled = false;
+    loadTurnstile()
+      .then(api => {
+        if (cancelled || !captchaBox.current || widgetId.current) return;
+        widgetId.current = api.render(captchaBox.current, {
+          sitekey: TURNSTILE_SITEKEY,
+          size: 'flexible',
+          callback: (token: string) => setCaptcha(token),
+          'expired-callback': () => setCaptcha(''),
+          'error-callback': () => setCaptcha(''),
+        });
+      })
+      .catch(error => setStatus(error instanceof Error ? error.message : 'Bot check could not load.'));
+    return () => {
+      cancelled = true;
+      if (widgetId.current && window.turnstile) window.turnstile.remove(widgetId.current);
+      widgetId.current = null;
+    };
+  }, [signedIn]);
+
+  const resetCaptcha = () => {
+    setCaptcha('');
+    if (widgetId.current && window.turnstile) window.turnstile.reset(widgetId.current);
+  };
 
   useEffect(() => { activeSession().then(s => setSignedIn(Boolean(s))).catch(() => setSignedIn(false)); }, []);
 
@@ -39,10 +71,11 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
     return (
       <div className="k-cloud">
         <p className="k-settings-hint">Optional. Sign in with just your email to keep an encrypted copy of your plan and open it on another device. Kairo works fully without it.</p>
-        <form className="k-cloud-row" onSubmit={e => { e.preventDefault(); run(async () => { await sendLink(email, window.location.origin + window.location.pathname); setSent(true); return 'Link sent. Open it in this browser to finish signing in (check spam too).'; }); }}>
+        <form className="k-cloud-row" onSubmit={e => { e.preventDefault(); run(async () => { try { await sendLink(email, window.location.origin + window.location.pathname, captcha); } finally { resetCaptcha(); } setSent(true); return 'Link sent. Open it in this browser to finish signing in (check spam too).'; }); }}>
           <input type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} aria-label="Email" required />
-          <button type="submit" className="k-btn k-btn-primary" disabled={busy}>{sent ? 'Send again' : 'Email me a sign-in link'}</button>
+          <button type="submit" className="k-btn k-btn-primary" disabled={busy || !captcha}>{sent ? 'Send again' : 'Email me a sign-in link'}</button>
         </form>
+        <div ref={captchaBox} className="k-cloud-captcha" />
         {status && <p className="k-settings-hint" role="status">{status}</p>}
       </div>
     );
