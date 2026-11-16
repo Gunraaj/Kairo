@@ -83,6 +83,19 @@ Loop = observe -> compute -> propose -> approve -> apply.
 
 ---
 
+## Build status (2026-11-16)
+
+Live, all free tiers:
+- App: https://kairo.makekairo.workers.dev (Cloudflare, permanent) and https://makekairo.netlify.app (Netlify, deployed via API script while CLI deploys are paused).
+- Connector: https://kairo-mcp.makekairo.workers.dev/mcp (Cloudflare Worker, `connector/wrangler.jsonc`). OAuth 2.1 + PKCE + DCR + CIMD via `@cloudflare/workers-oauth-provider`, grants in KV, sign-in by Supabase email link with Turnstile, consent page escapes client data and cannot be framed. Service-role key exists only as the Worker secret `SUPABASE_SERVICE_KEY`.
+- Supabase project `xxfsmnxppdqwnakjijlk` (Mumbai): `kairo_vault` (E2E ciphertext) and `kairo_state` (opt-in readable copy), RLS verified (anon read 401, cross-user write 403). Auth: email link (PKCE), Turnstile captcha required, 12+ char complex passwords. Config in `supabase/config.toml`; secrets in git-ignored `.supabase-secrets`.
+- App: one first-run guide (welcome, focus, optional sync/AI, start choice), Kairo Cloud card (sign-in, encrypted save/load, Share with AI assistants, connector address), done prompt, up next, undo, backup reminder, focus screen fits short windows, privacy page `/privacy.html`.
+
+Remaining:
+1. Brevo SMTP: account exists; create SMTP key (needs the account's 6-digit email code), then add `[auth.email.smtp]` to `supabase/config.toml` with `pass = "env(BREVO_SMTP_KEY)"` and push. Until then Supabase's built-in email sends only to the org owner and about 2 emails per hour.
+2. Finish the connector end-to-end test after SMTP: `brag-output/work/mcp_listen.py` + `mcp_client.py start` (OAuth up to code issuance already verified), then add the connector in Claude and ChatGPT.
+3. Push the local commits to GitHub (owner approval).
+
 ## Build status (2026-11-14, end of day)
 
 Done, tested (177 tests) and checked in a real browser: upgrade-path steps 1 (AI layer), 2 (Today home, onboarding, mobile tab bar Today/Focus/Plan/Progress, extras behind Settings), 3 (deadlines, pace, schedule, AI re-plan with approve-a-diff), 4 (paste bridge, share links), 5 (installable app: manifest, icons, offline service worker, session-end notifications from Settings) and the config half of 6 (`public/_headers` for Cloudflare Pages, README deploy notes).
