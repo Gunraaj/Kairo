@@ -2,7 +2,7 @@ project_id = "kairo"
 
 [auth]
 site_url = "https://kairo.makekairo.workers.dev"
-additional_redirect_urls = ["https://kairo.makekairo.workers.dev/**", "https://makekairo.netlify.app/**", "http://localhost:3010/**"]
+additional_redirect_urls = ["https://kairo.makekairo.workers.dev/**", "https://makekairo.netlify.app/**", "http://localhost:3010/**", "https://kairo-mcp.makekairo.workers.dev/callback**"]
 enable_signup = true
 enable_anonymous_sign_ins = false
 minimum_password_length = 12

@@ -1,6 +1,7 @@
 import { createPkcePair, exchangeCode, needsRefresh, refreshSession, type AuthSession } from './supabaseAuth';
 import { decryptVault, encryptVault, type VaultEnvelope } from './vaultCrypto';
 import { exportSnapshot } from './backup';
+import { normalizeProjects, normalizeSessions } from '../data/validation';
 
 /**
  * Optional hosted sync ("Kairo Cloud"). The URL and publishable key are public by design;
@@ -145,4 +146,53 @@ export const deleteCloudData = async (fetchImpl: Fetch = fetch): Promise<void> =
     const response = await fetchImpl(`${CLOUD.url}/rest/v1/${table}?user_id=eq.${session.userId}`, { method: 'DELETE', headers: headers(session.accessToken) });
     if (!response.ok) await failure(response, 'Delete failed');
   }
+};
+
+/* Connected mode: a readable copy for AI connectors. Opt-in; the encrypted vault is separate. */
+const SHARE_KEY = 'kairo_ai_share';
+const readStored = (key: string): unknown => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) ?? 'null');
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) && 'data' in parsed ? parsed.data : parsed;
+  } catch { return null; }
+};
+
+export const aiShareEnabled = (): boolean => { try { return localStorage.getItem(SHARE_KEY) === '1'; } catch { return false; } };
+
+export const pushAiState = async (fetchImpl: Fetch = fetch): Promise<void> => {
+  const session = await requireSession(fetchImpl);
+  const response = await fetchImpl(`${CLOUD.url}/rest/v1/kairo_state?on_conflict=user_id`, {
+    method: 'POST',
+    headers: { ...headers(session.accessToken), Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({
+      user_id: session.userId,
+      projects: normalizeProjects(readStored('kairo_projects')),
+      sessions: normalizeSessions(readStored('kairo_sessions')).slice(0, 2000),
+      updated_at: new Date().toISOString(),
+    }),
+  });
+  if (!response.ok) await failure(response, 'Sharing failed');
+};
+
+export const setAiShare = async (on: boolean, fetchImpl: Fetch = fetch): Promise<void> => {
+  if (on) {
+    await pushAiState(fetchImpl);
+  } else {
+    const session = await requireSession(fetchImpl);
+    const response = await fetchImpl(`${CLOUD.url}/rest/v1/kairo_state?user_id=eq.${session.userId}`, { method: 'DELETE', headers: headers(session.accessToken) });
+    if (!response.ok) await failure(response, 'Could not stop sharing');
+  }
+  try { localStorage.setItem(SHARE_KEY, on ? '1' : '0'); } catch { /* storage unavailable */ }
+};
+
+/** Pulls projects an AI assistant added or changed. Returns the count, or null if nothing is shared yet. */
+export const pullAiState = async (fetchImpl: Fetch = fetch): Promise<number | null> => {
+  const session = await requireSession(fetchImpl);
+  const response = await fetchImpl(`${CLOUD.url}/rest/v1/kairo_state?user_id=eq.${session.userId}&select=projects`, { headers: headers(session.accessToken) });
+  if (!response.ok) await failure(response, 'Could not load AI changes');
+  const rows = await response.json();
+  if (!Array.isArray(rows) || !rows[0]) return null;
+  const projects = normalizeProjects(rows[0].projects);
+  localStorage.setItem('kairo_projects', JSON.stringify({ version: 2, data: projects }));
+  return projects.length;
 };

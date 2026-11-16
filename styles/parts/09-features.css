@@ -356,3 +356,6 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-guide-nav { justify-content: flex-end; gap: 12px; align-items: center; }
 
 .k-cloud-captcha { min-height: 65px; }
+
+.k-cloud-ai { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--stone-3); }
+.k-cloud-ai label.k-cloud-row { align-items: flex-start; flex-wrap: nowrap; font-size: 13px; color: var(--sumi-2); }

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kairo privacy</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f2ea;--ink:#1e1b17;--muted:#5f584e;--line:#e3dccf}
+@media (prefers-color-scheme:dark){:root{--bg:#0f0f13;--ink:#eee9df;--muted:#a49d92;--line:#2a2a33}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}p,li{color:var(--muted)}a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+<h1>Kairo privacy</h1>
+<p>Last updated 16 November 2026. Plain language, no tricks.</p>
+
+<h2>By default, nothing leaves your browser</h2>
+<p>Kairo works without an account. Your projects, sessions and settings are stored only in this browser (local storage). We have no analytics, no ads and no tracking cookies.</p>
+
+<h2>AI features you turn on</h2>
+<p>If you add an AI key or a local model in Settings, the text you send for planning goes directly from your browser to that provider (for example Google, OpenAI, Anthropic, OpenRouter, or your own Ollama). Your key stays in your browser. That provider's privacy policy applies to what you send.</p>
+
+<h2>Kairo Cloud (optional)</h2>
+<ul>
+<li><b>Sign-in:</b> we store your email address so we can send you sign-in links. Email is delivered through our email provider. A Cloudflare Turnstile check protects the sign-in form from bots.</li>
+<li><b>Encrypted sync:</b> your plan is encrypted in your browser with your passphrase before upload. We store only the encrypted copy and cannot read it or recover it if you forget the passphrase.</li>
+<li><b>Share with AI assistants:</b> only if you switch this on, a readable copy of your projects and study sessions is stored so that an AI assistant you connect (Claude or ChatGPT) can read your plan and add to it. Switching it off deletes that copy.</li>
+</ul>
+<p>Data is hosted by Supabase (database, region: Mumbai) and Cloudflare (website and connector). Every row is locked to your account with row level security.</p>
+
+<h2>Connecting Claude or ChatGPT</h2>
+<p>When you connect an assistant, you approve it on a Kairo page and sign in with your Kairo Cloud email. The assistant gets a token that can read your plan and add plans, subtasks and deadlines. It cannot see your encrypted backup, your AI keys or your email. Tokens expire after an hour and are refreshed only while you stay connected.</p>
+
+<h2>Deleting your data</h2>
+<p>In Settings, Kairo Cloud: "Delete cloud copy" removes your stored data, and turning off sharing removes the readable copy. To delete your account and email too, use the contact below.</p>
+
+<h2>Contact</h2>
+<p>Questions or deletion requests: <a href="mailto:mugiwaragames001@gmail.com">mugiwaragames001@gmail.com</a>.</p>
+<p><a href="/">Back to Kairo</a></p>
+</main>
+</body>
+</html>

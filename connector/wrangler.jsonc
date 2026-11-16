@@ -1,0 +1,20 @@
+{
+  "name": "kairo-mcp",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-11-16",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "preview_urls": false,
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "51ee2cd5a6cc49d082d243ce1b77cefb" }],
+  "vars": {
+    "SUPABASE_URL": "https://xxfsmnxppdqwnakjijlk.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_oAaTRqnzamNa1v9t2FECLw_Zhncw9hc",
+    "TURNSTILE_SITEKEY": "0x4AAAAAAGDGo0fE8e_HYL59",
+    "PUBLIC_ORIGIN": "https://kairo-mcp.makekairo.workers.dev"
+  },
+  // SUPABASE_SERVICE_KEY is a secret: `wrangler secret put SUPABASE_SERVICE_KEY`. Never put it here.
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+  }
+}

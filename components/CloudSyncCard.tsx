@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { loadTurnstile, TURNSTILE_SITEKEY } from '../utils/turnstile';
-import { activeSession, deleteCloudData, pullVault, pushVault, sendLink, signOut } from '../utils/kairoCloud';
+import { activeSession, aiShareEnabled, deleteCloudData, pullAiState, pullVault, pushAiState, pushVault, sendLink, setAiShare, signOut } from '../utils/kairoCloud';
+
+const CONNECTOR_URL = 'https://kairo-mcp.makekairo.workers.dev/mcp';
 
 type Props = { onRestore: (text: string) => number; onBeforeRestore: () => void };
 
@@ -15,6 +17,7 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [lastSync, setLastSync] = useState(readLastSync);
+  const [share, setShare] = useState(aiShareEnabled);
 
   const captchaBox = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
@@ -70,7 +73,7 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
   if (!signedIn) {
     return (
       <div className="k-cloud">
-        <p className="k-settings-hint">Optional. Sign in with just your email to keep an encrypted copy of your plan and open it on another device. Kairo works fully without it.</p>
+        <p className="k-settings-hint">Optional. Sign in with just your email to keep an encrypted copy of your plan and open it on another device. Kairo works fully without it. <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></p>
         <form className="k-cloud-row" onSubmit={e => { e.preventDefault(); run(async () => { try { await sendLink(email, window.location.origin + window.location.pathname, captcha); } finally { resetCaptcha(); } setSent(true); return 'Link sent. Open it in this browser to finish signing in (check spam too).'; }); }}>
           <input type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} aria-label="Email" required />
           <button type="submit" className="k-btn k-btn-primary" disabled={busy || !captcha}>{sent ? 'Send again' : 'Email me a sign-in link'}</button>
@@ -102,6 +105,32 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
           window.setTimeout(() => window.location.reload(), 600);
           return `Restored ${count} items. Reloading…`;
         })}>Load from cloud</button>
+      </div>
+      <div className="k-cloud-ai">
+        <label className="k-cloud-row">
+          <input type="checkbox" checked={share} disabled={busy} onChange={e => { const on = e.target.checked; run(async () => { await setAiShare(on); setShare(on); return on ? 'Shared. Claude or ChatGPT can now read and add to your plan.' : 'Stopped sharing. The readable copy was deleted.'; }); }} />
+          <span><b>Share with AI assistants</b> (Claude, ChatGPT). This copy is not encrypted, so the connector can read it.</span>
+        </label>
+        {share && (
+          <>
+            <p className="k-settings-hint">In Claude or ChatGPT, add a custom connector with this address, then sign in with this email:</p>
+            <div className="k-cloud-row">
+              <input readOnly value={CONNECTOR_URL} aria-label="Connector address" onFocus={e => e.currentTarget.select()} />
+              <button type="button" className="k-btn" onClick={() => { void navigator.clipboard?.writeText(CONNECTOR_URL); setStatus('Address copied.'); }}>Copy</button>
+            </div>
+            <div className="k-cloud-row">
+              <button type="button" className="k-btn" disabled={busy} onClick={() => run(async () => { await pushAiState(); return 'Sent your latest plan to the AI copy.'; })}>Send my plan</button>
+              <button type="button" className="k-btn" disabled={busy} onClick={() => run(async () => {
+                if (!window.confirm('Replace your projects here with the AI copy? A backup file downloads first.')) return;
+                onBeforeRestore();
+                const count = await pullAiState();
+                if (count === null) return 'Nothing shared yet.';
+                window.setTimeout(() => window.location.reload(), 600);
+                return `Loaded ${count} projects. Reloading…`;
+              })}>Get AI changes</button>
+            </div>
+          </>
+        )}
       </div>
       <div className="k-cloud-row">
         <button type="button" className="k-link-btn" disabled={busy} onClick={() => run(async () => { await signOut(); setSignedIn(false); setSent(false); return 'Signed out. Your local data is untouched.'; })}>Sign out</button>
