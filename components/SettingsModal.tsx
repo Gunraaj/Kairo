@@ -331,8 +331,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
-              <b id="sessions-per-round-label">Focus sessions per round</b>
-              <small>How many focus blocks before a long break.</small>
+              <b id="sessions-per-round-label">Long break after every</b>
+              <small>Number of focus sessions before a long break unlocks (1 to 12).</small>
             </div>
             <span className="k-num-input-wrap">
               <input

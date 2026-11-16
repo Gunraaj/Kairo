@@ -972,6 +972,21 @@ export const Stage: React.FC<StageProps> = ({
 
       <div className="k-meta-divider" aria-hidden="true" />
 
+      <div className="k-meta-group" title={`Long break after every ${settings.sessionsPerRound} focus sessions. ${settings.sessionsPerRound - (totalPomodoros % settings.sessionsPerRound)} to go.`}>
+        <span className="k-meta-subtle-label">Long break every:</span>
+        <NumberField
+          value={settings.sessionsPerRound}
+          min={1}
+          max={12}
+          width={28}
+          ariaLabel="Take a long break after this many focus sessions"
+          onCommit={next => setSettings({ ...settings, sessionsPerRound: Math.round(Math.min(12, Math.max(1, next))) })}
+        />
+        <span className="k-meta-subtle-label">{settings.sessionsPerRound === 1 ? 'session' : 'sessions'}</span>
+      </div>
+
+      <div className="k-meta-divider" aria-hidden="true" />
+
       <button
         className="k-toggle-compact"
         aria-pressed={settings.autoStartBreaks}

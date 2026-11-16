@@ -371,12 +371,16 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-cast-title { margin: 0; font-weight: 600; }
 .k-cast-check { display: flex; gap: 8px; align-items: flex-start; font-size: calc(15px * var(--text-scale, 1)); }
 .k-tv {
-  min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 2vh;
-  background: var(--washi); color: var(--sumi); text-align: center; padding: 4vh 4vw; box-sizing: border-box;
+  /* vh first: older Chromecast browsers do not know dvh and would drop the height, pushing everything up. */
+  min-height: 100vh; min-height: 100dvh; height: 100vh; height: 100dvh;
+  display: grid; grid-template-rows: 1fr auto 1fr; justify-items: center; align-items: center;
+  background: var(--washi); color: var(--sumi); text-align: center; padding: 0 4vw; box-sizing: border-box; overflow: hidden;
 }
+.k-tv-top { align-self: end; padding-bottom: 3vh; }
+.k-tv-bottom { align-self: start; padding-top: 3vh; display: grid; gap: 1.5vh; justify-items: center; }
 .k-tv-label { margin: 0; font-size: clamp(18px, 3vh, 40px); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; }
 .k-tv-dial { position: relative; width: min(56vh, 80vw); aspect-ratio: 1; display: grid; place-items: center; }
-.k-tv-dial svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.k-tv-dial svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
 .k-tv-track, .k-tv-progress { fill: none; stroke-width: 2.4; }
 .k-tv-track { stroke: var(--stone-2); }
 .k-tv-progress { stroke: var(--shu); stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }
@@ -392,7 +396,7 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 }
 .k-mode-pill.is-locked { opacity: 0.45; cursor: not-allowed; }
 .k-mode-lock { margin-right: 4px; vertical-align: -1px; }
-.k-tv-overlay { position: fixed; inset: 0; z-index: 1000; }
+.k-tv-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; }
 .k-tv-controls { display: flex; gap: 10px; margin-top: 1vh; opacity: 0.35; transition: opacity 0.2s; }
 .k-tv-overlay:hover .k-tv-controls, .k-tv-controls:focus-within { opacity: 1; }
 .k-tv-footnote { margin: 0; font-size: calc(14px * var(--text-scale, 1)); color: var(--sumi-3); }

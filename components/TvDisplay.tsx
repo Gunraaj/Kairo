@@ -8,27 +8,83 @@ const SILENT: AudioSettings = {
   waveType: 'sine', noiseType: 'brown', binauralVolume: 0.25, noiseVolume: 0.5, masterVolume: 0.7,
 };
 
+type Layer = { el: HTMLAudioElement | null; source: AudioBufferSourceNode | null; gain: GainNode | null; volume: number; gone: boolean };
+
+let ambientContext: AudioContext | null = null;
+const getAmbientContext = () => {
+  // 22.05 kHz halves the memory of decoded loops, which matters on a Chromecast.
+  if (!ambientContext) {
+    try { ambientContext = new AudioContext({ sampleRate: 22050 }); } catch { ambientContext = new AudioContext(); }
+  }
+  return ambientContext;
+};
+
+/**
+ * Web Audio route for one loop. Inside the DashCast frame, Chrome can refuse <audio>.play()
+ * while still allowing Web Audio (which the focus tone uses), so this is the fallback.
+ */
+const startBufferLoop = async (url: string, layer: Layer) => {
+  const context = getAmbientContext();
+  const data = await (await fetch(url, { mode: 'cors', credentials: 'omit' })).arrayBuffer();
+  const buffer = await context.decodeAudioData(data);
+  if (layer.gone) return;
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  const gain = context.createGain();
+  gain.gain.value = layer.volume;
+  source.connect(gain).connect(context.destination);
+  source.start();
+  layer.source = source;
+  layer.gain = gain;
+  await context.resume().catch(() => undefined);
+};
+
+const stopLayer = (layer: Layer) => {
+  layer.gone = true;
+  if (layer.el) { layer.el.pause(); layer.el.src = ''; }
+  try { layer.source?.stop(); } catch { /* not started */ }
+  layer.source?.disconnect();
+  layer.gain?.disconnect();
+};
+
 /** Plays Sound Studio layers on the TV. URLs were already checked against Kairo's sound library. */
 const useAmbientPlayers = (layers: AmbientLayer[], enabled: boolean) => {
-  const players = useRef(new Map<string, HTMLAudioElement>());
+  const players = useRef(new Map<string, Layer>());
   useEffect(() => {
     const wanted = new Map(enabled ? layers.map(l => [l.url, l.volume]) : []);
-    players.current.forEach((player, url) => {
-      if (!wanted.has(url)) { player.pause(); player.src = ''; players.current.delete(url); }
+    players.current.forEach((layer, url) => {
+      if (!wanted.has(url)) { stopLayer(layer); players.current.delete(url); }
     });
     wanted.forEach((volume, url) => {
-      let player = players.current.get(url);
-      if (!player) {
-        player = new Audio(url);
-        player.loop = true;
-        players.current.set(url, player);
-        void player.play().catch(() => undefined);
+      const existing = players.current.get(url);
+      if (existing) {
+        existing.volume = volume;
+        if (existing.el) existing.el.volume = volume;
+        if (existing.gain) existing.gain.gain.value = volume;
+        return;
       }
-      player.volume = volume;
+      const el = new Audio(url);
+      const layer: Layer = { el, source: null, gain: null, volume, gone: false };
+      players.current.set(url, layer);
+      el.loop = true;
+      el.volume = volume;
+      el.play().catch(() => {
+        // Blocked: drop the element and play the same file through Web Audio instead.
+        el.src = '';
+        layer.el = null;
+        if (!layer.gone) void startBufferLoop(url, layer).catch(() => undefined);
+      });
     });
   }, [layers, enabled]);
-  useEffect(() => () => { players.current.forEach(p => { p.pause(); p.src = ''; }); players.current.clear(); }, []);
-  return () => players.current.forEach(p => void p.play().catch(() => undefined));
+  useEffect(() => {
+    const current = players.current;
+    return () => { current.forEach(stopLayer); current.clear(); };
+  }, []);
+  return () => {
+    void ambientContext?.resume().catch(() => undefined);
+    players.current.forEach(layer => { void layer.el?.play().catch(() => undefined); });
+  };
 };
 
 const SESSION_LABEL = { focus: 'Focus', shortBreak: 'Short break', longBreak: 'Long break' } as const;
@@ -41,15 +97,24 @@ const useNow = () => {
   return now;
 };
 
+/** Three rows (label / dial / details) so the dial sits at the exact centre of the screen. */
 const Dial: React.FC<{ state: DisplayState | null; now: number; children?: React.ReactNode; waiting: string }> = ({ state, now, children, waiting }) => {
-  if (!state) return <p className="k-tv-waiting">{waiting}</p>;
+  if (!state) {
+    return (
+      <>
+        <div className="k-tv-top" />
+        <p className="k-tv-waiting">{waiting}</p>
+        <div className="k-tv-bottom">{children}</div>
+      </>
+    );
+  }
   const left = secondsLeft(state, now);
   const progress = 1 - left / state.total;
   const r = 46;
   const circumference = 2 * Math.PI * r;
   return (
     <>
-      <p className="k-tv-label">{state.label || SESSION_LABEL[state.sessionType]}</p>
+      <div className="k-tv-top"><p className="k-tv-label">{state.label || SESSION_LABEL[state.sessionType]}</p></div>
       <div className="k-tv-dial">
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r={r} className="k-tv-track" />
@@ -57,8 +122,10 @@ const Dial: React.FC<{ state: DisplayState | null; now: number; children?: React
         </svg>
         <time className="k-tv-time">{format(left)}</time>
       </div>
-      <p className="k-tv-target">{state.target}{!state.isActive && ' · Paused'}</p>
-      {children}
+      <div className="k-tv-bottom">
+        <p className="k-tv-target">{state.target}{!state.isActive && ' · Paused'}</p>
+        {children}
+      </div>
     </>
   );
 };
@@ -91,11 +158,12 @@ export const TvMode: React.FC<{ onExit: () => void; onToggleTimer: () => void }>
           <button type="button" className="k-link-btn" onClick={() => setHint(false)}>Got it</button>
         </div>
       )}
-      <Dial state={state} now={now} waiting="Getting the timer ready…" />
-      <div className="k-tv-controls">
-        <button type="button" className="k-btn" onClick={onToggleTimer}>{state?.isActive ? 'Pause' : 'Start'}</button>
-        <button type="button" className="k-btn" onClick={onExit}>Exit TV mode</button>
-      </div>
+      <Dial state={state} now={now} waiting="Getting the timer ready…">
+        <div className="k-tv-controls">
+          <button type="button" className="k-btn" onClick={onToggleTimer}>{state?.isActive ? 'Pause' : 'Start'}</button>
+          <button type="button" className="k-btn" onClick={onExit}>Exit TV mode</button>
+        </div>
+      </Dial>
     </div>
   );
 };
@@ -143,9 +211,10 @@ export const TvDisplay: React.FC = () => {
         if (!onChromecast && !document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined);
       }}
     >
-      <Dial state={state} now={now} waiting={onChromecast ? 'Connecting to Kairo…' : 'Waiting for Kairo… Keep Kairo open in another tab.'} />
-      {soundBlocked && <p className="k-tv-footnote">Click anywhere to turn on sound.</p>}
-      {!onChromecast && <p className="k-tv-footnote">Click for full screen. Sound plays from the Kairo tab.</p>}
+      <Dial state={state} now={now} waiting={onChromecast ? 'Connecting to Kairo…' : 'Waiting for Kairo… Keep Kairo open in another tab.'}>
+        {soundBlocked && <p className="k-tv-footnote">Click anywhere to turn on sound.</p>}
+        {!onChromecast && <p className="k-tv-footnote">Click for full screen. Sound plays from the Kairo tab.</p>}
+      </Dial>
     </main>
   );
 };
