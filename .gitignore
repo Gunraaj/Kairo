@@ -51,3 +51,5 @@ ROADMAP.xlsx
 brag-output/
 .cf-dist/
 .wrangler/
+.supabase-secrets
+supabase/.temp

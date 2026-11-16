@@ -627,7 +627,8 @@
 .k-hero-dial-wrapper {
   position: relative;
   width: 100%;
-  max-width: 330px;
+  /* Shrinks on short windows (e.g. 125% Windows scaling) so the controls fit without scrolling. */
+  max-width: clamp(200px, calc(100dvh - 500px), 330px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;

@@ -28,7 +28,7 @@ export const buildAuthorizeUrl = (input: { url: string; provider?: string; redir
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const toSession = (body: any, now: number): AuthSession => {
+export const toSession = (body: any, now: number): AuthSession => {
   const accessToken = typeof body?.access_token === 'string' ? body.access_token : '';
   const refreshToken = typeof body?.refresh_token === 'string' ? body.refresh_token : '';
   const userId = typeof body?.user?.id === 'string' ? body.user.id : '';

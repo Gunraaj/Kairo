@@ -16,6 +16,7 @@ import { applyReplanOps, type ReplanOp } from './utils/replan';
 import { decodePlanLink, type BridgePlan } from './utils/aiBridge';
 import { PlanInterviewModal } from './components/PlanInterviewModal';
 import { backupDue, downloadSnapshot, LAST_BACKUP_KEY } from './utils/backup';
+import { completeSignInFromUrl } from './utils/kairoCloud';
 import { FocusSetupModal } from './components/FocusSetupModal';
 import { DocumentBreakdownModal } from './components/DocumentBreakdownModal';
 import { buildTodayState } from './utils/todayPlan';
@@ -92,7 +93,7 @@ const App: React.FC = () => {
     setLocalFlags(prev => ({ ...prev, [field]: value }));
   }, []);
   const [showFocusSetup, setShowFocusSetup] = useState(() => {
-    try { return Boolean(localStorage.getItem('kairo_seen_welcome')) && !localStorage.getItem('kairo_focus_setup'); } catch { return false; }
+    return false;
   });
   const [showFileImport, setShowFileImport] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
@@ -410,10 +411,16 @@ const App: React.FC = () => {
     if (soundStudioOpen && !localFlags.triedSound) setFlag('kairo_tried_sound', 'triedSound', '1');
   }, [soundStudioOpen, localFlags.triedSound, setFlag]);
 
+  useEffect(() => {
+    completeSignInFromUrl()
+      .then(ok => { if (ok) { announceToast('Signed in to Kairo Cloud. Open Settings to sync.'); setShowInterview(false); } })
+      .catch(() => announceToast('Sign-in link expired or was opened in another browser. Send a new one from Settings.'));
+  }, [announceToast]);
+
   const closeInterview = useCallback(() => {
     try {
       localStorage.setItem('kairo_seen_welcome', '1');
-      if (!localStorage.getItem('kairo_focus_setup')) setShowFocusSetup(true);
+      localStorage.setItem('kairo_focus_setup', '1');
     } catch { /* storage unavailable */ }
     setShowInterview(false);
   }, []);

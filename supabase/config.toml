@@ -1,0 +1,11 @@
+project_id = "kairo"
+
+[auth]
+site_url = "https://kairo.makekairo.workers.dev"
+additional_redirect_urls = ["https://kairo.makekairo.workers.dev/**", "https://makekairo.netlify.app/**", "http://localhost:3010/**"]
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+otp_expiry = 900

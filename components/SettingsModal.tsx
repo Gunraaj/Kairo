@@ -25,6 +25,7 @@ import {
 import { notificationPermission, requestNotificationPermission } from '../utils/notify';
 import { FOCUS_SOUND_OPTIONS } from './FocusSetupModal';
 import { KAIRO_KEYS, downloadSnapshot, getSnapshotPayload } from '../utils/backup';
+import { CloudSyncCard } from './CloudSyncCard';
 import type { FocusSound } from '../types';
 import { listModels, fallbackModels, type ModelOption } from '../utils/modelCatalog';
 import {
@@ -888,7 +889,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         <section className="k-settings-section">
-          <div className="k-settings-section-title">Cloud backup (optional)</div>
+          <div className="k-settings-section-title">Kairo Cloud sync (optional)</div>
+          <CloudSyncCard onRestore={importSnapshot} onBeforeRestore={() => downloadSnapshot('kairo-pre-restore')} />
+        </section>
+
+        <section className="k-settings-section">
+          <div className="k-settings-section-title">Your own Supabase (advanced)</div>
           <p className="k-settings-section-help">
             Kairo is 100% offline-first. To optionally back up or sync across browsers, provide your Supabase project credentials. Your keys stay in this browser.
           </p>

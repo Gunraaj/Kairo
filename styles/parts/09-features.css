@@ -332,3 +332,16 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-today-started ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; flex-wrap: wrap; flex: 1; }
 .k-today-started b { color: var(--sumi); }
 .k-today-started li.is-done { color: var(--sumi-3); text-decoration: line-through; }
+
+/* Kairo Cloud card */
+.k-cloud { display: grid; gap: 10px; }
+.k-cloud-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.k-cloud-row input { flex: 1 1 220px; min-width: 0; padding: 8px 10px; border-radius: var(--r-sm, 8px); border: 1px solid var(--stone-2); background: var(--washi-card); color: var(--sumi); font: inherit; }
+.k-danger-link { color: var(--shu); }
+
+/* Short windows: tighten the focus stage so everything fits on one screen */
+@media (min-width: 769px) and (max-height: 760px) {
+  .k-stage { padding-bottom: 12px; }
+  .k-stage-zen { gap: 12px; }
+  .k-control-dock { gap: 8px; }
+}
