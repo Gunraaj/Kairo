@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { canCast, openTvWindow, startCast, stopCast, useCastStatus } from '../utils/castDisplay';
+import { openTvView, stopCast, useCastStatus } from '../utils/castDisplay';
 
 type Props = { soundOnTv: boolean; onSoundOnTv: (on: boolean) => void; onMessage: (text: string) => void };
 
@@ -19,18 +19,6 @@ export const CastMenu: React.FC<Props> = ({ soundOnTv, onSoundOnTv, onMessage })
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
   }, [open]);
 
-  const cast = async () => {
-    try {
-      await startCast();
-      setOpen(false);
-      onMessage('Casting the timer to your TV');
-    } catch (error) {
-      const name = error instanceof DOMException ? error.name : '';
-      if (name === 'AbortError' || name === 'NotAllowedError') return;
-      onMessage(name === 'NotFoundError' ? 'No TV found. Make sure it is on the same Wi-Fi.' : 'Could not start casting.');
-    }
-  };
-
   return (
     <div className="k-cast" ref={box}>
       <button
@@ -49,18 +37,17 @@ export const CastMenu: React.FC<Props> = ({ soundOnTv, onSoundOnTv, onMessage })
       {open && (
         <div className="k-cast-menu" role="dialog" aria-label="Show on TV">
           <p className="k-cast-title">Show the timer on a TV</p>
-          {canCast() && (
-            <button type="button" className="k-btn k-btn-primary" onClick={() => void cast()}>Cast to TV</button>
-          )}
-          <button type="button" className="k-btn" onClick={() => { openTvWindow(); setOpen(false); }}>Open TV window</button>
+          <button type="button" className="k-btn k-btn-primary" onClick={() => { openTvView(); setOpen(false); onMessage('TV view opened in a new tab. Cast that tab to your TV.'); }}>Open TV view</button>
+          <ol className="k-cast-steps">
+            <li>Click <b>Open TV view</b>. A new tab opens with a big timer.</li>
+            <li>In that tab, open the browser menu (⋮) and choose <b>Cast…</b>. In Chrome it is under <b>Cast, save and share</b>. In Edge: <b>More tools → Cast media to device</b>.</li>
+            <li>Pick your TV, then click the timer once for full screen and sound.</li>
+          </ol>
           <label className="k-cast-check">
             <input type="checkbox" checked={soundOnTv} onChange={e => onSoundOnTv(e.target.checked)} />
             <span>Play focus sound on the TV instead of here</span>
           </label>
-          <p className="k-settings-hint">
-            {canCast() ? 'Cast to TV works with Chromecast and Google TV on the same Wi-Fi. ' : 'This browser cannot cast directly. '}
-            For other TVs, open the TV window and drag it to the TV (HDMI), press Win+K (Miracast), use AirPlay on a Mac, or use your browser's Cast tab.
-          </p>
+          <p className="k-settings-hint">Works with Chromecast and Google TV on the same Wi-Fi. No Chromecast? Drag the TV tab to a TV plugged in by HDMI, press Win+K (Miracast), or use AirPlay on a Mac.</p>
           {casting && <button type="button" className="k-link-btn" onClick={() => { stopCast(); setOpen(false); }}>Stop showing on TV</button>}
         </div>
       )}

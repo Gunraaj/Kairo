@@ -372,7 +372,7 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-cast-check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
 .k-tv {
   min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 2vh;
-  background: var(--washi); color: var(--sumi); text-align: center; padding: 4vh 4vw; box-sizing: border-box; cursor: none;
+  background: var(--washi); color: var(--sumi); text-align: center; padding: 4vh 4vw; box-sizing: border-box;
 }
 .k-tv-label { margin: 0; font-size: clamp(18px, 3vh, 40px); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; }
 .k-tv-dial { position: relative; width: min(70vh, 80vw); aspect-ratio: 1; display: grid; place-items: center; }
@@ -385,3 +385,9 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-tv.is-paused .k-tv-time { opacity: 0.55; }
 .k-tv-waiting { font-size: clamp(16px, 3vh, 32px); opacity: 0.7; max-width: 30ch; }
 .k-tv-sound { cursor: pointer; }
+.k-cast-steps { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; color: var(--sumi-2); }
+.k-tv-hint {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: min(560px, calc(100vw - 32px));
+  display: grid; gap: 4px; padding: 12px 16px; border-radius: 12px; font-size: 15px; text-align: left;
+  background: var(--washi-card); border: 1px solid var(--stone-2); color: var(--sumi);
+}

@@ -364,6 +364,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
+              <b id="keep-sound-label">Keep sound playing when paused</b>
+              <small>Pausing the timer leaves your sound on or off as it is. Turn it on or off yourself in Sound Studio.</small>
+            </div>
+            <Toggle
+              labelId="keep-sound-label"
+              enabled={local.keepSoundOnPause}
+              onChange={enabled => setLocal(prev => ({ ...prev, keepSoundOnPause: enabled }))}
+            />
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
               <b id="deep-focus-label">Pause when I switch tabs</b>
               <small>Pause the timer when this tab becomes hidden.</small>
             </div>

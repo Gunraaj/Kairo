@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
 import type { AudioSettings } from '../types';
-import { isCastReceiver, listenForDisplay, type DisplayState } from '../utils/castDisplay';
+import { listenForDisplay, type DisplayState } from '../utils/castDisplay';
 
 const SILENT: AudioSettings = {
   isPlaying: false, engineEnabled: true, mode: 'noise', ambientPreset: 'none', baseFrequency: 200, beatFrequency: 10,
@@ -17,8 +17,8 @@ export const TvDisplay: React.FC = () => {
   const [state, setState] = useState<DisplayState | null>(null);
   const receivedAt = useRef(Date.now());
   const [now, setNow] = useState(Date.now());
-  const receiver = useMemo(isCastReceiver, []);
-  const [soundOn, setSoundOn] = useState(receiver);
+  const [soundOn, setSoundOn] = useState(false);
+  const [hint, setHint] = useState(true);
 
   useEffect(() => listenForDisplay(next => { receivedAt.current = Date.now(); setState(next); }, () => window.close()), []);
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
@@ -33,11 +33,25 @@ export const TvDisplay: React.FC = () => {
 
   const audio = state?.audio ?? null;
   const engine = useAudioEngine(audio && soundOn ? audio : SILENT);
-  useEffect(() => { if (receiver && audio?.isPlaying) void engine.resume().catch(() => setSoundOn(false)); }, [receiver, audio?.isPlaying, engine]);
+
+  /** One click unlocks sound (browsers require it) and fills the screen for casting. */
+  const activate = () => {
+    setHint(false);
+    if (audio) { setSoundOn(true); void engine.resume(); }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined);
+  };
+
+  const castHint = hint && (
+    <div className="k-tv-hint" role="note">
+      <b>Show this on your TV</b>
+      <span>Open your browser menu (⋮), choose <b>Cast…</b> (in Chrome it is under <b>Cast, save and share</b>), pick your TV, then click anywhere here for full screen and sound.</span>
+    </div>
+  );
 
   if (!state) {
     return (
-      <main className="k-tv">
+      <main className="k-tv" onClick={activate}>
+        {castHint}
         <p className="k-tv-waiting">Waiting for Kairo… Start or open the timer on your laptop or phone.</p>
       </main>
     );
@@ -50,7 +64,8 @@ export const TvDisplay: React.FC = () => {
   const circumference = 2 * Math.PI * r;
 
   return (
-    <main className={`k-tv ${state.isActive ? 'is-running' : 'is-paused'}`}>
+    <main className={`k-tv ${state.isActive ? 'is-running' : 'is-paused'}`} onClick={activate}>
+      {castHint}
       <p className="k-tv-label">{state.label || SESSION_LABEL[state.sessionType]}</p>
       <div className="k-tv-dial">
         <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -60,8 +75,8 @@ export const TvDisplay: React.FC = () => {
         <time className="k-tv-time" aria-live="off">{format(left)}</time>
       </div>
       <p className="k-tv-target">{state.target}{!state.isActive && ' · Paused'}</p>
-      {audio?.isPlaying && !soundOn && (
-        <button type="button" className="k-btn k-tv-sound" onClick={() => { setSoundOn(true); void engine.resume(); }}>Play sound on this screen</button>
+      {audio?.isPlaying && !soundOn && !hint && (
+        <button type="button" className="k-btn k-tv-sound" onClick={activate}>Play sound on this screen</button>
       )}
     </main>
   );

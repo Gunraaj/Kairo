@@ -146,6 +146,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   sessionsPerRound: 4,
   deepFocusMode: false,
   focusSound: 'off',
+  keepSoundOnPause: true,
 };
 
 export const normalizeSettings = (value: unknown): UserSettings => {
@@ -159,6 +160,7 @@ export const normalizeSettings = (value: unknown): UserSettings => {
     deepFocusMode: source.deepFocusMode === true,
     autoStartBreaks: source.autoStartBreaks === true,
     focusSound: source.focusSound === 'brown' || source.focusSound === 'alpha' || source.focusSound === 'beta' ? source.focusSound : 'off',
+    keepSoundOnPause: source.keepSoundOnPause !== false,
   };
 };
 

@@ -85,6 +85,7 @@ export interface UserSettings {
   sessionsPerRound: number;
   deepFocusMode: boolean;
   focusSound: FocusSound;
+  keepSoundOnPause: boolean; // pausing the timer leaves the sound as it is
 }
 
 export type Settings = UserSettings;

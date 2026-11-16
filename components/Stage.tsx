@@ -390,21 +390,22 @@ export const Stage: React.FC<StageProps> = ({
       }
       deadlineRef.current = null;
       setIsActive(false);
-      toggleAudio(false);
+      if (!settings.keepSoundOnPause) toggleAudio(false);
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [isActive, settings.deepFocusMode, toggleAudio]);
+  }, [isActive, settings.deepFocusMode, settings.keepSoundOnPause, toggleAudio]);
 
   const toggleTimer = () => {
     if (isActive) {
       deadlineRef.current = null;
       setIsActive(false);
-      toggleAudio(false);
+      if (!settings.keepSoundOnPause) toggleAudio(false);
       return;
     }
 
     const now = Date.now();
+    const resuming = Boolean(startedAtRef.current);
     if (!startedAtRef.current) {
       sessionIdRef.current = crypto.randomUUID();
       startedAtRef.current = now;
@@ -414,6 +415,8 @@ export const Stage: React.FC<StageProps> = ({
     }
     deadlineRef.current = now + timeLeft * 1000;
     setIsActive(true);
+    // When pausing leaves the sound alone, resuming does too: a sound you switched off stays off.
+    if (resuming && settings.keepSoundOnPause) return;
     if (sessionType === 'focus' && settings.focusSound !== 'off') toggleAudio(true);
   };
 

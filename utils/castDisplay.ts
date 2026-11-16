@@ -2,9 +2,10 @@ import { useSyncExternalStore } from 'react';
 import type { AudioSettings, SessionType } from '../types';
 
 /**
- * The TV view: a second screen that mirrors the timer (and optionally plays the sound).
- * Reaches it two ways: the Presentation API (Chrome casts the page to a Chromecast or
- * smart TV), or a plain window on another screen, linked with a BroadcastChannel.
+ * The TV view: a separate tab that mirrors the timer (and optionally plays the sound),
+ * linked to the app with a BroadcastChannel. The user casts that tab with the browser's
+ * own "Cast tab" (Chromecast / Google TV), or moves it to a TV over HDMI, Miracast or AirPlay.
+ * Chrome's Presentation API cannot render an ordinary web page on a Chromecast, so it is not used.
  */
 
 export type DisplayTimer = { sessionType: SessionType; label: string; target: string; timeLeft: number; total: number; isActive: boolean };
@@ -65,23 +66,15 @@ export const isDisplayPage = () =>
 
 /* ---------- sender side (the main app) ---------- */
 
-type Presentation = { send: (data: string) => void; terminate: () => void; state: string; addEventListener: (type: string, fn: () => void) => void };
-type PresentationRequestCtor = new (urls: string[]) => { start: () => Promise<Presentation> };
-const PresentationRequestApi = (): PresentationRequestCtor | undefined =>
-  typeof window === 'undefined' ? undefined : (window as unknown as { PresentationRequest?: PresentationRequestCtor }).PresentationRequest;
-
-export const canCast = () => Boolean(PresentationRequestApi());
-
 let timer: DisplayTimer | null = null;
 let extras: DisplayExtras = { theme: 'dark', palette: '', audio: null };
 let channel: BroadcastChannel | null = null;
-const connections = new Set<Presentation>();
 let windowOpen = false;
 const listeners = new Set<() => void>();
 let status = { casting: false };
 
 const setStatus = () => {
-  const casting = connections.size > 0 || windowOpen;
+  const casting = windowOpen;
   if (casting === status.casting) return;
   status = { casting };
   listeners.forEach(fn => fn());
@@ -93,7 +86,6 @@ const broadcast = () => {
   const data = message();
   if (!data) return;
   channel?.postMessage(data);
-  connections.forEach(c => { if (c.state === 'connected') { try { c.send(data); } catch { /* closed */ } } });
 };
 
 const ensureChannel = () => {
@@ -108,29 +100,13 @@ const ensureChannel = () => {
 export const publishTimer = (next: DisplayTimer) => { timer = next; ensureChannel(); broadcast(); };
 export const publishExtras = (next: DisplayExtras) => { extras = next; ensureChannel(); broadcast(); };
 
-/** Opens Chrome's cast picker and shows the TV view on the chosen screen. */
-export const startCast = async (): Promise<void> => {
-  const Request = PresentationRequestApi();
-  if (!Request) throw new Error('Casting is not supported in this browser. Use "Open TV window" instead.');
-  const connection = await new Request([displayUrl()]).start();
-  connections.add(connection);
-  connection.addEventListener('connect', () => { setStatus(); broadcast(); });
-  const drop = () => { connections.delete(connection); setStatus(); };
-  connection.addEventListener('close', drop);
-  connection.addEventListener('terminate', drop);
-  setStatus();
-  broadcast();
-};
-
-/** A plain window: drag it to a TV, projector or second monitor, or cast that tab. */
-export const openTvWindow = () => {
+/** Opens the TV view in its own tab (a normal tab, so the browser's Cast menu is available). */
+export const openTvView = () => {
   ensureChannel();
-  window.open(displayUrl(), 'kairo-tv', 'popup,width=1280,height=720');
+  window.open(displayUrl(), 'kairo-tv');
 };
 
 export const stopCast = () => {
-  connections.forEach(c => { try { c.terminate(); } catch { /* already gone */ } });
-  connections.clear();
   channel?.postMessage('close');
   windowOpen = false;
   setStatus();
@@ -141,12 +117,6 @@ export const useCastStatus = () => useSyncExternalStore(subscribe, () => status,
 
 /* ---------- receiver side (the TV view) ---------- */
 
-type ReceiverConnection = { addEventListener: (type: 'message', fn: (event: MessageEvent) => void) => void };
-type Receiver = { connectionList: Promise<{ connections: ReceiverConnection[]; addEventListener: (type: 'connectionavailable', fn: (event: { connection: ReceiverConnection }) => void) => void }> };
-
-export const isCastReceiver = () =>
-  typeof navigator !== 'undefined' && Boolean((navigator as unknown as { presentation?: { receiver?: Receiver } }).presentation?.receiver);
-
 /** Listens for timer updates from the main app. Returns a cleanup function. */
 export const listenForDisplay = (onState: (state: DisplayState) => void, onClose: () => void): (() => void) => {
   const handle = (data: unknown) => {
@@ -156,15 +126,6 @@ export const listenForDisplay = (onState: (state: DisplayState) => void, onClose
       if (state) onState(state);
     } catch { /* ignore malformed messages */ }
   };
-
-  const receiver = (navigator as unknown as { presentation?: { receiver?: Receiver } }).presentation?.receiver;
-  if (receiver) {
-    const attach = (c: ReceiverConnection) => c.addEventListener('message', event => handle(event.data));
-    void receiver.connectionList.then(list => {
-      list.connections.forEach(attach);
-      list.addEventListener('connectionavailable', event => attach(event.connection));
-    });
-  }
 
   let bc: BroadcastChannel | null = null;
   if (typeof BroadcastChannel !== 'undefined') {
