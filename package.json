@@ -12,7 +12,8 @@
     "audit:text": "node scripts/audit_text_placement.cjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "lint": "eslint . --quiet",
-    "deploy:cf": "npm run build && node scripts/prepare_cloudflare.mjs && wrangler deploy"
+    "deploy:cf": "npm run build && node scripts/prepare_cloudflare.mjs && wrangler deploy",
+    "deploy:netlify": "vite build && netlify deploy --dir dist --no-build --prod"
   },
   "dependencies": {
     "gsap": "^3.15.0",
