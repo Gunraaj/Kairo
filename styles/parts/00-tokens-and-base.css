@@ -7,6 +7,7 @@
 
 /* --- Tokens -------------------------------------------------------------- */
 :root {
+  --text-scale: 1; /* set from Settings > Text size */
   color-scheme: light;
 
   /* Ground and Ink (Light - Artisanal Washi default) */
@@ -344,7 +345,7 @@ body {
   background: var(--washi);
   color: var(--sumi);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -495,7 +496,7 @@ a {
   font-family: var(--jp);
   display: inline-block;
   font-weight: 700;
-  font-size: 17px;
+  font-size: calc(18px * var(--text-scale, 1));
   line-height: 1;
   letter-spacing: -0.055em;
   transform: scaleX(0.97);
@@ -720,7 +721,7 @@ a {
 
 .k-nav-eyebrow {
   color: var(--sumi-3);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -734,7 +735,7 @@ a {
   padding: 8px 10px;
   border-radius: var(--r-md);
   color: var(--sumi-2);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   min-height: 36px;
   transition: all 140ms ease;
@@ -840,7 +841,7 @@ a {
   width: 100%;
   padding: 4px 4px;
   color: var(--sumi);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   text-align: left;
   border-radius: 4px;
@@ -905,7 +906,7 @@ a {
   gap: 4px;
 }
 .k-delete-confirm-btn {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--shu);
@@ -913,7 +914,7 @@ a {
   font-weight: 500;
 }
 .k-delete-cancel-btn {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--washi-3);
@@ -945,7 +946,7 @@ a {
   padding: 5px 8px;
   border-radius: var(--r-sm);
   color: var(--sumi-2);
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   min-height: 28px;
   transition: background 140ms ease;
 }
@@ -1003,7 +1004,7 @@ a {
 .k-tree-task-name em {
   font-style: normal;
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   margin-left: 4px;
   font-family: var(--mono);
   flex-shrink: 0;
@@ -1017,7 +1018,7 @@ a {
   border-radius: var(--r-full);
   background: var(--stone-1);
   border: 1px solid transparent;
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   line-height: 1;
   letter-spacing: 0.8px;
   color: var(--sumi-3);
@@ -1051,7 +1052,7 @@ a {
   background: var(--stone-1);
   border: 1px solid var(--stone-2);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 500;
   line-height: 1.2;
   color: var(--sumi-2);
@@ -1071,7 +1072,7 @@ a {
 }
 
 .k-pomo-badge-icon {
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   line-height: 1;
 }
 
@@ -1081,7 +1082,7 @@ a {
 }
 
 .k-pomo-badge-len {
-  font-size: 8.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-4);
   background: var(--stone-2);
   padding: 0 3px;

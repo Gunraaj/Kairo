@@ -147,6 +147,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   deepFocusMode: false,
   focusSound: 'off',
   keepSoundOnPause: true,
+  textScale: 1,
 };
 
 export const normalizeSettings = (value: unknown): UserSettings => {
@@ -161,6 +162,7 @@ export const normalizeSettings = (value: unknown): UserSettings => {
     autoStartBreaks: source.autoStartBreaks === true,
     focusSound: source.focusSound === 'brown' || source.focusSound === 'alpha' || source.focusSound === 'beta' ? source.focusSound : 'off',
     keepSoundOnPause: source.keepSoundOnPause !== false,
+    textScale: Math.round(boundedNumber(source.textScale, 1, 0.9, 1.3) * 100) / 100,
   };
 };
 

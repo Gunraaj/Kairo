@@ -1,83 +1,96 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useAudioEngine } from '../hooks/useAudioEngine';
-import type { AudioSettings } from '../types';
-import { listenForDisplay, type DisplayState } from '../utils/castDisplay';
-
-const SILENT: AudioSettings = {
-  isPlaying: false, engineEnabled: true, mode: 'noise', ambientPreset: 'none', baseFrequency: 200, beatFrequency: 10,
-  waveType: 'sine', noiseType: 'brown', binauralVolume: 0.25, noiseVolume: 0.5, masterVolume: 0.7,
-};
+import React, { useEffect, useState } from 'react';
+import { listenForDisplay, secondsLeft, useDisplayState, type DisplayState } from '../utils/castDisplay';
 
 const SESSION_LABEL = { focus: 'Focus', shortBreak: 'Short break', longBreak: 'Long break' } as const;
 
 const format = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
-/** Full-screen timer for a TV or second screen. Driven entirely by messages from the main app. */
-export const TvDisplay: React.FC = () => {
-  const [state, setState] = useState<DisplayState | null>(null);
-  const receivedAt = useRef(Date.now());
+const useNow = () => {
   const [now, setNow] = useState(Date.now());
-  const [soundOn, setSoundOn] = useState(false);
-  const [hint, setHint] = useState(true);
+  useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 200); return () => window.clearInterval(id); }, []);
+  return now;
+};
 
-  useEffect(() => listenForDisplay(next => { receivedAt.current = Date.now(); setState(next); }, () => window.close()), []);
-  useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
-
-  useEffect(() => {
-    if (!state) return;
-    const root = document.documentElement;
-    root.setAttribute('data-theme', state.theme);
-    if (state.palette) root.setAttribute('data-palette', state.palette);
-    document.title = `${format(state.timeLeft)} · Kairo`;
-  }, [state]);
-
-  const audio = state?.audio ?? null;
-  const engine = useAudioEngine(audio && soundOn ? audio : SILENT);
-
-  /** One click unlocks sound (browsers require it) and fills the screen for casting. */
-  const activate = () => {
-    setHint(false);
-    if (audio) { setSoundOn(true); void engine.resume(); }
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined);
-  };
-
-  const castHint = hint && (
-    <div className="k-tv-hint" role="note">
-      <b>Show this on your TV</b>
-      <span>Open your browser menu (⋮), choose <b>Cast…</b> (in Chrome it is under <b>Cast, save and share</b>), pick your TV, then click anywhere here for full screen and sound.</span>
-    </div>
-  );
-
-  if (!state) {
-    return (
-      <main className="k-tv" onClick={activate}>
-        {castHint}
-        <p className="k-tv-waiting">Waiting for Kairo… Start or open the timer on your laptop or phone.</p>
-      </main>
-    );
-  }
-
-  const elapsed = state.isActive ? Math.floor((now - receivedAt.current) / 1000) : 0;
-  const left = Math.max(0, state.timeLeft - elapsed);
+const Dial: React.FC<{ state: DisplayState | null; now: number; children?: React.ReactNode; waiting: string }> = ({ state, now, children, waiting }) => {
+  if (!state) return <p className="k-tv-waiting">{waiting}</p>;
+  const left = secondsLeft(state, now);
   const progress = 1 - left / state.total;
   const r = 46;
   const circumference = 2 * Math.PI * r;
-
   return (
-    <main className={`k-tv ${state.isActive ? 'is-running' : 'is-paused'}`} onClick={activate}>
-      {castHint}
+    <>
       <p className="k-tv-label">{state.label || SESSION_LABEL[state.sessionType]}</p>
       <div className="k-tv-dial">
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r={r} className="k-tv-track" />
           <circle cx="50" cy="50" r={r} className="k-tv-progress" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - progress)} />
         </svg>
-        <time className="k-tv-time" aria-live="off">{format(left)}</time>
+        <time className="k-tv-time">{format(left)}</time>
       </div>
       <p className="k-tv-target">{state.target}{!state.isActive && ' · Paused'}</p>
-      {audio?.isPlaying && !soundOn && !hint && (
-        <button type="button" className="k-btn k-tv-sound" onClick={activate}>Play sound on this screen</button>
+      {children}
+    </>
+  );
+};
+
+/**
+ * TV mode inside the main tab: cast this tab and the TV shows the real timer with the real sound.
+ * The app keeps running underneath, so nothing can drift.
+ */
+export const TvMode: React.FC<{ onExit: () => void; onToggleTimer: () => void }> = ({ onExit, onToggleTimer }) => {
+  const state = useDisplayState();
+  const now = useNow();
+  const [hint, setHint] = useState(true);
+  useEffect(() => { const id = window.setTimeout(() => setHint(false), 20000); return () => window.clearTimeout(id); }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onExit();
+      if (event.key === ' ') { event.preventDefault(); event.stopPropagation(); onToggleTimer(); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [onExit, onToggleTimer]);
+
+  return (
+    <div className={`k-tv k-tv-overlay ${state?.isActive ? 'is-running' : 'is-paused'}`} role="dialog" aria-label="TV mode">
+      {hint && (
+        <div className="k-tv-hint" role="note">
+          <b>Now cast this tab to your TV</b>
+          <span>Open the browser menu (⋮) → <b>Cast…</b> (Chrome: <b>Cast, save and share → Cast…</b>; Edge: <b>More tools → Cast media to device</b>) → pick your TV. The sound goes to the TV too.</span>
+          <button type="button" className="k-link-btn" onClick={() => setHint(false)}>Got it</button>
+        </div>
       )}
+      <Dial state={state} now={now} waiting="Getting the timer ready…" />
+      <div className="k-tv-controls">
+        <button type="button" className="k-btn" onClick={onToggleTimer}>{state?.isActive ? 'Pause' : 'Start'}</button>
+        <button type="button" className="k-btn" onClick={onExit}>Exit TV mode</button>
+      </div>
+    </div>
+  );
+};
+
+/** The second-screen tab (?display=tv). Driven by messages from the main tab. */
+export const TvDisplay: React.FC = () => {
+  const [state, setState] = useState<DisplayState | null>(null);
+  const now = useNow();
+
+  useEffect(() => listenForDisplay(setState, () => window.close()), []);
+  useEffect(() => {
+    if (!state) return;
+    const root = document.documentElement;
+    root.setAttribute('data-theme', state.theme);
+    if (state.palette) root.setAttribute('data-palette', state.palette);
+  }, [state]);
+  useEffect(() => { if (state) document.title = `${format(secondsLeft(state, now))} · Kairo`; }, [state, now]);
+
+  return (
+    <main
+      className={`k-tv ${state?.isActive ? 'is-running' : 'is-paused'}`}
+      onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => undefined); }}
+    >
+      <Dial state={state} now={now} waiting="Waiting for Kairo… Keep Kairo open in another tab." />
+      <p className="k-tv-footnote">Click for full screen. Sound plays from the Kairo tab.</p>
     </main>
   );
 };

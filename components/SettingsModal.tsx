@@ -364,6 +364,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
+              <b id="text-size-label">Text size</b>
+              <small>Make all text in Kairo bigger or smaller.</small>
+            </div>
+            <select
+              className="k-settings-select"
+              aria-labelledby="text-size-label"
+              value={String(local.textScale)}
+              onChange={e => setLocal(prev => ({ ...prev, textScale: Number(e.target.value) }))}
+            >
+              <option value="0.9">Small</option>
+              <option value="1">Default</option>
+              <option value="1.12">Large</option>
+              <option value="1.25">Extra large</option>
+            </select>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
               <b id="keep-sound-label">Keep sound playing when paused</b>
               <small>Pausing the timer leaves your sound on or off as it is. Turn it on or off yourself in Sound Studio.</small>
             </div>
@@ -549,7 +567,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     placeholder={DEFAULT_AI_CONFIGS[aiConfig.provider]?.placeholderKey || 'API key...'}
                     style={{
                       padding: '6px 10px',
-                      fontSize: 12,
+                      fontSize: 'calc(14px * var(--text-scale, 1))',
                       fontFamily: 'var(--mono)',
                       borderRadius: 'var(--r-sm)',
                       border: '1px solid var(--stone-2)',
@@ -561,7 +579,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button
                     type="button"
                     className="k-btn"
-                    style={{ minHeight: 30, padding: '0 8px', fontSize: 11 }}
+                    style={{ minHeight: 30, padding: '0 8px', fontSize: 'calc(13px * var(--text-scale, 1))' }}
                     onClick={() => setShowAiKey(v => !v)}
                   >
                     {showAiKey ? 'Hide' : 'Show'}
@@ -588,7 +606,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   placeholder="http://localhost:11434/v1"
                   style={{
                     padding: '6px 10px',
-                    fontSize: 12,
+                    fontSize: 'calc(14px * var(--text-scale, 1))',
                     fontFamily: 'var(--mono)',
                     borderRadius: 'var(--r-sm)',
                     border: '1px solid var(--stone-2)',
@@ -619,7 +637,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         placeholder="model-name:tag"
                         style={{
                           padding: '6px 10px',
-                          fontSize: 12,
+                          fontSize: 'calc(14px * var(--text-scale, 1))',
                           fontFamily: 'var(--mono)',
                           borderRadius: 'var(--r-sm)',
                           border: '1px solid var(--stone-2)',
@@ -631,7 +649,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         type="button"
                         className="k-btn"
-                        style={{ minHeight: 30, padding: '0 8px', fontSize: 11 }}
+                        style={{ minHeight: 30, padding: '0 8px', fontSize: 'calc(13px * var(--text-scale, 1))' }}
                         onClick={() => {
                           setIsCustomModel(false);
                           setAiConfig(prev => ({ ...prev, model: DEFAULT_AI_CONFIGS[aiConfig.provider].model }));
@@ -653,7 +671,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         }}
                         style={{
                           padding: '6px 10px',
-                          fontSize: 12,
+                          fontSize: 'calc(14px * var(--text-scale, 1))',
                           fontFamily: 'var(--sans)',
                           borderRadius: 'var(--r-sm)',
                           border: '1px solid var(--stone-2)',
@@ -730,7 +748,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <span
               style={{
-                fontSize: 11,
+                fontSize: 'calc(13px * var(--text-scale, 1))',
                 fontFamily: 'var(--mono)',
                 padding: '3px 8px',
                 borderRadius: 4,
@@ -849,7 +867,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               placeholder="https://xyz.supabase.co"
               style={{
                 padding: '6px 10px',
-                fontSize: 12,
+                fontSize: 'calc(14px * var(--text-scale, 1))',
                 fontFamily: 'var(--mono)',
                 borderRadius: 'var(--r-sm)',
                 border: '1px solid var(--stone-2)',
@@ -871,7 +889,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               placeholder="eyJhbGciOi..."
               style={{
                 padding: '6px 10px',
-                fontSize: 12,
+                fontSize: 'calc(14px * var(--text-scale, 1))',
                 fontFamily: 'var(--mono)',
                 borderRadius: 'var(--r-sm)',
                 border: '1px solid var(--stone-2)',
@@ -892,7 +910,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               value={supabaseEmail}
               onChange={e => { setSupabaseEmail(e.target.value); setSupabaseSession(null); }}
               placeholder="you@example.com"
-              style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
+              style={{ padding: '6px 10px', fontSize: 'calc(14px * var(--text-scale, 1))', fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
             />
           </div>
           <div className="k-settings-row">
@@ -905,7 +923,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               autoComplete="current-password"
               value={supabasePassword}
               onChange={e => { setSupabasePassword(e.target.value); setSupabaseSession(null); }}
-              style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
+              style={{ padding: '6px 10px', fontSize: 'calc(14px * var(--text-scale, 1))', fontFamily: 'var(--mono)', borderRadius: 'var(--r-sm)', border: '1px solid var(--stone-2)', background: 'var(--washi)', color: 'var(--sumi)', width: 200 }}
             />
           </div>
           <div className="k-settings-row" style={{ flexWrap: 'wrap', gap: 8 }}>
@@ -938,7 +956,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {supabaseStatus && (
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 'calc(13px * var(--text-scale, 1))',
                   fontFamily: 'var(--mono)',
                   color: supabaseStatus.toLowerCase().includes('fail') || supabaseStatus.toLowerCase().includes('not')
                     ? 'var(--shu)'

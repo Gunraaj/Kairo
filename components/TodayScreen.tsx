@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatClockFromNow } from '../utils/subtaskTime';
 import type { Pace } from '../utils/planMath';
 import type { ProjectPlan, TodayState } from '../utils/todayPlan';
 import { PHASE_ADVICE } from '../utils/examMode';
@@ -63,7 +64,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             </p>
             {state.hasPlan && plannedToday > 0 && finish && (
               <p className="k-today-finish" title="If you start now, with your break settings">
-                <b className="k-done-by">Done by {finish.finishTimeFormatted}</b> if you start now · {formatMinutes(finish.totalMinutes)} with breaks
+                <b className="k-done-by">Done by {formatClockFromNow(finish.totalMinutes)}</b> if you start now · {formatMinutes(finish.totalMinutes)} with breaks
               </p>
             )}
           </div>

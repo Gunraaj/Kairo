@@ -24,13 +24,13 @@
 }
 
 .k-trigger-info b {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
 }
 
 .k-trigger-info small {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -47,7 +47,7 @@
   border: 1px solid var(--stone-3);
   background: var(--washi-2);
   color: var(--sumi-2);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-family: var(--mono);
   font-weight: 600;
   cursor: pointer;
@@ -67,7 +67,7 @@
   border: 1px solid var(--stone-3);
   background: var(--washi-card);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi);
   outline: none;
 }
@@ -96,7 +96,7 @@
 
 .k-section-eyebrow {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--sumi-3);
@@ -104,7 +104,7 @@
 }
 
 .k-journal-empty {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi-3);
   font-style: italic;
   padding: 16px 0;
@@ -127,7 +127,7 @@
 }
 
 .k-capsule-lock-icon {
-  font-size: 18px;
+  font-size: calc(18px * var(--text-scale, 1));
   opacity: 0.7;
   flex-shrink: 0;
   padding-top: 2px;
@@ -142,7 +142,7 @@
 
 .k-capsule-condition {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--shu);
 }
@@ -150,13 +150,13 @@
 .k-capsule-hidden-msg {
   margin: 0;
   font-style: italic;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi-2);
   line-height: 1.4;
 }
 
 .k-locked-treat {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -174,7 +174,7 @@
   background: var(--washi-card);
   border: 1px solid var(--stone-3);
   color: var(--sumi-2);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(12px);
@@ -204,7 +204,7 @@
   background: var(--shu);
   color: #fff;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   line-height: 1;
 }
@@ -219,7 +219,7 @@
   background: var(--washi-2);
   border: 1px solid var(--stone-3);
   color: var(--sumi-2);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   cursor: pointer;
   transition: all 140ms ease;
@@ -331,7 +331,7 @@
     padding: 20px 12px;
   }
   .k-dial-time {
-    font-size: 46px;
+    font-size: calc(46px * var(--text-scale, 1));
   }
   .k-hero-dial-wrapper {
     max-width: min(80vw, 270px);
@@ -339,7 +339,7 @@
   .k-btn-hero {
     min-height: 48px;
     padding: 0 24px;
-    font-size: 14px;
+    font-size: calc(16px * var(--text-scale, 1));
   }
 }
 
@@ -368,7 +368,7 @@
 .k-science-eyebrow {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -392,7 +392,7 @@
   gap: 6px;
   padding: 6px 14px;
   border-radius: var(--r-full);
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 500;
   color: var(--sumi-3);
   background: transparent;
@@ -435,14 +435,14 @@
 }
 
 .k-science-banner h3 {
-  font-size: 15px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   margin: 0 0 6px 0;
 }
 
 .k-science-banner p {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   line-height: 1.6;
   color: var(--sumi-2);
   margin: 0;
@@ -469,19 +469,19 @@
 }
 
 .k-science-card-icon {
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   margin-bottom: 8px;
 }
 
 .k-science-feature-card h4 {
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   margin: 0 0 6px 0;
 }
 
 .k-science-feature-card p {
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.55;
   color: var(--sumi-3);
   margin: 0;
@@ -496,14 +496,14 @@
 }
 
 .k-science-deep-card h4 {
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   margin: 0 0 8px 0;
 }
 
 .k-science-deep-card p {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   line-height: 1.6;
   color: var(--sumi-2);
   margin: 0;
@@ -534,7 +534,7 @@
 
 .k-paper-year {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 4px;
@@ -543,13 +543,13 @@
 }
 
 .k-paper-journal {
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
   font-style: italic;
 }
 
 .k-paper-title {
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   margin: 0;
   line-height: 1.4;
@@ -570,12 +570,12 @@
 }
 
 .k-paper-authors {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
 .k-paper-finding {
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.5;
   color: var(--sumi-2);
   background: var(--washi-2);
@@ -584,7 +584,7 @@
 }
 
 .k-paper-takeaway {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.5;
   color: var(--sumi);
 }
@@ -617,7 +617,7 @@
 }
 
 .k-protocol-pill {
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   padding: 3px 10px;
   border-radius: var(--r-full);
@@ -641,7 +641,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.55;
   color: var(--sumi-2);
 }
@@ -651,7 +651,7 @@
 }
 
 .k-science-footer-note {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -691,7 +691,7 @@
 }
 
 .k-doc-head-icon {
-  font-size: 28px;
+  font-size: calc(28px * var(--text-scale, 1));
   line-height: 1;
   padding: 8px;
   background: var(--washi-2);
@@ -701,7 +701,7 @@
 
 .k-doc-title {
   margin: 0 0 4px;
-  font-size: 19px;
+  font-size: calc(19px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--sumi);
   letter-spacing: -0.02em;
@@ -709,7 +709,7 @@
 
 .k-doc-subtitle {
   margin: 0;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1.45;
 }
@@ -725,7 +725,7 @@
   justify-content: center;
   color: var(--sumi-2);
   cursor: pointer;
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   transition: all 160ms ease;
 }
 
@@ -759,12 +759,12 @@
   gap: 8px;
   color: var(--sumi);
   font-weight: 600;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
 }
 
 .k-doc-engine-icon {
   color: var(--shu);
-  font-size: 15px;
+  font-size: calc(16px * var(--text-scale, 1));
 }
 
 .k-doc-engine-label {
@@ -779,7 +779,7 @@
   border: 1px solid var(--stone-2);
   border-radius: var(--r-full);
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 500;
   color: var(--sumi-2);
   cursor: pointer;
@@ -827,14 +827,14 @@
 }
 
 .k-engine-chip-label {
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.2;
 }
 
 .k-engine-chip-badge {
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -859,13 +859,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi-2);
 }
 
 .k-doc-faq-row b {
   color: var(--sumi);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   display: block;
   margin-bottom: 2px;
 }
@@ -888,7 +888,7 @@
 
 .k-doc-faq-code-bar code {
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi);
 }
 
@@ -900,7 +900,7 @@
   background: var(--washi-card);
   border: 1px solid var(--stone-2);
   border-radius: var(--r-sm);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   cursor: pointer;
@@ -958,7 +958,7 @@
   border-radius: var(--r-sm);
   background: transparent;
   color: var(--sumi-2);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   cursor: pointer;
   transition: all 160ms ease;
@@ -989,7 +989,7 @@
 }
 
 .k-doc-label {
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi-2);
   display: flex;
@@ -1009,7 +1009,7 @@
 }
 
 .k-templates-caption {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1020,7 +1020,7 @@
   background: var(--washi-2);
   border: 1px solid var(--stone-3);
   border-radius: var(--r-full);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-2);
   padding: 3px 9px;
   cursor: pointer;
@@ -1070,7 +1070,7 @@
 }
 
 .k-pill-emoji {
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   line-height: 1;
 }
 
@@ -1080,13 +1080,13 @@
 }
 
 .k-pill-text b {
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi);
   line-height: 1.25;
 }
 
 .k-pill-text small {
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1.2;
 }
@@ -1098,5 +1098,5 @@
   border: 1px solid var(--stone-3);
   background: var(--washi-card);
   color: var(--sumi);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
 }

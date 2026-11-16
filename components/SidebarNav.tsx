@@ -735,7 +735,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
             style={{
               width: '100%',
               padding: '4px 8px',
-              fontSize: 12,
+              fontSize: 'calc(14px * var(--text-scale, 1))',
               borderRadius: 'var(--r-sm)',
               border: '1px solid var(--stone-2)',
               background: 'var(--washi-card)',

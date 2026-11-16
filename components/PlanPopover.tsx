@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
 import { formatDurationCompact } from '../utils/subtaskTime';
 import { NumberField } from './NumberField';
 
@@ -12,7 +13,7 @@ interface PlanPopoverProps {
   focusedMinutes: number;
   /** The user's default session length, marked with a star. */
   defaultLength: number;
-  finish: { finishTimeFormatted: string; hoursFormatted: string };
+  finish: { totalMinutes: number };
   totalChips: number[];
   onTarget: (sessions: number) => void;
   onLength: (minutes: number) => void;
@@ -47,7 +48,7 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
           <b>{target}</b> session{target === 1 ? '' : 's'} × <b>{length} min</b> = <b>{formatDurationCompact(planned)}</b>
         </div>
         <small title="Estimated from your session and break settings">
-          Done around {finish.finishTimeFormatted} · {finish.hoursFormatted} including breaks
+          Done by {formatClockFromNow(finish.totalMinutes)} · {formatMinutesLong(finish.totalMinutes)} including breaks
         </small>
       </div>
 

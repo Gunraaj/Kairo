@@ -9,7 +9,7 @@ import { workerTimer } from '../utils/workerTimer';
 import { publishTimer } from '../utils/castDisplay';
 import { sharpenIntention } from '../utils/geminiAi';
 import { InfoTip } from './InfoTip';
-import { calculateFinishEstimate } from '../utils/subtaskTime';
+import { calculateFinishEstimate, formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
 
 interface StageProps {
   showLayouts?: boolean;
@@ -633,7 +633,7 @@ export const Stage: React.FC<StageProps> = ({
       : 'Quick Focus';
 
   useEffect(() => {
-    publishTimer({ sessionType, label: sessionCopy[sessionType].label, target: targetLabel, timeLeft, total: Math.max(1, totalTime), isActive });
+    publishTimer({ sessionType, label: sessionCopy[sessionType].label, target: targetLabel, timeLeft, total: Math.max(1, totalTime), isActive, endsAt: isActive ? deadlineRef.current : null });
   }, [sessionType, targetLabel, timeLeft, totalTime, isActive]);
 
   const breakChoices: Array<{ min: number; label: string }> = [
@@ -791,9 +791,9 @@ export const Stage: React.FC<StageProps> = ({
         {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
           <span
             className="k-target-finish-pill"
-            title={`Finish at ~${activeTaskFinish.finishTimeFormatted} (${activeTaskFinish.hoursFormatted} remaining incl. breaks)`}
+            title={`${formatMinutesLong(activeTaskFinish.totalMinutes)} left, including breaks`}
           >
-            Finish ~{activeTaskFinish.finishTimeFormatted}
+            Done by {formatClockFromNow(activeTaskFinish.totalMinutes)}
           </span>
         )}
         {activeTarget?.kind === 'task' && !isActive && (
@@ -1158,7 +1158,7 @@ export const Stage: React.FC<StageProps> = ({
             )}
             {activeTaskFinish && activeTaskFinish.remainingPomos > 0 && (
               <div className="k-cockpit-pacing-pill">
-                ⏱ Finish ~{activeTaskFinish.finishTimeFormatted} ({activeTaskFinish.hoursFormatted} left)
+                Done by {formatClockFromNow(activeTaskFinish.totalMinutes)} · {formatMinutesLong(activeTaskFinish.totalMinutes)} left
               </div>
             )}
 

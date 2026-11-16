@@ -86,6 +86,7 @@ export interface UserSettings {
   deepFocusMode: boolean;
   focusSound: FocusSound;
   keepSoundOnPause: boolean; // pausing the timer leaves the sound as it is
+  textScale: number; // multiplies every font size (0.9 to 1.3)
 }
 
 export type Settings = UserSettings;

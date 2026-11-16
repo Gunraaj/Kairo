@@ -30,7 +30,8 @@ import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTar
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { CastMenu } from './components/CastMenu';
-import { publishExtras, useCastStatus } from './utils/castDisplay';
+import { publishExtras } from './utils/castDisplay';
+import { TvMode } from './components/TvDisplay';
 import { checkUnlockableCapsules } from './utils/timeCapsule';
 import { calculateEffectiveTaskTime, calculateFinishEstimate, directTimeOf, updateSubtaskMinutes } from './utils/subtaskTime';
 import { calculateTodaySummary } from './utils/analytics';
@@ -336,6 +337,10 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [toggleZenMode, toggleMasterMute, zenMode]);
 
+  useEffect(() => {
+    document.documentElement.style.setProperty('--text-scale', String(userSettings.textScale));
+  }, [userSettings.textScale]);
+
   // Reflect the theme & atmospheric palette choice onto <html data-theme data-palette>
   useEffect(() => {
     const search = typeof window !== 'undefined' ? window.location.search : '';
@@ -440,11 +445,9 @@ const App: React.FC = () => {
     setToggleSessionTrigger(Date.now());
   }, []);
 
-  const [soundOnTv, setSoundOnTv] = useLocalStorage<boolean>('kairo_sound_on_tv', true, { version: 1, normalize: v => v !== false });
-  const { casting } = useCastStatus();
-  const localAudio = useMemo(() => (casting && soundOnTv ? { ...audioSettings, isPlaying: false } : audioSettings), [audioSettings, casting, soundOnTv]);
-  const audioEngine = useAudioEngine(localAudio);
-  useEffect(() => { publishExtras({ theme, palette, audio: soundOnTv ? audioSettings : null }); }, [theme, palette, soundOnTv, audioSettings]);
+  const audioEngine = useAudioEngine(audioSettings);
+  const [tvMode, setTvMode] = useState(false);
+  useEffect(() => { publishExtras({ theme, palette }); }, [theme, palette]);
   const sessionIdsRef = useRef(new Set(sessions.map(session => session.id)));
 
   useEffect(() => {
@@ -852,7 +855,7 @@ const App: React.FC = () => {
                 <kbd className="k-kbd-inline">F</kbd>
               </button>
 
-              <CastMenu soundOnTv={soundOnTv} onSoundOnTv={setSoundOnTv} onMessage={announceToast} />
+              <CastMenu onTvMode={() => setTvMode(true)} />
 
               <button
                 className={`k-sound-pill-btn ${audioSettings.isPlaying ? 'is-playing' : ''} ${soundStudioOpen ? 'is-open' : ''}`}
@@ -944,6 +947,7 @@ const App: React.FC = () => {
               }
             }}
           />
+          {tvMode && <TvMode onExit={() => setTvMode(false)} onToggleTimer={() => setToggleSessionTrigger(Date.now())} />}
         </section>
 
         {/* 3. Sound Studio Drawer / Panel */}

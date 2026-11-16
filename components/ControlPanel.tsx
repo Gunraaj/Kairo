@@ -1639,7 +1639,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                     href={embedUrl.includes('youtube') ? embedUrl.replace('youtube-nocookie.com/embed/', 'youtube.com/watch?v=').replace('?autoplay=1', '') : embedUrl.replace('open.spotify.com/embed/', 'open.spotify.com/')}
                     target="_blank"
                     rel="noreferrer noopener"
-                    style={{ fontSize: 11, color: 'var(--shu)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    style={{ fontSize: 'calc(13px * var(--text-scale, 1))', color: 'var(--shu)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                     title="Open live stream in new tab if video playback is restricted"
                   >
                     <span>Open in new tab ↗</span>

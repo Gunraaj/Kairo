@@ -49,11 +49,11 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ onClose }) => {
                 border: '1px solid var(--stone-3)',
               }}
             >
-              <span style={{ fontSize: 13, color: 'var(--sumi)' }}>{item.desc}</span>
+              <span style={{ fontSize: 'calc(15px * var(--text-scale, 1))', color: 'var(--sumi)' }}>{item.desc}</span>
               <kbd
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 11,
+                  fontSize: 'calc(13px * var(--text-scale, 1))',
                   padding: '2px 8px',
                   borderRadius: 4,
                   background: 'var(--washi-card)',

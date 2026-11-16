@@ -41,13 +41,13 @@
 }
 
 .k-creator-title {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--sumi);
 }
 
 .k-creator-sub {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -59,7 +59,7 @@
 
 .k-creator-field label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 }
 
 .k-creator-field input {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   padding: 6px 10px;
   border-radius: var(--r-sm);
   background: var(--washi-2);
@@ -95,7 +95,7 @@
 .k-url-valid-badge {
   position: absolute;
   right: 8px;
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi-2);
   background: var(--washi-card);
@@ -113,7 +113,7 @@
 
 .k-badge-tag-btn {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 4px;
@@ -142,7 +142,7 @@
 }
 
 .k-station-emoji {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   line-height: 1;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .k-quick-save-prompt {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-2);
 }
 
@@ -202,7 +202,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   padding: 4px 9px;
   border-radius: 4px;
@@ -230,7 +230,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi-3);
   background: var(--washi-2);
@@ -245,7 +245,7 @@
   border: 1px solid var(--stone-3);
   background: var(--washi-card);
   color: var(--sumi);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -282,7 +282,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: var(--sumi-2);
 }
 
@@ -296,7 +296,7 @@
   background: var(--shu);
   color: #FFFFFF;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
 }
 
@@ -307,7 +307,7 @@
 }
 
 .k-btn-xs {
-  font-size: 11px !important;
+  font-size: calc(13px * var(--text-scale, 1)) !important;
   padding: 4px 8px !important;
   min-height: 26px !important;
 }
@@ -340,7 +340,7 @@
   border: 1px solid var(--stone-2);
   background: var(--washi-2);
   cursor: pointer;
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   transition: all 120ms ease;
   line-height: 1;
 }
@@ -351,7 +351,7 @@
 }
 
 .k-emoji-caret {
-  font-size: 8px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -398,7 +398,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+  font-size: calc(18px * var(--text-scale, 1));
   border: 1px solid var(--stone-3);
   background: var(--washi-card);
   cursor: pointer;
@@ -440,7 +440,7 @@
 }
 
 .k-emoji-edit-badge {
-  font-size: 8px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   margin-left: 1px;
   opacity: 0.5;
@@ -456,7 +456,7 @@
   padding: 5px 8px;
   border-radius: var(--r-sm);
   border: 1px solid var(--stone-3);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   background: var(--washi);
   color: var(--sumi);
   outline: none;
@@ -475,7 +475,7 @@
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1;
 }
 
@@ -494,7 +494,7 @@
   background: var(--shu-soft);
   border: 1px solid var(--shu-ring);
   color: var(--shu);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--sans);
   font-weight: 500;
   cursor: pointer;
@@ -514,7 +514,7 @@
 }
 
 .k-reward-lock {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
 }
 
 /* --- Settings Dialog Specifics ------------------------------------------- */
@@ -529,13 +529,13 @@
 .k-settings-section-title {
   font-family: var(--jp);
   font-weight: 600;
-  font-size: 15px;
+  font-size: calc(16px * var(--text-scale, 1));
   color: var(--sumi);
   margin-bottom: 4px;
 }
 .k-settings-section-help {
   color: var(--sumi-3);
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   margin-bottom: 14px;
   line-height: 1.5;
 }
@@ -557,7 +557,7 @@
   background: var(--washi-card);
   border: 1px solid var(--stone-3);
   color: var(--sumi-2);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   cursor: pointer;
   transition: all 160ms ease;
@@ -616,13 +616,13 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .k-palette-title {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.2;
 }
 .k-palette-desc {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1.3;
 }
@@ -642,7 +642,7 @@
 }
 .k-settings-grid-label {
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -654,7 +654,7 @@
   background: transparent;
   color: var(--sumi);
   font-family: var(--sans);
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -674,13 +674,13 @@
 }
 .k-settings-row-label b {
   color: var(--sumi);
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   display: block;
 }
 .k-settings-row-label small {
   color: var(--sumi-3);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   display: block;
   margin-top: 2px;
   line-height: 1.45;
@@ -692,7 +692,7 @@
   border-radius: var(--r-sm);
   background: var(--washi-card);
   color: var(--sumi);
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -736,7 +736,7 @@
 }
 
 .k-ai-provider-icon {
-  font-size: 16px;
+  font-size: calc(17px * var(--text-scale, 1));
   line-height: 1;
 }
 
@@ -747,7 +747,7 @@
 }
 
 .k-ai-provider-info b {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   color: inherit;
   white-space: nowrap;
   overflow: hidden;
@@ -755,7 +755,7 @@
 }
 
 .k-ai-provider-info small {
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   white-space: nowrap;
 }
@@ -784,14 +784,14 @@
   border-radius: var(--r-sm);
   background: var(--washi-card);
   border: 1px dashed var(--stone-3);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.45;
   color: var(--sumi-2);
   margin-top: 4px;
 }
 
 .k-ai-tip-icon {
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -809,7 +809,7 @@
   border: 1px solid var(--stone-3);
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi);
   margin-top: 3px;
 }
@@ -824,7 +824,7 @@
 }
 
 .k-btn-test-ai {
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 500;
   padding: 6px 12px;
   min-height: 30px;
@@ -848,7 +848,7 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: var(--r-full);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--mono);
   font-weight: 500;
   line-height: 1.3;
@@ -874,7 +874,7 @@
 
 .k-capsule-kanji {
   font-family: var(--jp);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--sumi-3);
@@ -899,7 +899,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -922,7 +922,7 @@
 
 .k-capsule-from-tag {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--sumi-3);
@@ -931,7 +931,7 @@
 .k-capsule-quote {
   margin: 0;
   font-style: italic;
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   line-height: 1.5;
   color: var(--sumi);
   padding-left: 10px;
@@ -951,21 +951,21 @@
 
 .k-treat-label {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--shu);
 }
 
 .k-treat-title {
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
 }
 
 .k-unlocked-date {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   margin-top: 4px;
 }
@@ -980,7 +980,7 @@
 
 .k-capsule-tab {
   padding: 8px 14px;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   color: var(--sumi-3);
   background: transparent;
@@ -1020,14 +1020,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
 }
 
 .k-capsule-field label:not(.k-trigger-card) small {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 400;
   color: var(--sumi-3);
 }
@@ -1037,7 +1037,7 @@
   width: 100%;
   padding: 10px 12px;
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi);
   background: var(--washi-card);
   border: 1px solid var(--stone-3);
@@ -1060,7 +1060,7 @@
 }
 
 .k-chip-subtle {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   padding: 4px 9px;
   border-radius: var(--r-sm);
   background: var(--washi-2);
@@ -1096,7 +1096,7 @@
   background: var(--washi-card);
   cursor: pointer;
   transition: all 140ms ease;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: normal;
   width: 100%;
 }

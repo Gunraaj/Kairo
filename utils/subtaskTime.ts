@@ -220,3 +220,13 @@ export const calculateFinishEstimate = (
     hoursFormatted,
   };
 };
+
+/** "2 h 12 min", "45 min": readable durations for the UI. */
+export const formatMinutesLong = (minutes: number): string => {
+  const m = Math.max(0, Math.round(minutes));
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`;
+};
+
+/** Clock time in the user's own format (9:10 pm or 21:10), `minutes` from now. */
+export const formatClockFromNow = (minutes: number, now = new Date()): string =>
+  new Date(now.getTime() + Math.max(0, minutes) * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });

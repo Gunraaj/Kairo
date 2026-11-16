@@ -23,7 +23,7 @@
 
 .k-vol-num {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   min-width: 26px;
   text-align: right;
@@ -32,7 +32,7 @@
 .k-sl-credit {
   margin-top: 8px;
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.5;
 }
 
@@ -122,7 +122,7 @@
 
 .k-mixer-vol-val {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-2);
   min-width: 32px;
   text-align: right;
@@ -142,7 +142,7 @@
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 500;
   border-radius: var(--r-sm);
   background: var(--washi-2);
@@ -179,7 +179,7 @@
   border: 1px solid var(--stone-3);
   background: var(--washi-2);
   color: var(--sumi-3);
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   cursor: pointer;
   transition: all 120ms ease;
@@ -201,12 +201,12 @@
 }
 
 .k-mixer-toggle-arrow {
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   opacity: 0.7;
 }
 
 .k-mixer-standby-pill {
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   padding: 2px 7px;
   border-radius: var(--r-full);
@@ -233,7 +233,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -303,17 +303,17 @@
   background: var(--washi-2);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-2);
   flex-shrink: 0;
 }
 
 .k-channel-thumb.synth-icon {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 
 .k-channel-thumb.lofi-icon {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 
 .k-channel-thumb svg {
@@ -322,7 +322,7 @@
 }
 
 .k-channel-name {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 500;
   color: var(--sumi);
   white-space: nowrap;
@@ -334,7 +334,7 @@
 }
 
 .k-channel-type-tag {
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   font-weight: 600;
   padding: 2px 5px;
@@ -384,7 +384,7 @@
 
 .k-channel-vol-readout {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   width: 26px;
   text-align: right;
@@ -394,7 +394,7 @@
 .k-channel-strip.is-muted .k-channel-vol-readout {
   color: var(--shu);
   font-weight: 600;
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
 }
 
 .k-channel-wave-indicator {
@@ -457,7 +457,7 @@
   border: none;
   background: transparent;
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -481,7 +481,7 @@
   border: 1px dashed var(--stone-2);
   background: var(--washi-card);
   color: var(--sumi-2);
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   cursor: pointer;
   transition: all 120ms ease;
 }
@@ -530,12 +530,12 @@
 .k-modal-header h2 {
   font-family: var(--jp);
   font-weight: 600;
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   color: var(--sumi);
 }
 .k-modal-sub {
   color: var(--sumi-3);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   margin-top: 4px;
 }
 .k-modal-close {
@@ -583,7 +583,7 @@
 }
 .k-stat-tile-label {
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -592,7 +592,7 @@
 .k-stat-tile-value {
   font-family: var(--sans);
   font-weight: 600;
-  font-size: 26px;
+  font-size: calc(26px * var(--text-scale, 1));
   color: var(--sumi);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -612,7 +612,7 @@
   padding-left: 32px;
   height: 14px;
   color: var(--sumi-3);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
 }
 .k-year-month { text-align: left; white-space: nowrap; grid-row: 1; }
@@ -622,7 +622,7 @@
   grid-template-rows: repeat(7, 13px);
   gap: 3px;
   color: var(--sumi-3);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   padding-top: 2px;
   width: 26px;
@@ -680,12 +680,12 @@
   border-bottom: 1px solid var(--stone-3);
 }
 .k-day-inspect-head b {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi);
   margin-right: 8px;
 }
 .k-day-inspect-badge {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--mono);
   color: var(--shu);
   background: var(--shu-soft);
@@ -699,7 +699,7 @@
   color: var(--sumi-3);
   cursor: pointer;
   padding: 4px;
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   line-height: 1;
   border-radius: 4px;
   transition: color 120ms ease;
@@ -721,7 +721,7 @@
   align-items: center;
   gap: 12px;
   padding: 4px 0;
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 .k-day-session-info {
   display: flex;
@@ -739,18 +739,18 @@
 .k-day-session-intention {
   color: var(--sumi-3);
   font-family: var(--jp);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-style: italic;
 }
 .k-day-session-time {
   color: var(--sumi-2);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   flex-shrink: 0;
 }
 .k-day-session-empty {
   color: var(--sumi-3);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   margin: 4px 0;
 }
 
@@ -764,13 +764,13 @@
   align-items: center;
   gap: 6px;
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--mono);
 }
 .k-year-legend .k-year-cell { width: 11px; height: 11px; }
 
 .k-stat-tile-unit {
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   color: var(--sumi-3);
   margin-left: 2px;
   font-weight: 400;
@@ -781,7 +781,7 @@
   margin-bottom: 24px;
 }
 .k-progress-section-title {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   margin-bottom: 12px;
@@ -792,7 +792,7 @@
 }
 .k-progress-section-note {
   color: var(--sumi-3);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 400;
   font-family: var(--mono);
 }
@@ -838,7 +838,7 @@
 }
 .k-weekly-day {
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -868,7 +868,7 @@
   margin: 0 0 6px;
   color: var(--sumi);
   font-family: var(--jp);
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-style: normal;
   line-height: 1.55;
 }
@@ -876,7 +876,7 @@
   display: flex;
   gap: 6px;
   color: var(--sumi-3);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-family: var(--mono);
 }
 
@@ -904,13 +904,13 @@
 .k-top-task-rank {
   color: var(--sumi-3);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 .k-top-task-name {
   color: var(--sumi);
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -919,7 +919,7 @@
 .k-top-task-time {
   color: var(--sumi-2);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-variant-numeric: tabular-nums;
 }
 
@@ -935,7 +935,7 @@
   border: 1px solid var(--stone-2);
   background: var(--washi-card);
   color: var(--sumi);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   transition: all 140ms ease;
 }
@@ -1005,7 +1005,7 @@
   color: var(--washi);
   border-radius: var(--r-full);
   box-shadow: var(--shadow-deep);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 500;
   pointer-events: none;
   animation: k-toast-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -1047,7 +1047,7 @@
   background: var(--shu);
   color: #FFFFFF;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   border-radius: 50%;
   margin-top: 1px;
@@ -1059,13 +1059,13 @@
 .k-welcome-text b {
   display: block;
   color: var(--sumi);
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   margin-bottom: 2px;
 }
 .k-welcome-text span {
   color: var(--sumi-2);
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.5;
 }
 

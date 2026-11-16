@@ -1,16 +1,16 @@
 .beat-mode-icon {
-  font-size: 16px;
+  font-size: calc(17px * var(--text-scale, 1));
   margin-bottom: 2px;
 }
 
 .beat-mode-title {
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
 }
 
 .beat-mode-selector button small {
-  font-size: 9.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
 }
 
@@ -49,7 +49,7 @@
 
 .signal-badge {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--sumi-3);
@@ -58,7 +58,7 @@
 
 .signal-live-pill {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   padding: 1px 5px;
   border-radius: 4px;
@@ -83,7 +83,7 @@
 }
 
 .channel-label {
-  font-size: 8.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   color: var(--sumi-3);
   letter-spacing: 0.05em;
@@ -91,7 +91,7 @@
 }
 
 .channel-val {
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-family: var(--mono);
   color: var(--sumi);
 }
@@ -102,7 +102,7 @@
 }
 
 .channel-val small {
-  font-size: 9.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   font-weight: normal;
 }
@@ -110,7 +110,7 @@
 .channel-op {
   color: var(--sumi-3);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
   padding: 0 2px;
 }
@@ -121,7 +121,7 @@
 }
 
 .signal-desc {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.45;
   color: var(--sumi-3);
   margin: 0;
@@ -137,7 +137,7 @@
   border-radius: var(--r-md);
   background: var(--shu);
   color: #FFFFFF;
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-family: var(--sans);
   font-weight: 600;
   border: 1px solid var(--shu);
@@ -218,13 +218,13 @@
 
 .beat-freq-num {
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 700;
   line-height: 1;
 }
 
 .beat-freq-unit {
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-family: var(--mono);
   opacity: 0.8;
   margin-top: 1px;
@@ -246,7 +246,7 @@
 
 .beat-info b {
   color: var(--sumi);
-  font-size: 13px;
+  font-size: calc(15px * var(--text-scale, 1));
   font-weight: 600;
 }
 
@@ -263,7 +263,7 @@
 
 .beat-info small {
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.3;
 }
 
@@ -293,7 +293,7 @@
 
 .control-heading span {
   color: var(--sumi-3);
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   letter-spacing: 0.05em;
   text-transform: uppercase;
   font-weight: 600;
@@ -303,7 +303,7 @@
   color: var(--sumi);
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
 }
 
 /* --- Focus Presets Header & Custom Preset Saving ------------------------- */
@@ -315,7 +315,7 @@
 }
 
 .k-save-mix-btn {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--shu);
   background: var(--shu-soft);
@@ -357,7 +357,7 @@
   background: var(--washi-card);
   border: 1px solid var(--stone-3);
   color: var(--sumi-3);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -375,7 +375,7 @@
 }
 
 .k-custom-tag {
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   font-family: var(--mono);
   background: var(--shu-soft);
@@ -403,7 +403,7 @@
 }
 
 .range-control-label {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi-2);
   letter-spacing: 0.03em;
@@ -412,7 +412,7 @@
 
 .range-control-val {
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--shu);
   background: var(--shu-soft);
@@ -510,7 +510,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .carrier-presets button .carrier-label {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.2;
@@ -518,7 +518,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .carrier-presets button .carrier-hz {
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   font-weight: 500;
   line-height: 1;
@@ -567,7 +567,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .brainwave-band-btn .band-name {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.2;
@@ -575,7 +575,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .brainwave-band-btn .band-range {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1;
 }
@@ -627,14 +627,14 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .noise-type-chip .noise-chip-name {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--sumi);
   letter-spacing: 0.05em;
 }
 
 .noise-type-chip .noise-chip-desc {
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1.1;
 }
@@ -670,7 +670,7 @@ input[type="range"]::-moz-range-thumb:hover {
   padding: 10px 14px;
   cursor: pointer;
   user-select: none;
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   background: var(--washi-2);
@@ -680,14 +680,14 @@ input[type="range"]::-moz-range-thumb:hover {
   display: none;
 }
 .k-physio-summary-icon {
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
 }
 .k-physio-summary-text {
   flex: 1;
   letter-spacing: 0.02em;
 }
 .k-physio-arrow {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
   transition: transform 180ms ease;
 }
@@ -727,7 +727,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .k-physio-badge {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 1px 6px;
@@ -752,14 +752,14 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .k-physio-item h4 {
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.3;
 }
 
 .k-physio-item p {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-3);
   line-height: 1.45;
 }
@@ -773,7 +773,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .k-physio-note {
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   color: var(--sumi-2);
   line-height: 1.45;
 }
@@ -791,7 +791,7 @@ input[type="range"]::-moz-range-thumb:hover {
 .sound-note {
   margin-top: 4px;
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.5;
 }
 
@@ -800,7 +800,7 @@ input[type="range"]::-moz-range-thumb:hover {
   border-radius: var(--r-md);
   background: var(--shu-soft);
   color: var(--shu);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   border: 1px solid var(--shu-line);
 }
 
@@ -832,20 +832,20 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .k-error-boundary-icon {
-  font-size: 38px;
+  font-size: calc(38px * var(--text-scale, 1));
   line-height: 1;
 }
 
 .k-error-boundary-title {
   font-family: var(--jp);
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--sumi);
   letter-spacing: -0.01em;
 }
 
 .k-error-boundary-msg {
-  font-size: 13.5px;
+  font-size: calc(15px * var(--text-scale, 1));
   color: var(--sumi-2);
   line-height: 1.5;
 }
@@ -865,7 +865,7 @@ input[type="range"]::-moz-range-thumb:hover {
   margin-top: 12px;
   border-top: 1px solid var(--stone-3);
   padding-top: 12px;
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
 }
 
 .k-error-boundary-details summary {
@@ -909,13 +909,13 @@ input[type="range"]::-moz-range-thumb:hover {
 .lofi-intro h3 {
   font-family: var(--jp);
   font-weight: 600;
-  font-size: 14px;
+  font-size: calc(16px * var(--text-scale, 1));
   color: var(--sumi);
   margin-bottom: 2px;
 }
 .lofi-intro p {
   color: var(--sumi-3);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.5;
 }
 
@@ -931,7 +931,7 @@ input[type="range"]::-moz-range-thumb:hover {
   border-radius: var(--r-md);
   background: var(--washi-card);
   color: var(--sumi);
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 .lofi-input input:focus {
   outline: none;
@@ -942,7 +942,7 @@ input[type="range"]::-moz-range-thumb:hover {
   border-radius: var(--r-md);
   background: var(--shu);
   color: #FFFFFF;
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   transition: all 140ms ease;
 }
@@ -956,11 +956,11 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 .lofi-hint {
   color: var(--sumi-3);
-  font-size: 11px;
+  font-size: calc(13px * var(--text-scale, 1));
 }
 .lofi-error {
   color: var(--shu);
-  font-size: 11.5px;
+  font-size: calc(13px * var(--text-scale, 1));
   padding: 8px 10px;
   border-radius: var(--r-sm);
   background: var(--shu-soft);
@@ -971,7 +971,7 @@ input[type="range"]::-moz-range-thumb:hover {
   border-radius: var(--r-md);
   border: 1px dashed var(--stone-2);
   color: var(--sumi-3);
-  font-size: 12px;
+  font-size: calc(14px * var(--text-scale, 1));
   text-align: center;
 }
 .lofi-empty a {
@@ -1006,7 +1006,7 @@ input[type="range"]::-moz-range-thumb:hover {
 /* --- Curated Lofi Radio Stations ---------------------------------------- */
 .k-lofi-section-label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--sumi-3);
@@ -1056,7 +1056,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .k-station-badge {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 700;
   padding: 1px 5px;
   border-radius: 3px;
@@ -1074,7 +1074,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .k-station-title {
-  font-size: 12.5px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
   color: var(--sumi);
   overflow: hidden;
@@ -1083,7 +1083,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .k-station-subtitle {
-  font-size: 10.5px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--sumi-3);
   overflow: hidden;
   text-overflow: ellipsis;
