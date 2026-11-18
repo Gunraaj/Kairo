@@ -921,54 +921,29 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               ))}
             </div>
 
-            {/* Sound Cards Grid */}
-            <div className="k-sound-grid">
+            {/* Sound tiles: tap to add or remove. Volume lives in "Now playing" above, in one place. */}
+            <div className="k-sound-tiles" role="list">
               {filteredSounds.map(sound => {
                 const active = sound.url in activeSounds;
-                const volume = activeSounds[sound.url] ?? 0.5;
                 return (
-                  <div key={sound.url} className={`k-sound-card ${active ? 'active' : ''}`}>
-                    <button
-                      type="button"
-                      className="k-sound-card-header"
-                      onClick={() => toggleAmbient(sound)}
-                      aria-pressed={active}
-                      aria-label={`${active ? 'Stop' : 'Play'} ${labelFor(sound.name)}`}
-                    >
-                      <div className="k-sound-thumb" aria-hidden="true">
-                        <SoundIcon name={sound.name} />
-                      </div>
-                      <span className="k-sound-title">{labelFor(sound.name)}</span>
-                      <span className={`k-sound-toggle-badge ${active ? 'is-playing' : ''}`}>
-                        {active ? (
-                          <span className="k-sound-wave-bars">
-                            <span /><span /><span />
-                          </span>
-                        ) : (
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M4 3v10l8-5-8-5z" />
-                          </svg>
-                        )}
-                      </span>
-                    </button>
-                    {active && (
-                      <div className="k-sound-vol-row">
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={volume}
-                          onChange={event => setLayerVolume(sound.url, Number(event.target.value))}
-                          aria-label={`${labelFor(sound.name)} volume`}
-                        />
-                        <span className="k-vol-num">{Math.round(volume * 100)}%</span>
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    key={sound.url}
+                    type="button"
+                    role="listitem"
+                    className={`k-sound-tile ${active ? 'is-on' : ''}`}
+                    onClick={() => toggleAmbient(sound)}
+                    aria-pressed={active}
+                    aria-label={`${active ? 'Remove' : 'Add'} ${labelFor(sound.name)}`}
+                    title={active ? 'Playing. Tap to remove; set its volume in Now playing.' : 'Tap to add to your mix'}
+                  >
+                    <span className="k-sound-tile-icon" aria-hidden="true"><SoundIcon name={sound.name} /></span>
+                    <span className="k-sound-tile-name">{labelFor(sound.name)}</span>
+                    {active && <span className="k-sound-wave-bars k-sound-tile-bars" aria-hidden="true"><span /><span /><span /></span>}
+                  </button>
                 );
               })}
             </div>
+            {filteredSounds.length === 0 && <p className="k-sl-empty">No sounds match “{query}”.</p>}
 
             <p className="k-sl-credit">
               {SOUNDS.length} sounds curated from <a href="https://github.com/remvze/moodist" target="_blank" rel="noreferrer">Moodist</a>.
@@ -1726,6 +1701,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
         {/* 2. Master Controller & Live Mixer Rack */}
         <div className={`k-mixer-console ${totalActiveChannels > 0 ? 'has-active' : 'is-standby'}`}>
+          <p className="k-mixer-heading">
+            Now playing
+            <span>{totalActiveChannels === 0 ? 'nothing yet' : `${totalActiveChannels} ${totalActiveChannels === 1 ? 'sound' : 'sounds'}`}</span>
+          </p>
           <div className="k-mixer-master-bar">
             <button
               type="button"
@@ -1783,6 +1762,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           </div>
 
+          {totalActiveChannels === 0 && (
+            <p className="k-mixer-empty">Tap a mix or a sound below to start. Each sound gets its own volume here, so you can blend rain under a cafe, for example.</p>
+          )}
+
           {/* Dynamic Active Channel Strips (Expands when channels active) */}
           {isMixerExpanded && totalActiveChannels > 0 && (
             <div className="k-mixer-rack custom-scrollbar">
@@ -1817,16 +1800,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                       </div>
 
                       <div className="k-channel-fader-wrap">
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={synthVolume}
-                          onChange={event => setSynthVolumeNormalized(Number(event.target.value))}
-                          aria-label="Synthesizer tone volume"
-                        />
-                        <span className="k-channel-vol-readout">{Math.round(synthVolume * 100)}%</span>
+                        <VolumeSlider gain={synthVolume} onChange={setSynthVolumeNormalized} label="Focus tone volume" />
                       </div>
 
                       <div className="k-channel-actions">

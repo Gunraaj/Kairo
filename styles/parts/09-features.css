@@ -510,3 +510,35 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-alert-pick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .k-alert-test { white-space: nowrap; }
 .k-alert-volume { min-width: 260px; flex: 1; max-width: 360px; }
+
+/* ---- Sound Studio revamp (2026-11-18) ----
+   One place for volume ("Now playing"), a compact tile grid for picking sounds. */
+@media (min-width: 1280px) {
+  .k-sound-lib { width: 440px; }
+  .k-sound-lib.is-closed { margin-right: -440px; }
+}
+.k-mixer-heading {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; padding: 12px 14px 0;
+  font-size: calc(13px * var(--text-scale, 1)); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sumi-2);
+}
+.k-mixer-heading span { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--sumi-3); }
+.k-mixer-empty { margin: 0; padding: 4px 14px 14px; font-size: calc(14px * var(--text-scale, 1)); line-height: 1.5; color: var(--sumi-3); }
+.k-mixer-rack { max-height: min(46vh, 420px); }
+
+.k-sound-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.k-sound-tile {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: 6px;
+  min-height: 92px; padding: 12px 8px; border-radius: var(--r-md);
+  border: 1px solid var(--stone-3); background: var(--washi-card); color: var(--sumi-2);
+  text-align: center; cursor: pointer; transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.k-sound-tile:hover { border-color: var(--stone); color: var(--sumi); transform: translateY(-1px); }
+.k-sound-tile:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+.k-sound-tile.is-on { border-color: var(--shu); background: var(--shu-subtle); color: var(--sumi); }
+.k-sound-tile-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--washi-2); }
+.k-sound-tile.is-on .k-sound-tile-icon { background: var(--shu); color: #fff; }
+.k-sound-tile-icon svg { width: 20px; height: 20px; }
+.k-sound-tile-name { font-size: calc(14px * var(--text-scale, 1)); line-height: 1.25; overflow-wrap: anywhere; }
+.k-sound-tile-bars { position: absolute; top: 8px; right: 8px; }
+.k-sl-empty { color: var(--sumi-3); font-size: calc(14px * var(--text-scale, 1)); }
+@media (prefers-reduced-motion: reduce) { .k-sound-tile:hover { transform: none; } }
