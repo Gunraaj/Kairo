@@ -237,7 +237,7 @@ export const TimeCapsuleModal: React.FC<TimeCapsuleModalProps> = ({
                     onChange={() => setTriggerType('rounds')}
                   />
                   <div className="k-trigger-info">
-                    <b>Focus Rounds Milestone</b>
+                    <b>After focus sessions</b>
                     <small>After {targetRounds} completed Pomodoros from now</small>
                   </div>
                   {triggerType === 'rounds' && (
@@ -318,7 +318,7 @@ export const TimeCapsuleModal: React.FC<TimeCapsuleModalProps> = ({
                         </div>
                         <div className="k-capsule-locked-content">
                           <div className="k-capsule-condition">
-                            {c.triggerType === 'rounds' && `Unlocks after ${roundsLeft} more completed Pomodoro${roundsLeft === 1 ? '' : 's'}`}
+                            {c.triggerType === 'rounds' && `Unlocks after ${roundsLeft} more focus session${roundsLeft === 1 ? '' : 's'}`}
                             {c.triggerType === 'tomorrow' && 'Unlocks on your first session tomorrow morning'}
                             {c.triggerType === 'time' && `Unlocks today at ${c.targetTime}`}
                           </div>

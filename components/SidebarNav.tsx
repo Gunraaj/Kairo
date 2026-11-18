@@ -952,8 +952,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               e.stopPropagation();
                               setTargetPopoverTaskId(prev => (prev === task.id ? null : task.id));
                             }}
-                            title={`🎯 Pomodoro Target: ${doneRounds}/${target} completed (${pomodoroLength}m each = ${formatDurationCompact(plannedMinutes)} total). Click to adjust target & session length.`}
-                            aria-label={`${doneRounds} of ${target} Pomodoros completed, ${pomodoroLength}m each. Click to customize.`}
+                            title={`${doneRounds} of ${target} sessions done (${pomodoroLength} min each, ${formatDurationCompact(plannedMinutes)} planned). Click to change.`}
+                            aria-label={`${doneRounds} of ${target} sessions done, ${pomodoroLength} minutes each. Click to change.`}
                           >
                             <span className="k-pomo-badge-icon">🍅</span>
                             <span className="k-pomo-badge-ratio">{formatPomodoroRatio(doneRounds, target)}</span>
@@ -1130,8 +1130,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                         e.stopPropagation();
                                         setTargetPopoverTaskId(prev => (prev === st.id ? null : st.id));
                                       }}
-                                      title={`🎯 Subtask Pomodoro Target: ${subDoneRounds}/${subTarget} completed (${subPomodoroLength}m each = ${formatDurationCompact(subPlannedMinutes)} total). Click to adjust target & session length.`}
-                                      aria-label={`${subDoneRounds} of ${subTarget} Pomodoros completed on subtask`}
+                                      title={`${subDoneRounds} of ${subTarget} sessions done (${subPomodoroLength} min each, ${formatDurationCompact(subPlannedMinutes)} planned). Click to change.`}
+                                      aria-label={`${subDoneRounds} of ${subTarget} sessions done on this subtask`}
                                     >
                                       <span className="k-pomo-badge-icon">🍅</span>
                                       <span className="k-pomo-badge-ratio">{formatPomodoroRatio(subDoneRounds, subTarget)}</span>

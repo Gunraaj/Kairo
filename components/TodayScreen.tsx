@@ -136,7 +136,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                     <b>{block.taskName}</b>
                     <small>{block.projectName}{block.reason === 'deadline' && block.deadline ? ` · due ${block.deadline}` : ' · no deadline'}</small>
                   </div>
-                  <span className="k-today-rounds">{block.rounds} round{block.rounds === 1 ? '' : 's'}</span>
+                  <span className="k-today-rounds">{block.rounds} session{block.rounds === 1 ? '' : 's'}</span>
                   <button type="button" className="k-btn" onClick={() => onStartBlock(block.taskId)} aria-label={`Start ${block.taskName}`}>Start</button>
                 </li>
               ))}
@@ -153,12 +153,12 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                 <div key={plan.projectId} className="k-today-project">
                   <div className="k-today-project-main">
                     <b>{plan.name}</b>
-                    <small>{plan.doneRounds}/{plan.totalRounds} rounds{daysLabel(plan) ? ` · ${daysLabel(plan)}` : ''}</small>
+                    <small>{plan.doneRounds} of {plan.totalRounds} sessions{daysLabel(plan) ? ` · ${daysLabel(plan)}` : ''}</small>
                     {chip && <span className={`k-today-chip is-${chip.tone}`}>{chip.text}</span>}
                     {onReplan && plan.pace && ['behind', 'at-risk', 'infeasible'].includes(plan.pace.status) && (
                       <button type="button" className="k-btn k-today-replan" onClick={() => onReplan(plan.projectId)}>Re-plan with AI</button>
                     )}
-                    {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} rounds will not fit before the deadline. Move the date or drop topics.</small>}
+                    {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} sessions will not fit before the deadline. Move the date or drop topics.</small>}
                   </div>
                   <div className="k-today-project-actions">
                     {onSprint && plan.remainingRounds > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'project', projectId: plan.projectId })}>Sprint</button>}
@@ -174,8 +174,8 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             {multiplier !== 1 && (
               <p className="k-today-note">
                 {multiplier > 1
-                  ? `Your finished tasks took about ${multiplier}x the estimate, so remaining rounds are scaled up.`
-                  : `You finish faster than estimated (${multiplier}x), so remaining rounds are scaled down.`}
+                  ? `Your finished tasks took about ${multiplier}x the estimate, so the remaining sessions are scaled up.`
+                  : `You finish faster than estimated (${multiplier}x), so the remaining sessions are scaled down.`}
               </p>
             )}
           </div>

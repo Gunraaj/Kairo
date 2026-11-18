@@ -784,7 +784,7 @@ export const Stage: React.FC<StageProps> = ({
         {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
           <span
             className={`k-target-pomo-chip ${activeDoneRounds! >= activeTargetRounds ? 'is-complete' : ''}`}
-            title={`Pomodoro Target: ${activeDoneRounds} of ${activeTargetRounds} completed (${activePomoLen}m each)`}
+            title={`${activeDoneRounds} of ${activeTargetRounds} sessions done (${activePomoLen} min each)`}
           >
             🍅 {activeDoneRounds}/{activeTargetRounds} <small>({activePomoLen}m)</small>
           </span>
@@ -1107,7 +1107,7 @@ export const Stage: React.FC<StageProps> = ({
             <span className="k-zen-sep">•</span>
             <span className="k-zen-target-title" title={targetLabel}>{targetLabel}</span>
             {activeTarget?.kind === 'task' && activeTargetRounds !== null && (
-              <span className="k-zen-pomo-dot" title={`Pomodoro ${activeDoneRounds}/${activeTargetRounds}`}>
+              <span className="k-zen-pomo-dot" title={`${activeDoneRounds} of ${activeTargetRounds} sessions done`}>
                 🍅 {activeDoneRounds}/{activeTargetRounds}
               </span>
             )}
@@ -1233,7 +1233,7 @@ export const Stage: React.FC<StageProps> = ({
               <b>{todaySummary?.streak ?? 0}</b> day streak 🔥
             </div>
             <div className="k-cockpit-stat-item">
-              <b>{totalPomodoros}</b> total pomodoros banked
+              <b>{totalPomodoros}</b> focus sessions done in total
             </div>
 
             {nextReward && onOpenCapsule && (

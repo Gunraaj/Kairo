@@ -99,7 +99,7 @@ const SECTIONS: FaqSection[] = [
           <ul>
             <li>Topics are mixed, not blocked, because mixing helps you remember more.</li>
             <li>Each topic goes Recall (notes closed), then Practice (past questions), then Fix mistakes. There is no passive rereading.</li>
-            <li>Short breaks, and a longer one after every fourth round. It can stop by 10 pm to protect your sleep.</li>
+            <li>Short breaks, and a longer one after every fourth session (you can change this). It can stop by 10 pm to protect your sleep.</li>
             <li>In the last 3 days it advises no new topics, and the day before it advises a light pass and rest.</li>
           </ul>
         </>

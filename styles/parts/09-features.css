@@ -542,3 +542,6 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-sound-tile-bars { position: absolute; top: 8px; right: 8px; }
 .k-sl-empty { color: var(--sumi-3); font-size: calc(14px * var(--text-scale, 1)); }
 @media (prefers-reduced-motion: reduce) { .k-sound-tile:hover { transform: none; } }
+
+/* Counts read in the normal font, not a typewriter font. */
+.k-today-rounds, .k-pomo-badge-ratio, .k-pomo-badge-len { font-family: inherit; font-variant-numeric: tabular-nums; }

@@ -313,7 +313,7 @@ export const AnalogDial: React.FC<DialProps> = ({
           textAnchor="middle"
           style={{ pointerEvents: 'none' }}
         >
-          {isActive ? 'FOCUSING' : dragging ? 'DRAG TO SET' : 'POMODORO'}
+          {isActive ? 'FOCUSING' : dragging ? 'DRAG TO SET' : 'READY'}
         </text>
 
         {/* Interactive Tactile Handle */}

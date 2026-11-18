@@ -324,8 +324,8 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
               </h2>
               <p className="k-doc-subtitle">
                 {step === 'input'
-                  ? 'Ground your Pomodoro plan in actual course syllabi, lecture notes, or project specs.'
-                  : 'Review cognitive load, tune Pomodoro rounds, and check deadline pacing.'}
+                  ? 'Base your study plan on actual course syllabi, lecture notes, or project specs.'
+                  : 'Review the workload, adjust sessions per task, and check the deadline pace.'}
               </p>
             </div>
           </div>
@@ -459,7 +459,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
             <div className="k-doc-field-group">
               <label className="k-doc-label">
                 <span>Target Exam / Completion Deadline</span>
-                <small>(Optional - computes daily Pomodoro pace)</small>
+                <small>(Optional, used to work out a daily pace)</small>
               </label>
               <input
                 type="date"
@@ -566,7 +566,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                 </div>
                 <p className="k-doc-clarification-msg">{analysisError}</p>
                 <div className="k-doc-clarification-guide">
-                  <span>To create a truly grounded, pedagogical Pomodoro plan:</span>
+                  <span>For a study plan that fits your course:</span>
                   <ul>
                     <li>List 3–5 specific topics or chapters (e.g. <em>"1. Limits & Continuity, 2. Derivative Rules, 3. Chain Rule"</em>).</li>
                     <li>Or switch to <b>Upload Document</b> to drop your syllabus PDF, lecture notes, or markdown outline.</li>
@@ -724,16 +724,16 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                                       type="button"
                                       onClick={() => updateTaskRounds(module.id, task.id, -1)}
                                       disabled={task.targetRounds <= 1}
-                                      title="Decrease round target"
+                                      title="Fewer sessions"
                                     >
                                       -
                                     </button>
-                                    <span className="k-rounds-val">{task.targetRounds} rds</span>
+                                    <span className="k-rounds-val">{task.targetRounds} sessions</span>
                                     <button
                                       type="button"
                                       onClick={() => updateTaskRounds(module.id, task.id, 1)}
                                       disabled={task.targetRounds >= 8}
-                                      title="Increase round target"
+                                      title="More sessions"
                                     >
                                       +
                                     </button>
