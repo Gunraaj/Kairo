@@ -10,7 +10,7 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 | 1 | P0 | End-of-session sounds: a clear, loud sound when a focus session ends and a different one when a break ends | Claude | Done | Settings → 9 sounds with Test buttons, separate focus/break picks, alarm volume, ring 1–3×, also rings on Chromecast |
 | 2 | P0 | Sound Studio revamp ("10x better") | Claude | Done (round 1) | Tile grid, one "Now playing" mixer with precise sliders, wider panel, plain labels. Tell me what still feels off |
 | 3 | P0 | Try Chromecast casting on your TV | You | To do | Chrome or Edge, TV → Cast to Chromecast. Check centring and that Sound Studio sounds play. If stuck on the DashCast logo, use "Try full-page mode" |
-| 4 | P1 | Push and deploy the 2026-11-18 evening work (offline mode, checklist subtasks, security fix, refactor) | You | Waiting for your OK | Committed locally; the earlier batch is live |
+| 4 | P1 | Push and deploy the 2026-11-18 evening work (offline mode, checklist subtasks, security fix, lint clean-up, bug fixes) | You | Waiting for your OK | 9 commits on this computer; the earlier batch is live |
 | 5 | P1 | Consistent wording: "session" everywhere; no typewriter font on counts | Claude | Done | |
 | 6 | P1 | Whole-app intuition pass: labels, what each button does | Claude | Done (round 1) | Plain labels + tooltips (Count it, Schedule my day, Plan exam revision, Not linked to a task). Next: watch you use it and fix what confuses |
 | 7 | P1 | Netlify: makekairo.netlify.app is stuck on an old build (credits used up) | You | Waiting | Credits likely reset around the 20th. Then `npm run deploy:netlify`. Or turn it into a redirect to Cloudflare |
@@ -26,6 +26,7 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 ## Done
 | Date | What |
 |------|------|
+| 2026-11-18 | Linter fully clean (real types instead of `any`, correct hook deps); fixed stale default session length; welcome guide skippable from step 1; no vibrate errors |
 | 2026-11-18 | Offline mode; subtasks as a checklist; security: script policy narrowed to Google's cast paths; dead code removed; sidebar icons and Sounds tab split out |
 | 2026-11-18 | End-of-session alarm catalog; Sound Studio tile grid + single mixer; "session" wording everywhere; plain-language labels; Minimal layout name |
 | 2026-11-18 | Sidebar 304px wide; project, task and subtask names wrap to two lines instead of "Re…"; task details on their own line |
