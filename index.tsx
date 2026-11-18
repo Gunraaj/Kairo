@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { TvDisplay } from './components/TvDisplay';
 import { isDisplayPage } from './utils/castDisplay';
 import { primeAlertAudio } from './utils/alertSounds';
+import { installOfflineGuard } from './utils/offlineMode';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -14,6 +15,7 @@ if (!rootElement) {
 }
 
 primeAlertAudio();
+installOfflineGuard();
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>

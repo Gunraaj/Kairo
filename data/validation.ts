@@ -153,6 +153,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   breakEndSound: 'chime',
   alertVolume: 0.8,
   alertRepeats: 2,
+  offlineMode: false,
 };
 
 export const normalizeSettings = (value: unknown): UserSettings => {
@@ -172,6 +173,7 @@ export const normalizeSettings = (value: unknown): UserSettings => {
     breakEndSound: isAlertSoundId(source.breakEndSound) ? source.breakEndSound : 'chime',
     alertVolume: Math.round(boundedNumber(source.alertVolume, 0.8, 0, 1) * 100) / 100,
     alertRepeats: Math.round(boundedNumber(source.alertRepeats, 2, 1, 3)),
+    offlineMode: source.offlineMode === true,
   };
 };
 

@@ -91,6 +91,7 @@ export interface UserSettings {
   breakEndSound: string; // AlertSoundId played when a break ends
   alertVolume: number; // 0 to 1
   alertRepeats: number; // 1 to 3
+  offlineMode: boolean; // never connect to the internet (local AI and cached sounds still work)
 }
 
 export type Settings = UserSettings;

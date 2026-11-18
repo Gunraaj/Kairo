@@ -885,6 +885,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </p>
           <div className="k-settings-row">
             <div className="k-settings-row-label">
+              <b id="offline-mode-label">Offline mode</b>
+              <small>Kairo makes no internet connections. The timer, plans, history, focus tones, sounds you already played and a local AI model (Ollama) keep working; cloud AI, Kairo Cloud, casting, new sounds and music pause.</small>
+            </div>
+            <Toggle
+              labelId="offline-mode-label"
+              enabled={local.offlineMode}
+              onChange={enabled => setLocal(prev => ({ ...prev, offlineMode: enabled }))}
+            />
+          </div>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
               <b>Export snapshot</b>
               <small>Downloads a JSON of every project, task, session, setting, and preference.</small>
             </div>

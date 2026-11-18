@@ -7,6 +7,7 @@ import { getCachedAudioUrl } from '../utils/audioCache';
 import { TbBookmark, TbBookmarkFilled, TbTrash, TbPlus } from 'react-icons/tb';
 import { ATMOSPHERE_EMOJIS, AmbientChannelStrip, AtmospherePreset, BeatPreset, CATEGORIES, CURATED_LOFI_STATIONS, CustomBeatPreset, DEFAULT_ATMOSPHERE_PRESETS, FEATURED_NAMES, SOUNDS, Sound, SoundIcon, beats, brainwaveBandFor, carrierCharacterFor, carrierPresets, categoryFor, labelFor } from './soundStudio/soundCatalog';
 import { VolumeSlider } from './soundStudio/VolumeSlider';
+import { isOfflineMode, OFFLINE_MESSAGE } from '../utils/offlineMode';
 import { publishAmbient, useCastStatus } from '../utils/castDisplay';
 
 export interface ControlPanelProps {
@@ -1612,7 +1613,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                     </span>
                   </div>
                 )}
-                <iframe
+                {isOfflineMode() ? <p className="k-inline-error" role="status">{OFFLINE_MESSAGE}</p> : <iframe
                   src={embedUrl}
                   title="Lofi focus stream player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -1620,7 +1621,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                   sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                   loading="lazy"
                   allowFullScreen
-                />
+                />}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderTop: '1px solid var(--stone-3)', background: 'var(--washi-card)' }}>
                   <a
                     href={embedUrl.includes('youtube') ? embedUrl.replace('youtube-nocookie.com/embed/', 'youtube.com/watch?v=').replace('?autoplay=1', '') : embedUrl.replace('open.spotify.com/embed/', 'open.spotify.com/')}

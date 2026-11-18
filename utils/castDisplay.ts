@@ -3,6 +3,7 @@ import type { AudioSettings, SessionType } from '../types';
 import { isTrustedAmbientUrl } from './embed';
 import { isAlertSoundId, playAlertSound } from './alertSounds';
 import { openRelay, randomRoom, ROOM_PATTERN, type Relay } from './tvRelay';
+import { isOfflineMode, OfflineError } from './offlineMode';
 
 /**
  * Showing the timer on a TV, all free:
@@ -262,6 +263,7 @@ const loadCastSdk = (): Promise<CastContext> => {
 
 /** Opens the Cast picker and shows the TV page on the chosen Chromecast. Returns false if cancelled. */
 export const castToChromecast = async (asFullPage = false): Promise<boolean> => {
+  if (isOfflineMode()) throw new OfflineError();
   const context = await loadCastSdk();
   setStatus({ chromecast: 'connecting' });
   try {
