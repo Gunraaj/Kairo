@@ -48,6 +48,9 @@ const normalizeCapsules = (value: unknown): TimeCapsule[] => {
   );
 };
 
+const SIDEBAR_DEFAULT = 304;
+const SIDEBAR_KEY = 'kairo_sidebar_width_v2';
+
 const App: React.FC = () => {
   const [projects, setProjects] = useLocalStorage<Project[]>('kairo_projects', [], {
     version: 2,
@@ -163,15 +166,14 @@ const App: React.FC = () => {
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  // Wide enough that project and task names read in full. Only a width the user dragged to is remembered
+  // (the old key saved 260px for everyone, so it is ignored).
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
-    if (typeof window === 'undefined') return 260;
     try {
-      const saved = localStorage.getItem('kairo_sidebar_width');
-      if (!saved) return 260;
-      const num = Number(saved);
-      return Number.isFinite(num) ? Math.max(180, Math.min(480, num)) : 240;
+      const num = Number(localStorage.getItem(SIDEBAR_KEY));
+      return num ? Math.max(240, Math.min(480, num)) : SIDEBAR_DEFAULT;
     } catch {
-      return 260;
+      return SIDEBAR_DEFAULT;
     }
   });
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
@@ -181,14 +183,16 @@ const App: React.FC = () => {
     setIsResizingSidebar(true);
     const startX = e.clientX;
     const startW = sidebarWidth;
+    let latest = startW;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const nextW = Math.max(180, Math.min(480, startW + (moveEvent.clientX - startX)));
-      setSidebarWidth(nextW);
+      latest = Math.max(240, Math.min(480, startW + (moveEvent.clientX - startX)));
+      setSidebarWidth(latest);
     };
 
     const onMouseUp = () => {
       setIsResizingSidebar(false);
+      try { localStorage.setItem(SIDEBAR_KEY, String(latest)); } catch { /* storage unavailable */ }
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
@@ -198,16 +202,10 @@ const App: React.FC = () => {
   }, [sidebarWidth]);
 
   const resetSidebarWidth = useCallback(() => {
-    setSidebarWidth(260);
+    setSidebarWidth(SIDEBAR_DEFAULT);
+    try { localStorage.removeItem(SIDEBAR_KEY); } catch { /* storage unavailable */ }
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('kairo_sidebar_width', String(sidebarWidth));
-    } catch {
-      // Ignore quota
-    }
-  }, [sidebarWidth]);
   const [soundStudioOpen, setSoundStudioOpen] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);

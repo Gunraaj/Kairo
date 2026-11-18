@@ -925,22 +925,25 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                   : `${task.name} (Click to focus, double-click to rename)`
                               }
                             >
-                              <span>{task.name}</span>
-                              {hasSubs && (
-                                <span
-                                  className={`k-subtask-pill ${doneSubs === subTasks.length ? 'all-done' : ''}`}
-                                  onClick={e => toggleTaskSubtasks(task.id, e)}
-                                  title={`${doneSubs}/${subTasks.length} subtasks done. Click to ${isTaskExpanded ? 'collapse' : 'expand'}.`}
-                                >
-                                  {doneSubs}/{subTasks.length} {isTaskExpanded ? '▾' : '▸'}
-                                </span>
-                              )}
-                              {task.timeSpent > 0 && (
-                                <em>
-                                  {formatDurationCompact(task.timeSpent)}
-                                </em>
-                              )}
+                              <span className="k-tree-task-text">{task.name}</span>
                             </button>
+                          )}
+                          <div className="k-task-meta">
+                          {hasSubs && (
+                            <button
+                              type="button"
+                              className={`k-subtask-pill ${doneSubs === subTasks.length ? 'all-done' : ''}`}
+                              onClick={e => toggleTaskSubtasks(task.id, e)}
+                              aria-expanded={isTaskExpanded}
+                              title={`${doneSubs} of ${subTasks.length} subtasks done. Click to ${isTaskExpanded ? 'hide' : 'show'} them.`}
+                            >
+                              {isTaskExpanded ? '▾' : '▸'} {doneSubs}/{subTasks.length} subtasks
+                            </button>
+                          )}
+                          {task.timeSpent > 0 && (
+                            <em className="k-task-time" title="Time focused on this task">
+                              {formatDurationCompact(task.timeSpent)}
+                            </em>
                           )}
                           <button
                             type="button"
@@ -1015,6 +1018,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                             >
                               <NavIcon name="trash" />
                             </button>
+                          </div>
                           </div>
                         </div>
 

@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import type { AudioSettings } from '../../types';
 import moodistSounds from '../../moodist_sounds_utf8.json';
 import { isTrustedAmbientUrl } from '../../utils/embed';
+import { VolumeSlider } from './VolumeSlider';
 import { TbCloudRain, TbCloudStorm, TbDroplet, TbWaveSine, TbBeach, TbRipple, TbWind, TbLeaf, TbTrees, TbFlame, TbCoffee, TbBooks, TbUsers, TbBuildingStore, TbKeyboard, TbWriting, TbTrain, TbCar, TbPlaneInflight, TbCat, TbDog, TbFeather, TbButterfly, TbFish, TbVinyl, TbDeviceSpeaker, TbSnowflake, TbMoon, TbBell, TbHeartbeat, TbBubble, TbHammer, TbClock, TbFileMusic } from 'react-icons/tb';
 
 export type Sound = {
@@ -404,19 +405,7 @@ export const AmbientChannelStrip: React.FC<{
       </div>
 
       <div className="k-channel-fader-wrap">
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={event => onVolumeChange(Number(event.target.value))}
-          aria-label={`${label} volume`}
-          disabled={isMuted}
-        />
-        <span className="k-channel-vol-readout">
-          {isMuted ? 'MUTE' : `${Math.round(volume * 100)}%`}
-        </span>
+        <VolumeSlider gain={volume} onChange={onVolumeChange} label={`${label} volume`} disabled={isMuted} />
       </div>
 
       <div className="k-channel-actions">

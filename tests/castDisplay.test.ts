@@ -46,3 +46,13 @@ test('rooms are random and unguessable', () => {
   assert.notEqual(a, randomRoom());
   assert.ok(a.length >= 24);
 });
+
+test('volume slider maps perceived loudness to gain and back', async () => {
+  const { toGain, toPosition } = await import('../components/soundStudio/VolumeSlider');
+  assert.equal(toGain(0), 0);
+  assert.equal(toGain(1), 1);
+  assert.equal(toGain(0.5), 0.25);
+  assert.equal(Math.round(toPosition(0.25) * 100), 50);
+  assert.equal(toGain(2), 1);
+  assert.equal(toPosition(-1), 0);
+});

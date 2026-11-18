@@ -6,6 +6,7 @@ import { parseMediaEmbed } from '../utils/embed';
 import { getCachedAudioUrl } from '../utils/audioCache';
 import { TbBookmark, TbBookmarkFilled, TbTrash, TbPlus } from 'react-icons/tb';
 import { ATMOSPHERE_EMOJIS, AmbientChannelStrip, AtmospherePreset, BeatPreset, CATEGORIES, CURATED_LOFI_STATIONS, CustomBeatPreset, DEFAULT_ATMOSPHERE_PRESETS, FEATURED_NAMES, SOUNDS, Sound, SoundIcon, beats, brainwaveBandFor, carrierCharacterFor, carrierPresets, categoryFor, labelFor } from './soundStudio/soundCatalog';
+import { VolumeSlider } from './soundStudio/VolumeSlider';
 import { publishAmbient, useCastStatus } from '../utils/castDisplay';
 
 export interface ControlPanelProps {
@@ -1736,18 +1737,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               <Icon name={masterVolume === 0 ? 'volumeOff' : 'volumeUp'} className="h-3.5 w-3.5" />
             </button>
 
-            <div className="k-mixer-master-slider" title={`Master volume ${Math.round(masterVolume * 100)}%`}>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={masterVolume}
-                onChange={event => update('masterVolume', Number(event.target.value))}
-                aria-label={`Master volume ${Math.round(masterVolume * 100)} percent`}
-              />
+            <div className="k-mixer-master-slider">
+              <VolumeSlider gain={masterVolume} onChange={gain => update('masterVolume', gain)} label="Master volume" size="master" />
             </div>
-            <span className="k-mixer-vol-val">{Math.round(masterVolume * 100)}%</span>
 
             <div className="k-mixer-master-actions">
               {totalActiveChannels > 0 && (
