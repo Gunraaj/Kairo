@@ -16,7 +16,7 @@ import {
 } from '../utils/geminiAi';
 import { notificationPermission, requestNotificationPermission } from '../utils/notify';
 import { FOCUS_SOUND_OPTIONS } from './FocusSetupModal';
-import { KAIRO_KEYS, downloadSnapshot, getSnapshotPayload, importSnapshot } from '../utils/backup';
+import { downloadSnapshot, getSnapshotPayload, importSnapshot } from '../utils/backup';
 import { normalizeSettings } from '../data/validation';
 import { CloudSyncCard } from './CloudSyncCard';
 import type { FocusSound } from '../types';

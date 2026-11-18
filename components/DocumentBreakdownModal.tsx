@@ -4,10 +4,8 @@ import { Icon } from './Icon';
 import {
   BreakdownPlan,
   ProposedModule,
-  ProposedTask,
   DocumentAnalysisInput,
   analyzeDocumentWithAi,
-  parseOutlineOffline,
   SAMPLE_TEMPLATES,
   calculatePacing,
 } from '../utils/documentBreakdown';
@@ -664,7 +662,6 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
               {plan.modules.map(module => {
                 const isExpanded = expandedModules.has(module.id);
                 const allSelected = module.tasks.every(t => t.selected);
-                const someSelected = module.tasks.some(t => t.selected);
                 const moduleRounds = module.tasks.filter(t => t.selected).reduce((acc, t) => acc + t.targetRounds, 0);
 
                 return (
@@ -756,7 +753,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                               {/* Nested subtasks */}
                               {isSubExpanded && task.subTasks.length > 0 && (
                                 <div className="k-staging-subtasks-tray">
-                                  {task.subTasks.map((st, idx) => (
+                                  {task.subTasks.map(st => (
                                     <div key={st.id} className="k-staging-subtask-item">
                                       <span className="k-subtask-bullet">↳</span>
                                       <span className="k-subtask-name">{st.name}</span>

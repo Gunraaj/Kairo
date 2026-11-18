@@ -212,18 +212,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const [slicingTaskId, setSlicingTaskId] = useState<string | null>(null);
 
 
-  const allTasks = React.useMemo(() => {
-    const list: Task[] = [];
-    if (Array.isArray(projects)) {
-      for (const p of projects) {
-        if (Array.isArray(p.tasks)) {
-          list.push(...p.tasks);
-        }
-      }
-    }
-    return list;
-  }, [projects]);
-
 
   const toggleTaskSubtasks = (taskId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -340,26 +328,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     setEditingSubTaskId(null);
   };
 
-  const adjustSubtaskTime = (
-    projectId: string,
-    taskId: string,
-    subtaskId: string,
-    delta: number,
-  ) => {
-    setProjects(prev =>
-      (Array.isArray(prev) ? prev : []).map(p => {
-        if (p.id !== projectId) return p;
-        return {
-          ...p,
-          tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
-            if (t.id !== taskId) return t;
-            return updateSubtaskMinutes(t, subtaskId, delta, 'add');
-          }),
-        };
-      }),
-    );
-  };
-
   const saveTaskRename = (taskId: string) => {
     const name = editTaskName.trim().slice(0, 160);
     if (name) {
@@ -379,21 +347,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       setProjects(prev => (Array.isArray(prev) ? prev : []).map(p => (p.id === projectId ? { ...p, name } : p)));
     }
     setEditingProjectId(null);
-  };
-
-  const cycleTargetRounds = (taskId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setProjects(prev =>
-      (Array.isArray(prev) ? prev : []).map(p => ({
-        ...p,
-        tasks: (Array.isArray(p.tasks) ? p.tasks : []).map(t => {
-          if (t.id !== taskId) return t;
-          const current = t.targetRounds || 4;
-          const next = current >= 8 ? 1 : current + 1;
-          return { ...t, targetRounds: next };
-        }),
-      })),
-    );
   };
 
   const updateTaskPomodoroTarget = (projectId: string, taskId: string, rounds: number) => {

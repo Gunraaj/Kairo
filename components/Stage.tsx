@@ -45,7 +45,7 @@ export const Stage: React.FC<StageProps> = ({
   toggleAudio,
   playTickCue,
   totalPomodoros,
-  totalFocusMinutes,
+  totalFocusMinutes: _totalFocusMinutes,
   todaySummary,
   onActiveChange,
   onOpenCapsule,

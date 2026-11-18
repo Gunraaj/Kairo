@@ -242,7 +242,7 @@ const App: React.FC = () => {
       normalize: normalizePalette,
     },
   );
-  const [logoVariant, setLogoVariant] = useLocalStorage<LogoVariant>(
+  const [logoVariant] = useLocalStorage<LogoVariant>(
     'kairo_logo_variant',
     'interval',
     {

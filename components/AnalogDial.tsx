@@ -16,7 +16,7 @@ type DialProps = {
 };
 
 export const AnalogDial: React.FC<DialProps> = ({
-  totalTime,
+  totalTime: _totalTime,
   timeLeft,
   formatted,
   isActive,
