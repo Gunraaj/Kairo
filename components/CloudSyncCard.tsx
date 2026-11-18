@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { loadTurnstile, TURNSTILE_SITEKEY } from '../utils/turnstile';
-import { activeSession, aiShareEnabled, deleteAccount, deleteCloudData, pullAiState, pullVault, pushAiState, pushVault, sendLink, setAiShare, signOut } from '../utils/kairoCloud';
+import React, { useEffect, useState } from 'react';
+import { activeSession, aiShareEnabled, deleteAccount, deleteCloudData, pullAiState, pullVault, pushAiState, pushVault, setAiShare, signInWithGoogle, signOut } from '../utils/kairoCloud';
 
 const CONNECTOR_URL = 'https://kairo-mcp.makekairo.workers.dev/mcp';
 
@@ -11,44 +10,11 @@ const readLastSync = () => { try { return localStorage.getItem(LAST_SYNC_KEY) ??
 
 export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) => {
   const [signedIn, setSignedIn] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [email, setEmail] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [lastSync, setLastSync] = useState(readLastSync);
   const [share, setShare] = useState(aiShareEnabled);
-
-  const captchaBox = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string | null>(null);
-  const [captcha, setCaptcha] = useState('');
-
-  useEffect(() => {
-    if (signedIn || !captchaBox.current) return;
-    let cancelled = false;
-    loadTurnstile()
-      .then(api => {
-        if (cancelled || !captchaBox.current || widgetId.current) return;
-        widgetId.current = api.render(captchaBox.current, {
-          sitekey: TURNSTILE_SITEKEY,
-          size: 'flexible',
-          callback: (token: string) => setCaptcha(token),
-          'expired-callback': () => setCaptcha(''),
-          'error-callback': () => setCaptcha(''),
-        });
-      })
-      .catch(error => setStatus(error instanceof Error ? error.message : 'Bot check could not load.'));
-    return () => {
-      cancelled = true;
-      if (widgetId.current && window.turnstile) window.turnstile.remove(widgetId.current);
-      widgetId.current = null;
-    };
-  }, [signedIn]);
-
-  const resetCaptcha = () => {
-    setCaptcha('');
-    if (widgetId.current && window.turnstile) window.turnstile.reset(widgetId.current);
-  };
 
   useEffect(() => { activeSession().then(s => setSignedIn(Boolean(s))).catch(() => setSignedIn(false)); }, []);
 
@@ -73,12 +39,22 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
   if (!signedIn) {
     return (
       <div className="k-cloud">
-        <p className="k-settings-hint">Optional. Sign in with just your email to keep an encrypted copy of your plan and open it on another device. Kairo works fully without it. <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></p>
-        <form className="k-cloud-row" onSubmit={e => { e.preventDefault(); run(async () => { try { await sendLink(email, window.location.origin + window.location.pathname, captcha); } finally { resetCaptcha(); } setSent(true); return 'Link sent. Open it in this browser to finish signing in (check spam too).'; }); }}>
-          <input type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} aria-label="Email" required />
-          <button type="submit" className="k-btn k-btn-primary" disabled={busy || !captcha}>{sent ? 'Send again' : 'Email me a sign-in link'}</button>
-        </form>
-        <div ref={captchaBox} className="k-cloud-captcha" />
+        <p className="k-settings-hint">Optional. Sign in to keep an encrypted copy of your plan and open it on another device. Kairo works fully without it. <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></p>
+        <button
+          type="button"
+          className="k-btn k-google-btn"
+          disabled={busy}
+          onClick={() => run(async () => { await signInWithGoogle(window.location.origin + window.location.pathname); })}
+        >
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.5z" />
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.5z" />
+          </svg>
+          {busy ? 'Opening Google…' : 'Continue with Google'}
+        </button>
+        <p className="k-settings-hint">Kairo only receives your email address from Google, never your password.</p>
         {status && <p className="k-settings-hint" role="status">{status}</p>}
       </div>
     );
@@ -133,7 +109,7 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
         )}
       </div>
       <div className="k-cloud-row">
-        <button type="button" className="k-link-btn" disabled={busy} onClick={() => run(async () => { await signOut(); setSignedIn(false); setSent(false); return 'Signed out. Your local data is untouched.'; })}>Sign out</button>
+        <button type="button" className="k-link-btn" disabled={busy} onClick={() => run(async () => { await signOut(); setSignedIn(false); return 'Signed out. Your local data is untouched.'; })}>Sign out</button>
         <button type="button" className="k-link-btn k-danger-link" disabled={busy} onClick={() => run(async () => {
           if (!window.confirm('Delete your cloud copy? This cannot be undone. Data in this browser stays.')) return;
           await deleteCloudData();
@@ -142,7 +118,7 @@ export const CloudSyncCard: React.FC<Props> = ({ onRestore, onBeforeRestore }) =
         <button type="button" className="k-link-btn k-danger-link" disabled={busy} onClick={() => run(async () => {
           if (!window.confirm('Delete your Kairo Cloud account? This erases your email and every cloud copy, and cannot be undone. Data in this browser stays.')) return;
           await deleteAccount();
-          setSignedIn(false); setSent(false); setShare(false);
+          setSignedIn(false); setShare(false);
           return 'Account deleted. Everything in the cloud is gone; this browser still has your plan.';
         })}>Delete my account</button>
       </div>

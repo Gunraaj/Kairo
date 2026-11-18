@@ -551,3 +551,10 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 @media (hover: hover) {
   .k-tree-subtask:not(:hover):not(:focus-within) .k-subtask-pomo-badge.is-quiet { display: none; }
 }
+
+/* Continue with Google (Google's brand guide: white button, colour logo, dark text) */
+.k-google-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 44px;
+  background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 600;
+}
+.k-google-btn:hover:not(:disabled) { background: #f2f2f2; }

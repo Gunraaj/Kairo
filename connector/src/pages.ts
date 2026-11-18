@@ -19,7 +19,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff;fo
 
 export const renderMessage = (title: string, text: string) => shell(title, `<h1>${escapeHtml(title)}</h1><p>${escapeHtml(text)}</p>`);
 
-export const renderAuthorizePage = (details: ConsentDescription, handle: string, sitekey: string) => {
+export const renderAuthorizePage = (details: ConsentDescription, handle: string) => {
   const name = escapeHtml(details.clientName || 'An app');
   const origin = details.clientDomain
     ? `Published by <b>${escapeHtml(details.clientDomain)}</b>.`
@@ -35,12 +35,10 @@ ${loopback}
 <p>It only sees your plan if you turned on <b>Share with AI assistants</b> in Kairo Settings. You can revoke access by turning sharing off in the app. <a href="https://kairo.makekairo.workers.dev/privacy.html">Privacy</a></p>
 <form method="post" action="/authorize">
   <input type="hidden" name="handle" value="${escapeHtml(handle)}">
-  <label for="email">Your Kairo Cloud email</label>
-  <input id="email" name="email" type="email" autocomplete="email" required>
-  <div class="cf-turnstile" data-sitekey="${escapeHtml(sitekey)}" data-size="flexible" style="margin-top:12px"></div>
+  <p>Next, sign in with the Google account you use in Kairo.</p>
   <div class="row">
-    <button type="submit" name="decision" value="deny" formnovalidate>Deny</button>
-    <button type="submit" name="decision" value="approve" class="primary">Email me a link</button>
+    <button type="submit" name="decision" value="deny">Deny</button>
+    <button type="submit" name="decision" value="approve" class="primary">Allow and continue with Google</button>
   </div>
-</form>`, '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>');
+</form>`);
 };

@@ -421,7 +421,7 @@ const App: React.FC = () => {
   useEffect(() => {
     completeSignInFromUrl()
       .then(ok => { if (ok) { announceToast('Signed in to Kairo Cloud. Open Settings to sync.'); setShowInterview(false); setShowGuide(false); } })
-      .catch(() => announceToast('Sign-in link expired or was opened in another browser. Send a new one from Settings.'));
+      .catch(error => announceToast(error instanceof Error && error.message ? `Sign-in did not finish: ${error.message}` : 'Sign-in did not finish. Try again from Settings.'));
   }, [announceToast]);
 
   const closeInterview = useCallback(() => {

@@ -15,7 +15,7 @@ h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}p,li{color:
 <body>
 <main>
 <h1>Kairo privacy</h1>
-<p>Last updated 17 November 2026. Plain language, no tricks.</p>
+<p>Last updated 18 November 2026. Plain language, no tricks.</p>
 
 <h2>By default, nothing leaves your browser</h2>
 <p>Kairo works without an account. Your projects, sessions and settings are stored only in this browser (local storage). We have no analytics, no ads and no tracking cookies.</p>
@@ -25,14 +25,14 @@ h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}p,li{color:
 
 <h2>Kairo Cloud (optional)</h2>
 <ul>
-<li><b>Sign-in:</b> we store your email address so we can send you sign-in links. Email is delivered through our email provider. A Cloudflare Turnstile check protects the sign-in form from bots.</li>
+<li><b>Sign-in:</b> you sign in with Google. Google tells us your email address, your name and your profile picture link; we keep these with your account so you can sign in again. Kairo never sees your Google password.</li>
 <li><b>Encrypted sync:</b> your plan is encrypted in your browser with your passphrase before upload. We store only the encrypted copy and cannot read it or recover it if you forget the passphrase.</li>
 <li><b>Share with AI assistants:</b> only if you switch this on, a readable copy of your projects and study sessions is stored so that an AI assistant you connect (Claude or ChatGPT) can read your plan and add to it. Switching it off deletes that copy.</li>
 </ul>
 <p>Data is hosted by Supabase (database, region: Mumbai) and Cloudflare (website and connector). Every row is locked to your account with row level security.</p>
 
 <h2>Connecting Claude or ChatGPT</h2>
-<p>When you connect an assistant, you approve it on a Kairo page and sign in with your Kairo Cloud email. The assistant gets a token that can read your plan and add plans, subtasks and deadlines. It cannot see your encrypted backup, your AI keys or your email. Tokens expire after an hour and are refreshed only while you stay connected.</p>
+<p>When you connect an assistant, you approve it on a Kairo page and sign in with Google. The assistant gets a token that can read your plan and add plans, subtasks and deadlines. It cannot see your encrypted backup, your AI keys or your email. Tokens expire after an hour and are refreshed only while you stay connected.</p>
 
 <h2>Casting to a TV</h2>
 <p>When you press Cast to Chromecast, Kairo opens DashCast, a free public Chromecast app, which loads Kairo's TV page on your TV. While casting, your timer, the current task name and your sound choices pass between this browser and the TV through Supabase Realtime in a private room with a random, unguessable name. Nothing is stored, and the room is gone when you stop. The other TV options (TV mode, second screen) stay on your own devices.</p>

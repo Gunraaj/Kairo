@@ -10,13 +10,11 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_KEY: string;
-  TURNSTILE_SITEKEY: string;
   PUBLIC_ORIGIN: string;
 }
 
 type Props = { userId: string };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
 
 const b64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const s256 = async (value: string) => b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))));
@@ -58,7 +56,7 @@ const authorize = async (request: Request, env: Env): Promise<Response> => {
     }
     const details = await oauth.describeConsent(authRequest);
     const consent = await oauth.beginConsent(authRequest);
-    return html(renderAuthorizePage(details, consent.handle, env.TURNSTILE_SITEKEY), consent.headers);
+    return html(renderAuthorizePage(details, consent.handle), consent.headers);
   }
 
   if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
@@ -69,30 +67,18 @@ const authorize = async (request: Request, env: Env): Promise<Response> => {
       const denied = await oauth.denyConsent(request, handle);
       return new Response(null, { status: 302, headers: denied.headers });
     }
-    const email = String(form.get('email') ?? '').trim().toLowerCase();
-    const captcha = String(form.get('cf-turnstile-response') ?? '');
-    if (!EMAIL.test(email) || !captcha) return html(renderMessage('Missing details', 'Go back, enter your email and complete the check.'), undefined, 400);
-
     const approved = await oauth.approveConsent(request, handle, { scope: ['mcp:read', 'mcp:write'] });
     const verifier = randomVerifier();
     const { state, headers } = await oauth.beginUpstream(approved.request, { data: { verifier }, headers: approved.headers });
     const callback = `${env.PUBLIC_ORIGIN}/callback?state=${encodeURIComponent(state)}`;
-    const response = await fetch(`${env.SUPABASE_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(callback)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: env.SUPABASE_ANON_KEY },
-      body: JSON.stringify({
-        email,
-        create_user: false,
-        code_challenge: await s256(verifier),
-        code_challenge_method: 's256',
-        gotrue_meta_security: { captcha_token: captcha },
-      }),
-    });
-    if (!response.ok) {
-      const reason = response.status === 429 ? 'Too many attempts. Wait a few minutes.' : 'Use the email you signed in with in Kairo (Settings, Kairo Cloud), then try again.';
-      return html(renderMessage('Could not send the sign-in link', reason), headers, 400);
-    }
-    return html(renderMessage('Check your email', 'Open the sign-in link in this same browser within 10 minutes to finish connecting.'), headers);
+    // Google sign-in through Supabase (PKCE): the code Google sends back to /callback only works with this verifier.
+    const google = new URL(`${env.SUPABASE_URL}/auth/v1/authorize`);
+    google.searchParams.set('provider', 'google');
+    google.searchParams.set('redirect_to', callback);
+    google.searchParams.set('code_challenge', await s256(verifier));
+    google.searchParams.set('code_challenge_method', 's256');
+    headers.set('Location', google.toString());
+    return new Response(null, { status: 302, headers });
   } catch (error) {
     if (error instanceof AuthorizationError) return html(renderMessage('This page expired', 'Start the connection again from Claude or ChatGPT.'), undefined, 400);
     throw error;

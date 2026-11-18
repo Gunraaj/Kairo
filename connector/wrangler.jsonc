@@ -8,7 +8,6 @@
   "vars": {
     "SUPABASE_URL": "https://xxfsmnxppdqwnakjijlk.supabase.co",
     "SUPABASE_ANON_KEY": "sb_publishable_oAaTRqnzamNa1v9t2FECLw_Zhncw9hc",
-    "TURNSTILE_SITEKEY": "0x4AAAAAAGDGo0fE8e_HYL59",
     "PUBLIC_ORIGIN": "https://kairo-mcp.makekairo.workers.dev"
   },
   // SUPABASE_SERVICE_KEY is a secret: `wrangler secret put SUPABASE_SERVICE_KEY`. Never put it here.

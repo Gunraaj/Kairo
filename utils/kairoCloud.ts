@@ -1,4 +1,4 @@
-import { createPkcePair, exchangeCode, needsRefresh, refreshSession, type AuthSession } from './supabaseAuth';
+import { buildAuthorizeUrl, createPkcePair, exchangeCode, needsRefresh, refreshSession, type AuthSession } from './supabaseAuth';
 import { decryptVault, encryptVault, type VaultEnvelope } from './vaultCrypto';
 import { exportSnapshot } from './backup';
 import { normalizeProjects, normalizeSessions } from '../data/validation';
@@ -63,9 +63,25 @@ export const sendLink = async (email: string, redirectTo: string, captchaToken: 
   if (!response.ok) await failure(response, 'Could not send the link');
 };
 
-/** Finishes sign-in when the page was opened from the emailed link (?code=...). Returns true if a session was created. */
+/**
+ * Sign in with Google through Supabase (PKCE). Kairo never sees the Google password; Google sends
+ * the browser back here with a one-time ?code= that only this browser's verifier can redeem.
+ */
+export const signInWithGoogle = async (redirectTo: string): Promise<void> => {
+  const { verifier, challenge } = await createPkcePair();
+  try { localStorage.setItem(VERIFIER_KEY, verifier); } catch { throw new Error('This browser blocks storage, so sign-in cannot work here.'); }
+  window.location.assign(buildAuthorizeUrl({ url: CLOUD.url, provider: 'google', redirectTo, challenge }));
+};
+
+/** Finishes sign-in when the page was opened from Google or an emailed link (?code=...). Returns true if a session was created. */
 export const completeSignInFromUrl = async (fetchImpl: Fetch = fetch): Promise<boolean> => {
   const url = new URL(window.location.href);
+  const providerError = url.searchParams.get('error_description') || url.searchParams.get('error');
+  if (providerError && !url.searchParams.get('code')) {
+    for (const key of ['error', 'error_code', 'error_description']) url.searchParams.delete(key);
+    window.history.replaceState(null, '', url.pathname + (url.search || '') + url.hash);
+    throw new Error(providerError.replace(/\+/g, ' ').slice(0, 160));
+  }
   const code = url.searchParams.get('code');
   if (!code) return false;
   let verifier: string | null = null;
