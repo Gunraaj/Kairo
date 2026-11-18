@@ -295,7 +295,8 @@ export const Stage: React.FC<StageProps> = ({
       sessionType === 'focus' ? 'Focus session complete' : 'Break complete',
       autoStart ? 'Your next break has started.' : 'Choose what to do next in Kairo.',
     );
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate?.(80);
+    // Browsers refuse (and log an error) if the page has not been touched yet, so only vibrate after that.
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator && navigator.userActivation?.hasBeenActive) navigator.vibrate?.(80);
   }, [
     activeTarget,
     addSession,

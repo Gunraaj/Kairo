@@ -42,7 +42,7 @@ export const AnalogDial: React.FC<DialProps> = ({
     if (prevMinutesRef.current !== null && prevMinutesRef.current !== currentMinutes) {
       const isMajor = currentMinutes % 5 === 0;
       onTick?.(isMajor);
-      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator && navigator.userActivation?.hasBeenActive) {
         try {
           navigator.vibrate?.(isMajor ? [6, 16, 6] : 3);
         } catch {

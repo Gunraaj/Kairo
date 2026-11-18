@@ -13,7 +13,7 @@ type Props = {
 
 const STEPS = ['Welcome', 'Your focus', 'Optional extras', 'Start'] as const;
 
-/** The one first-run popup: a short guided setup. Every step after the first can be skipped. */
+/** The one first-run popup: a short guided setup. Every step can be skipped, including the whole setup. */
 export const WelcomeGuide: React.FC<Props> = ({ settings, setSettings, onFinish }) => {
   const [step, setStep] = useState(0);
   const [local, setLocal] = useState(settings);
@@ -70,6 +70,7 @@ export const WelcomeGuide: React.FC<Props> = ({ settings, setSettings, onFinish 
         )}
 
         <div className="k-onboarding-actions k-guide-nav">
+          {step === 0 && <button type="button" className="k-link-btn" onClick={() => finish('timer')}>Skip setup, just show me the timer</button>}
           {step > 0 && <button type="button" className="k-link-btn" onClick={() => setStep(s => s - 1)}>Back</button>}
           {!last && step > 0 && <button type="button" className="k-link-btn" onClick={() => setStep(s => s + 1)}>Skip</button>}
           {!last && <button type="button" className="k-btn k-btn-primary" onClick={() => setStep(s => s + 1)}>{step === 0 ? 'Get started' : 'Next'}</button>}
