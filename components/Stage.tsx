@@ -175,7 +175,7 @@ export const Stage: React.FC<StageProps> = ({
     setIsActive(false);
     setTimeLeft(settings.focusDuration * 60);
     setRecoverySession(null);
-    setCompletionMessage(`Banked ${recoverySession.elapsedMinutes}m focus session to history.`);
+    setCompletionMessage(`Saved ${recoverySession.elapsedMinutes} min of focus to your history.`);
   };
 
   const handleDiscardRecovered = () => {
@@ -493,7 +493,7 @@ export const Stage: React.FC<StageProps> = ({
         taskName: completedTarget ? completedTarget.name : 'Quick Focus',
         intention: sessionIntentionRef.current || undefined,
       });
-      setCompletionMessage(`Banked ${elapsedMinutes}m focus time before reset.`);
+      setCompletionMessage(`Saved ${elapsedMinutes} min of focus before resetting.`);
     }
 
     deadlineRef.current = null;
@@ -814,7 +814,7 @@ export const Stage: React.FC<StageProps> = ({
             <span>Counting down</span>
           </span>
         )}
-        {!activeTarget && <span className="k-target-hint">Untracked</span>}
+        {!activeTarget && <span className="k-target-hint" title="Pick a task in the sidebar to count this time toward it">Not linked to a task</span>}
       </div>
 
       {sessionType === 'focus' && (
@@ -1019,7 +1019,7 @@ export const Stage: React.FC<StageProps> = ({
             <span className="k-recovery-text">
               {recoverySession.completedWhileAway ? (
                 <>
-                  Focus completed while away: <b>{recoverySession.elapsedMinutes}m</b> on <i>{recoverySession.targetName}</i>
+                  You focused <b>{recoverySession.elapsedMinutes} min</b> on <i>{recoverySession.targetName}</i> while Kairo was closed
                 </>
               ) : (
                 <>
@@ -1043,9 +1043,9 @@ export const Stage: React.FC<StageProps> = ({
               type="button"
               className="k-recovery-btn bank"
               onClick={handleBankRecovered}
-              title="Bank elapsed time to task and stats"
+              title="Count this time toward the task and your stats"
             >
-              💾 Bank {recoverySession.elapsedMinutes}m
+              Count it ({recoverySession.elapsedMinutes} min)
             </button>
             <button
               type="button"
@@ -1069,10 +1069,10 @@ export const Stage: React.FC<StageProps> = ({
             aria-checked={layoutVariation === 'zen'}
             className={`k-var-btn ${layoutVariation === 'zen' ? 'is-active' : ''}`}
             onClick={() => handleVariationChange('zen')}
-            title="Zen Mode: Pure analog dial, minimal distractions"
+            title="Minimal: just the dial, nothing else"
           >
             <span className="k-var-icon">☯</span>
-            <span className="k-var-label">Zen</span>
+            <span className="k-var-label">Minimal</span>
           </button>
           <button
             type="button"

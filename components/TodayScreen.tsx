@@ -29,11 +29,11 @@ const paceChip = (pace: Pace | undefined): { text: string; tone: 'good' | 'warn'
     case 'done': return { text: 'Done', tone: 'good' };
     case 'on-track':
       return pace.projectedDays === null
-        ? { text: `Plan: about ${num(pace.requiredPerDay)} round(s) a day`, tone: 'good' }
+        ? { text: `Plan: about ${Math.max(1, Math.ceil(pace.requiredPerDay))} session${Math.ceil(pace.requiredPerDay) > 1 ? 's' : ''} a day`, tone: 'good' }
         : { text: 'On track', tone: 'good' };
-    case 'behind': return { text: `Behind: need ${num(pace.requiredPerDay)} a day, you average ${num(pace.actualPerDay)}`, tone: 'warn' };
-    case 'at-risk': return { text: `At risk: at your pace (${num(pace.actualPerDay)} a day) this takes ~${pace.projectedDays ?? '?'} days, you have ${pace.daysLeft}`, tone: 'bad' };
-    case 'infeasible': return { text: `Too much for the time: ${num(pace.requiredPerDay)} rounds/day needed`, tone: 'bad' };
+    case 'behind': return { text: `Behind: need ${num(pace.requiredPerDay)} sessions a day, you average ${num(pace.actualPerDay)}`, tone: 'warn' };
+    case 'at-risk': return { text: `At risk: at your pace (${num(pace.actualPerDay)} sessions a day) this takes about ${pace.projectedDays ?? '?'} days, you have ${pace.daysLeft}`, tone: 'bad' };
+    case 'infeasible': return { text: `Too much for the time: ${num(pace.requiredPerDay)} sessions a day needed`, tone: 'bad' };
   }
 };
 
@@ -69,7 +69,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
             )}
           </div>
           <div className="k-today-head-actions">
-            {onSprint && state.hasPlan && plannedToday > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'today' })}>Sprint today</button>}
+            {onSprint && state.hasPlan && plannedToday > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'today' })} title="Lay out today's sessions and breaks as a timed schedule">Schedule my day</button>}
             <button type="button" className="k-btn k-today-open-timer" onClick={onOpenFocus}>Open timer</button>
           </div>
         </header>
@@ -102,7 +102,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
               <b>{PHASE_ADVICE[state.exam.phase].title}: {state.exam.name}</b>
               <p>{state.exam.daysLeft <= 0 ? 'Today. ' : `${state.exam.daysLeft} day${state.exam.daysLeft === 1 ? '' : 's'} left. `}{PHASE_ADVICE[state.exam.phase].advice}</p>
             </div>
-            {onExamSprint && <button type="button" className="k-btn k-btn-primary" onClick={onExamSprint}>Plan a sprint</button>}
+            {onExamSprint && <button type="button" className="k-btn k-btn-primary" onClick={onExamSprint} title="A focused revision schedule for the days before this deadline">Plan exam revision</button>}
           </div>
         )}
 
@@ -161,7 +161,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({
                     {plan.overflowRounds > 0 && <small className="k-today-warn">{plan.overflowRounds} sessions will not fit before the deadline. Move the date or drop topics.</small>}
                   </div>
                   <div className="k-today-project-actions">
-                    {onSprint && plan.remainingRounds > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'project', projectId: plan.projectId })}>Sprint</button>}
+                    {onSprint && plan.remainingRounds > 0 && <button type="button" className="k-btn" onClick={() => onSprint({ kind: 'project', projectId: plan.projectId })} title="Lay out this project's sessions as a timed schedule">Schedule</button>}
                     {onHistory && <button type="button" className="k-btn" onClick={() => onHistory(plan.projectId)}>History</button>}
                   </div>
                   <label className="k-today-deadline">

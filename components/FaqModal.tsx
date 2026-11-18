@@ -93,7 +93,7 @@ const SECTIONS: FaqSection[] = [
       item('What is Exam Mode?', 'exam mode sprint crunch last minute short time revision deadline cramming', (
         <>
           <p>
-            When a project's deadline is 7 days away or less, Today shows an Exam Mode banner with advice for that stage, and a <b>Plan a sprint</b> button.
+            When a project's deadline is 7 days away or less, Today shows an Exam Mode banner with advice for that stage, and a <b>Plan exam revision</b> button.
             Tell it how many hours you have right now and it builds a timed schedule.
           </p>
           <ul>

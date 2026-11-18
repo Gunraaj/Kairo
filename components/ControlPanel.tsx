@@ -628,7 +628,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       return `${audioSettings.noiseType.toUpperCase()} Noise`;
     }
     if (ambientCount > 0) {
-      return `${ambientCount} Ambient Sound${ambientCount > 1 ? 's' : ''}`;
+      return `${ambientCount} sound${ambientCount > 1 ? 's' : ''} playing`;
     }
     if (embedUrl) return 'Lofi Stream Active';
     return 'Idle';
@@ -641,7 +641,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             {/* Quick Atmosphere Presets & Custom Mixes */}
             <div className="k-atmosphere-section">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span className="k-section-eyebrow">Atmosphere Mixes</span>
+                <span className="k-section-eyebrow">Ready-made mixes</span>
                 {ambientCount > 0 && !isSavingMix && (
                   <button
                     type="button"
@@ -1854,7 +1854,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                       onClick={() => setIsSavingMix(true)}
                       title="Save this mix into your custom atmospheres"
                     >
-                      <span>✨ Save current layers as custom Atmosphere</span>
+                      <span>Save what is playing as a mix</span>
                     </button>
                   )}
                 </div>
