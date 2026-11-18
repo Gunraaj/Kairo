@@ -5,6 +5,17 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Node types must match the Node version CI and hosting run (22), not the newest Node.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # typescript-eslint does not support TypeScript 7 yet; revisit when it does.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    groups:
+      # react and react-dom must move together or React refuses to start.
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
