@@ -53,7 +53,7 @@ const findTask = (project: Project, name: string): Task | undefined => {
 };
 
 /** Maps raw model output to ops that refer to real, not-yet-finished tasks. Unknown or unsafe ops are dropped. */
-export const resolveReplanOps = (project: Project, raw: Array<Record<string, any>>): ReplanOp[] => {
+export const resolveReplanOps = (project: Project, raw: Array<Record<string, unknown>>): ReplanOp[] => {
   const ops: ReplanOp[] = [];
   const used = new Set<string>();
   for (const change of raw) {
@@ -61,7 +61,7 @@ export const resolveReplanOps = (project: Project, raw: Array<Record<string, any
     if (!task || used.has(task.id)) continue;
     const base = { taskId: task.id, taskName: task.name, reason: String(change.reason ?? '').slice(0, 160) };
     const started = (task.timeSpent || 0) > 0;
-    if (change.kind === 'set_rounds' && Number.isFinite(change.rounds)) {
+    if (change.kind === 'set_rounds' && typeof change.rounds === 'number' && Number.isFinite(change.rounds)) {
       const floor = Math.max(1, taskRounds(task).done);
       const rounds = Math.min(12, Math.max(floor, Math.round(change.rounds)));
       if (rounds === taskRounds(task).target) continue;
@@ -69,8 +69,8 @@ export const resolveReplanOps = (project: Project, raw: Array<Record<string, any
     } else if (change.kind === 'drop' && !started) {
       ops.push({ kind: 'drop', ...base });
     } else if (change.kind === 'split' && !started && Array.isArray(change.parts) && change.parts.length >= 2) {
-      ops.push({ kind: 'split', ...base, parts: change.parts.slice(0, 4).map((p: any) => ({ name: String(p.name).slice(0, 120), rounds: Math.min(12, Math.max(1, Math.round(p.rounds))) })) });
-    } else if (change.kind === 'reorder' && Number.isFinite(change.position)) {
+      ops.push({ kind: 'split', ...base, parts: change.parts.slice(0, 4).map((p: { name?: unknown; rounds?: unknown }) => ({ name: String(p?.name ?? '').slice(0, 120), rounds: Math.min(12, Math.max(1, Math.round(Number(p?.rounds) || 1))) })) });
+    } else if (change.kind === 'reorder' && typeof change.position === 'number' && Number.isFinite(change.position)) {
       ops.push({ kind: 'reorder', ...base, position: Math.max(1, Math.round(change.position)) });
     } else {
       continue;
@@ -135,7 +135,7 @@ export const proposeReplan = async (
   ].filter(Boolean).join('\n');
 
   try {
-    const result = await generateStructured<{ changes: Array<Record<string, any>> }>(
+    const result = await generateStructured<{ changes: Array<Record<string, unknown>> }>(
       { schemaName: 'replan', schema: REPLAN_SCHEMA, system: SYSTEM, prompt, maxTokens: 1800 },
       deps,
     );

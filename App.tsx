@@ -381,7 +381,7 @@ const App: React.FC = () => {
   const handleStartTaskFocus = useCallback((taskId: string) => {
     setActiveTaskId(taskId);
     setStartSessionTrigger(Date.now());
-  }, []);
+  }, [setActiveTaskId]);
 
   const handleStartFromToday = useCallback((taskId: string) => {
     setView('focus');
@@ -498,7 +498,7 @@ const App: React.FC = () => {
       }
     }
     return null;
-  }, []);
+  }, [userSettings.focusDuration]);
 
   const activeTarget = getActiveTarget(projects, activeTaskId);
   const completedPomodoros = sessions.filter(s => s.type === 'focus' && s.completed).length;

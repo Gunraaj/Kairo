@@ -165,8 +165,8 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
         setExpandedModules(new Set([generatedPlan.modules[0].id]));
       }
       setStep('staging');
-    } catch (err: any) {
-      setAnalysisError(err?.message || 'Failed to analyze document. Please check format.');
+    } catch (err: unknown) {
+      setAnalysisError((err instanceof Error && err.message) || 'Failed to analyze document. Please check format.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -515,7 +515,7 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
                       dt.items.add(f);
                       if (fileInputRef.current) {
                         fileInputRef.current.files = dt.files;
-                        handleFileChange({ target: fileInputRef.current } as any);
+                        handleFileChange({ target: fileInputRef.current } as unknown as React.ChangeEvent<HTMLInputElement>);
                       }
                     }
                   }}

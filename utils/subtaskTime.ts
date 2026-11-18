@@ -6,7 +6,7 @@ import type {SubTask, Task} from '../types';
 export const calculateSubtaskSum = (subTasks: SubTask[] | undefined): number => {
   if (!Array.isArray(subTasks) || subTasks.length === 0) return 0;
   return subTasks.reduce((sum, st) => {
-    const val = Number.isFinite(st.timeSpent) ? st.timeSpent : (st as any).duration;
+    const val = Number.isFinite(st.timeSpent) ? st.timeSpent : (st as SubTask & { duration?: number }).duration;
     return sum + (Number.isFinite(val) ? Math.max(0, val || 0) : 0);
   }, 0);
 };

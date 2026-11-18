@@ -13,6 +13,28 @@
 import { generateStructured } from './structuredAi';
 import { detectPresetCategory } from './slicePresets';
 
+
+/** Chrome's built-in on-device model (window.ai), typed for the two calls Kairo makes. */
+type ChromeAi = {
+  languageModel: {
+    capabilities: () => Promise<{ available: string }>;
+    create: (options: { systemPrompt: string }) => Promise<{ prompt: (text: string) => Promise<string> }>;
+  };
+};
+const chromeAi = (): ChromeAi | null => {
+  const ai = typeof window !== 'undefined' ? (window as unknown as { ai?: Partial<ChromeAi> }).ai : undefined;
+  return ai && ai.languageModel ? (ai as ChromeAi) : null;
+};
+
+/** Pulls a readable message out of a provider's error body (shapes differ per provider). */
+const providerError = (data: unknown): string | undefined => {
+  if (!data || typeof data !== 'object') return undefined;
+  const d = data as { error?: { message?: unknown } | string; message?: unknown };
+  if (typeof d.error === 'string') return d.error;
+  if (d.error && typeof d.error.message === 'string') return d.error.message;
+  return typeof d.message === 'string' ? d.message : undefined;
+};
+
 export type AiProviderType =
   | 'gemini'
   | 'anthropic'
@@ -286,9 +308,10 @@ export const checkAiCapability = async (): Promise<AiCapabilityStatus> => {
   const hasApiKey = Boolean(config.apiKey) || config.provider === 'local';
   let hasOnDeviceAi = false;
 
-  if (typeof window !== 'undefined' && 'ai' in window && 'languageModel' in (window as any).ai) {
+  const builtIn = chromeAi();
+  if (builtIn) {
     try {
-      const capabilities = await (window as any).ai.languageModel.capabilities();
+      const capabilities = await builtIn.languageModel.capabilities();
       hasOnDeviceAi = capabilities.available === 'readily' || capabilities.available === 'after-download';
     } catch {
       hasOnDeviceAi = false;
@@ -335,14 +358,12 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
 
   // 2. Chrome Built-in Gemini Nano (if available and provider is set to local or gemini without key)
   if (
-    typeof window !== 'undefined' &&
-    'ai' in window &&
-    'languageModel' in (window as any).ai &&
+    chromeAi() &&
     (config.provider === 'local' && config.model === 'chrome-nano' || (!config.apiKey && config.provider === 'gemini'))
   ) {
     try {
-      const session = await (window as any).ai.languageModel.create({
-        systemPrompt: systemInstruction,
+      const session = await chromeAi()!.languageModel.create({
+        systemPrompt: systemInstruction ?? '',
       });
       const response = await session.prompt(prompt);
       return response.trim();
@@ -382,7 +403,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      const message = (errData as any)?.error?.message || `HTTP ${response.status}`;
+      const message = providerError(errData) || `HTTP ${response.status}`;
       throw new Error(`Gemini API: ${message}`);
     }
 
@@ -427,7 +448,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      const message = (errData as any)?.error?.message || `HTTP ${response.status}`;
+      const message = providerError(errData) || `HTTP ${response.status}`;
       throw new Error(`Anthropic API: ${message}`);
     }
 
@@ -497,7 +518,7 @@ export const queryAi = async (prompt: string, systemInstruction?: string): Promi
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      const message = (errData as any)?.error?.message || (errData as any)?.message || `HTTP ${response.status} ${response.statusText}`;
+      const message = providerError(errData) || `HTTP ${response.status} ${response.statusText}`;
       throw new Error(`${config.provider.toUpperCase()} error: ${message}`);
     }
 
@@ -555,7 +576,7 @@ export const testAiConnection = async (
         const err = await res.json().catch(() => ({}));
         return {
           success: false,
-          message: (err as any)?.error?.message || `HTTP ${res.status}: Failed to connect`,
+          message: providerError(err) || `HTTP ${res.status}: Failed to connect`,
           latencyMs: elapsed,
         };
       }
@@ -596,7 +617,7 @@ export const testAiConnection = async (
         const err = await res.json().catch(() => ({}));
         return {
           success: false,
-          message: (err as any)?.error?.message || `HTTP ${res.status}: Failed to connect to Anthropic`,
+          message: providerError(err) || `HTTP ${res.status}: Failed to connect to Anthropic`,
           latencyMs: elapsed,
         };
       }
@@ -643,7 +664,7 @@ export const testAiConnection = async (
     const elapsed = Math.round(performance.now() - start);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = (err as any)?.error?.message || (err as any)?.message || `HTTP ${res.status}`;
+      const msg = providerError(err) || `HTTP ${res.status}`;
       return {
         success: false,
         message: `${config.provider.toUpperCase()}: ${msg}`,
@@ -657,7 +678,7 @@ export const testAiConnection = async (
       latencyMs: elapsed,
       model,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     const elapsed = Math.round(performance.now() - start);
     if (config.provider === 'local') {
       return {
@@ -668,7 +689,7 @@ export const testAiConnection = async (
     }
     return {
       success: false,
-      message: err?.message || 'Connection failed. Check network or CORS settings.',
+      message: (err instanceof Error && err.message) || 'Connection failed. Check network or CORS settings.',
       latencyMs: elapsed,
     };
   }

@@ -138,6 +138,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       window.clearTimeout(timer);
       controller.abort();
     };
+    // Only the connection details decide which models exist; other config edits must not refetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiConfig.provider, aiConfig.baseUrl, aiConfig.apiKey]);
   useEffect(() => {
     if (liveModels?.some(m => m.id === aiConfig.model)) setIsCustomModel(false);
@@ -272,8 +274,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const res = await testAiConnection(aiConfig);
       setAiTestResult(res);
       checkAiCapability().then(setAiStatus);
-    } catch (err: any) {
-      setAiTestResult({ success: false, message: err?.message || 'Connection test failed' });
+    } catch (err: unknown) {
+      setAiTestResult({ success: false, message: (err instanceof Error && err.message) || 'Connection test failed' });
     } finally {
       setIsTestingAi(false);
     }

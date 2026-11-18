@@ -432,7 +432,10 @@ export const analyzeDocumentWithAi = async (
   const systemInstruction = PLAN_SYSTEM_PROMPT;
 
   try {
-    let parsed: any;
+    // AI output is untrusted: every field below is checked and clamped before use.
+    type RawPlan = { modules?: unknown; projectName?: unknown; summary?: unknown; archetype?: unknown };
+    type RawTask = { name?: unknown; difficulty?: unknown; targetRounds?: unknown; topicTag?: unknown; subTasks?: unknown };
+    let parsed: RawPlan | null;
 
     // If Gemini provider with raw PDF base64
     if (config.provider === 'gemini' && input.fileBase64 && input.mimeType) {
@@ -472,14 +475,14 @@ export const analyzeDocumentWithAi = async (
       const data = await response.json();
       const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       if (!rawText) throw new Error('Empty AI response');
-      parsed = extractJson(rawText);
+      parsed = extractJson(rawText) as RawPlan | null;
     } else {
       // Universal text-based breakdown via configured provider (OpenRouter, Ollama, OpenAI, Gemini text)
       const prompt = input.text
         ? `Please analyze this topic list / syllabus text (${input.fileName || 'Outline'}) and break it down into an actionable Pomodoro plan:\n\n${input.text}`
         : `Please break down the following topic curriculum into an actionable Pomodoro study plan: ${input.fileName || 'Curriculum'}`;
 
-      parsed = await generateStructured({
+      parsed = await generateStructured<RawPlan>({
         schemaName: 'study_plan',
         schema: PLAN_SCHEMA,
         system: systemInstruction,
@@ -490,11 +493,11 @@ export const analyzeDocumentWithAi = async (
     }
 
     if (parsed && Array.isArray(parsed.modules)) {
-      const modules: ProposedModule[] = parsed.modules.map((m: any, mIdx: number) => ({
+      const modules: ProposedModule[] = (parsed.modules as Array<{ name?: unknown; tasks?: unknown }>).map((m, mIdx) => ({
         id: `mod-${mIdx}-${Math.random().toString(36).slice(2, 6)}`,
         name: String(m.name || `Module ${mIdx + 1}`).slice(0, 100),
         tasks: Array.isArray(m.tasks)
-          ? m.tasks.map((t: any, tIdx: number) => {
+          ? (m.tasks as RawTask[]).map((t, tIdx) => {
               const diff: CognitiveDifficulty =
                 t.difficulty === 'intensive' || t.difficulty === 'light' ? t.difficulty : 'standard';
               const targetRounds = Math.min(6, Math.max(1, Number(t.targetRounds) || (diff === 'intensive' ? 3 : diff === 'light' ? 1 : 2)));
@@ -505,7 +508,7 @@ export const analyzeDocumentWithAi = async (
                 difficulty: diff,
                 topicTag: t.topicTag ? String(t.topicTag).slice(0, 40) : undefined,
                 subTasks: Array.isArray(t.subTasks)
-                  ? t.subTasks.map((st: any, sIdx: number) => ({
+                  ? (t.subTasks as unknown[]).map((st, sIdx) => ({
                       id: `sub-${mIdx}-${tIdx}-${sIdx}`,
                       name: String(st).slice(0, 120),
                     }))

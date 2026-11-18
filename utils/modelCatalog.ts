@@ -48,15 +48,18 @@ const fetchJson = async (url: string, headers: Record<string, string>, fetchImpl
   }
 };
 
+type RawModel = Record<string, unknown> & { pricing?: { prompt?: unknown; completion?: unknown } };
+const list = (value: unknown): RawModel[] => (Array.isArray(value) ? value.filter((m): m is RawModel => Boolean(m) && typeof m === 'object') : []);
+
 const fetchLive = async (config: AiConfig, fetchImpl: typeof fetch, signal?: AbortSignal): Promise<ModelOption[]> => {
   const base = (config.baseUrl || DEFAULT_AI_CONFIGS[config.provider].baseUrl).replace(/\/+$/, '');
   const key = config.apiKey.trim();
 
   if (config.provider === 'gemini') {
     const data = await fetchJson(`${base}/models?pageSize=200`, { 'x-goog-api-key': key }, fetchImpl, signal);
-    return (data?.models ?? [])
-      .filter((m: any) => (m.supportedGenerationMethods ?? []).includes('generateContent') && /gemini/i.test(m.name))
-      .map((m: any) => ({ id: String(m.name).replace(/^models\//, ''), label: String(m.displayName || m.name) }))
+    return list(data?.models)
+      .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent') && /gemini/i.test(String(m.name)))
+      .map(m => ({ id: String(m.name).replace(/^models\//, ''), label: String(m.displayName || m.name) }))
       .sort(byLabel);
   }
 
@@ -66,12 +69,12 @@ const fetchLive = async (config: AiConfig, fetchImpl: typeof fetch, signal?: Abo
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
     }, fetchImpl, signal);
-    return (data?.data ?? []).map((m: any) => ({ id: String(m.id), label: String(m.display_name || m.id) }));
+    return list(data?.data).map(m => ({ id: String(m.id), label: String(m.display_name || m.id) }));
   }
 
   const headers: Record<string, string> = { Authorization: `Bearer ${key || 'ollama'}` };
   const data = await fetchJson(`${base}/models`, headers, fetchImpl, signal);
-  let models: ModelOption[] = (data?.data ?? []).map((m: any) => {
+  let models: ModelOption[] = list(data?.data).map(m => {
     const id = String(m.id);
     const free = id.endsWith(':free') || (m.pricing && Number(m.pricing.prompt) === 0 && Number(m.pricing.completion) === 0);
     return { id, label: String(m.name || id), free: config.provider === 'local' ? true : Boolean(free) };

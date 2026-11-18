@@ -29,7 +29,7 @@ const connect = async (token: string, store = memoryStore({ alice: structuredClo
   await client.connect(transport);
   return { client, store };
 };
-const textOf = (result: any) => result.content.map((c: any) => c.text).join('\n');
+const textOf = (result: unknown) => ((result as { content: Array<{ text?: string }> }).content).map(c => c.text ?? '').join('\n');
 
 test('a real MCP client can initialize, read server instructions and list tools with safety annotations', async () => {
   const { client } = await connect('alice-token');
@@ -95,7 +95,7 @@ test('bad input is rejected with readable errors and nothing is written', async 
   const badDate = await client.callTool({ name: 'set_deadline', arguments: { project: 'Algebra', deadline: '2026-13-45' } });
   assert.equal(badDate.isError, true);
   const badRounds = await client.callTool({ name: 'add_plan', arguments: { projects: [{ name: 'X', tasks: [{ name: 'T', rounds: 99 }] }] } }).catch(e => ({ isError: true, content: [{ type: 'text', text: String(e.message) }] }));
-  assert.equal((badRounds as any).isError, true);
+  assert.equal((badRounds as { isError?: boolean }).isError, true);
   assert.equal(JSON.stringify(await store.load('alice')), before);
   await client.close();
 });

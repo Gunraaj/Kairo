@@ -451,12 +451,13 @@ export const Stage: React.FC<StageProps> = ({
     };
   }, [completionMessage]);
 
+  // Outside triggers (sidebar play, TV mode) call the latest toggleTimer through toggleTimerRef (declared below).
   const prevStartTriggerRef = useRef<number | null>(null);
   useEffect(() => {
     if (startSessionTrigger && startSessionTrigger !== prevStartTriggerRef.current) {
       prevStartTriggerRef.current = startSessionTrigger;
       if (!isActive) {
-        toggleTimer();
+        toggleTimerRef.current();
       }
     }
   }, [startSessionTrigger, isActive]);
@@ -465,7 +466,7 @@ export const Stage: React.FC<StageProps> = ({
   useEffect(() => {
     if (toggleSessionTrigger && toggleSessionTrigger !== prevToggleTriggerRef.current) {
       prevToggleTriggerRef.current = toggleSessionTrigger;
-      toggleTimer();
+      toggleTimerRef.current();
     }
   }, [toggleSessionTrigger]);
 
