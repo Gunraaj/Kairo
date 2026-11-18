@@ -1078,7 +1078,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
 
                                     <button
                                       type="button"
-                                      className={`k-task-pomo-badge k-subtask-pomo-badge ${isSubTargetMet ? 'is-complete' : ''}`}
+                                      className={`k-task-pomo-badge k-subtask-pomo-badge ${isSubTargetMet ? 'is-complete' : ''} ${(st.timeSpent || 0) > 0 || st.targetRounds || isSubPopoverOpen ? '' : 'is-quiet'}`}
                                       onClick={e => {
                                         e.stopPropagation();
                                         setTargetPopoverTaskId(prev => (prev === st.id ? null : st.id));

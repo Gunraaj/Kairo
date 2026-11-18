@@ -545,3 +545,9 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 
 /* Counts read in the normal font, not a typewriter font. */
 .k-today-rounds, .k-pomo-badge-ratio, .k-pomo-badge-len { font-family: inherit; font-variant-numeric: tabular-nums; }
+
+/* Subtasks read as a simple checklist: a subtask's session counter only shows once it is used
+   (time focused or a target set), or when you point at the row. Touch screens always show it. */
+@media (hover: hover) {
+  .k-tree-subtask:not(:hover):not(:focus-within) .k-subtask-pomo-badge.is-quiet { display: none; }
+}
