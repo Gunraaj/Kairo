@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ALERT_SOUNDS, isAlertSoundId, playAlertSound } from '../utils/alertSounds';
+import { VolumeSlider } from './soundStudio/VolumeSlider';
 import type { Settings, Palette } from '../types';
 import { Modal } from './Modal';
 import {
@@ -377,6 +379,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <option value="1">Default</option>
               <option value="1.12">Large</option>
               <option value="1.25">Extra large</option>
+            </select>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="focusEndSound-label">Sound when focus ends</b>
+              <small>{ALERT_SOUNDS.find(o => o.id === local.focusEndSound)?.hint}</small>
+            </div>
+            <span className="k-alert-pick">
+              <select
+                className="k-settings-select"
+                aria-labelledby="focusEndSound-label"
+                value={local.focusEndSound}
+                onChange={e => { const id = e.target.value; setLocal(prev => ({ ...prev, focusEndSound: id })); if (isAlertSoundId(id)) playAlertSound(id, { volume: local.alertVolume, repeats: 1 }); }}
+              >
+                {ALERT_SOUNDS.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+              <button type="button" className="k-btn k-alert-test" disabled={local.focusEndSound === 'none'} onClick={() => { if (isAlertSoundId(local.focusEndSound)) playAlertSound(local.focusEndSound, { volume: local.alertVolume, repeats: local.alertRepeats }); }} aria-label="Play sound when focus ends">▶ Test</button>
+            </span>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="breakEndSound-label">Sound when a break ends</b>
+              <small>{ALERT_SOUNDS.find(o => o.id === local.breakEndSound)?.hint}</small>
+            </div>
+            <span className="k-alert-pick">
+              <select
+                className="k-settings-select"
+                aria-labelledby="breakEndSound-label"
+                value={local.breakEndSound}
+                onChange={e => { const id = e.target.value; setLocal(prev => ({ ...prev, breakEndSound: id })); if (isAlertSoundId(id)) playAlertSound(id, { volume: local.alertVolume, repeats: 1 }); }}
+              >
+                {ALERT_SOUNDS.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+              <button type="button" className="k-btn k-alert-test" disabled={local.breakEndSound === 'none'} onClick={() => { if (isAlertSoundId(local.breakEndSound)) playAlertSound(local.breakEndSound, { volume: local.alertVolume, repeats: local.alertRepeats }); }} aria-label="Play sound when a break ends">▶ Test</button>
+            </span>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="alert-volume-label">Alarm volume</b>
+              <small>Separate from the background sound, so the alarm is heard even when music is quiet.</small>
+            </div>
+            <div className="k-alert-volume">
+              <VolumeSlider gain={local.alertVolume} onChange={gain => setLocal(prev => ({ ...prev, alertVolume: gain }))} label="Alarm volume" />
+            </div>
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="alert-repeats-label">Ring</b>
+              <small>How many times the alarm plays.</small>
+            </div>
+            <select
+              className="k-settings-select"
+              aria-labelledby="alert-repeats-label"
+              value={String(local.alertRepeats)}
+              onChange={e => setLocal(prev => ({ ...prev, alertRepeats: Number(e.target.value) }))}
+            >
+              <option value="1">Once</option>
+              <option value="2">Twice</option>
+              <option value="3">Three times</option>
             </select>
           </div>
 

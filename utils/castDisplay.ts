@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { AudioSettings, SessionType } from '../types';
 import { isTrustedAmbientUrl } from './embed';
+import { isAlertSoundId, playAlertSound } from './alertSounds';
 import { openRelay, randomRoom, ROOM_PATTERN, type Relay } from './tvRelay';
 
 /**
@@ -187,6 +188,13 @@ export const setSoundOnTvPreference = (on: boolean) => {
   sendRelay(true);
 };
 
+/** Rings the end-of-session alarm here, and on the Chromecast too when sound plays on the TV. */
+export const ringAlert = (id: string, volume: number, repeats: number) => {
+  if (!isAlertSoundId(id)) return;
+  playAlertSound(id, { volume, repeats });
+  if (status.soundOnTv) relay?.send('cue', { id, volume, repeats });
+};
+
 /** Live state for TV mode inside this tab. */
 export const useDisplayState = () =>
   useSyncExternalStore(fn => { stateListeners.add(fn); return () => stateListeners.delete(fn); }, () => latest, () => latest);
@@ -287,7 +295,7 @@ export const stopChromecast = () => {
 /* ---------- receiver side (TV page) ---------- */
 
 /** Listens for timer updates: from the Chromecast room if there is one, else from another tab. */
-export const listenForDisplay = (onState: (state: DisplayState) => void, onClose: () => void): (() => void) => {
+export const listenForDisplay = (onState: (state: DisplayState) => void, onClose: () => void, onCue?: (id: string, volume: number, repeats: number) => void): (() => void) => {
   const handle = (data: unknown) => {
     try {
       const state = normalizeDisplayState(typeof data === 'string' ? JSON.parse(data) : data);
@@ -297,7 +305,13 @@ export const listenForDisplay = (onState: (state: DisplayState) => void, onClose
 
   const tvRoom = displayRoom();
   if (tvRoom) {
-    const tvRelay = openRelay(tvRoom, (event, payload) => { if (event === 'state') handle(payload); }, () => tvRelay.send('hello', {}));
+    const tvRelay = openRelay(tvRoom, (event, payload) => {
+      if (event === 'state') handle(payload);
+      if (event === 'cue' && payload && typeof payload === 'object') {
+        const cue = payload as { id?: unknown; volume?: unknown; repeats?: unknown };
+        if (isAlertSoundId(cue.id)) onCue?.(cue.id, num(cue.volume, 0, 1, 0.8), num(cue.repeats, 1, 3, 1));
+      }
+    }, () => tvRelay.send('hello', {}));
     return () => tvRelay.close();
   }
 

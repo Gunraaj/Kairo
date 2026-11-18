@@ -87,6 +87,10 @@ export interface UserSettings {
   focusSound: FocusSound;
   keepSoundOnPause: boolean; // pausing the timer leaves the sound as it is
   textScale: number; // multiplies every font size (0.9 to 1.3)
+  focusEndSound: string; // AlertSoundId played when a focus session ends
+  breakEndSound: string; // AlertSoundId played when a break ends
+  alertVolume: number; // 0 to 1
+  alertRepeats: number; // 1 to 3
 }
 
 export type Settings = UserSettings;

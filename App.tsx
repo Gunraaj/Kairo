@@ -915,7 +915,6 @@ const App: React.FC = () => {
             addSession={addSession}
             activeTarget={activeTarget}
             toggleAudio={toggleAudio}
-            playCompletionCue={audioEngine.playCue}
             playTickCue={audioEngine.playTick}
             totalPomodoros={completedPomodoros}
             totalFocusMinutes={totalFocusMinutes}

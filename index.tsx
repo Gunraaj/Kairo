@@ -5,6 +5,7 @@ import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TvDisplay } from './components/TvDisplay';
 import { isDisplayPage } from './utils/castDisplay';
+import { primeAlertAudio } from './utils/alertSounds';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -12,6 +13,7 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+primeAlertAudio();
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>

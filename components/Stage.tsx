@@ -6,7 +6,7 @@ import { NumberField } from './NumberField';
 import type { FocusTarget, KairoSession, SessionType, UserSettings, StageLayoutVariation } from '../types';
 import { calculateElapsedSeconds, clearTimerSnapshot, readTimerSnapshot, remainingSeconds, type TimerSnapshot, writeTimerSnapshot } from '../utils/timerState';
 import { workerTimer } from '../utils/workerTimer';
-import { publishTimer } from '../utils/castDisplay';
+import { publishTimer, ringAlert } from '../utils/castDisplay';
 import { sharpenIntention } from '../utils/geminiAi';
 import { InfoTip } from './InfoTip';
 import { calculateFinishEstimate, formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
@@ -18,7 +18,6 @@ interface StageProps {
   addSession: (session: KairoSession) => void;
   activeTarget: FocusTarget | null;
   toggleAudio: (isPlaying: boolean) => void | Promise<void>;
-  playCompletionCue: () => Promise<void>;
   playTickCue?: (isMajor?: boolean) => void;
   totalPomodoros: number;
   totalFocusMinutes: number;
@@ -44,7 +43,6 @@ export const Stage: React.FC<StageProps> = ({
   addSession,
   activeTarget,
   toggleAudio,
-  playCompletionCue,
   playTickCue,
   totalPomodoros,
   totalFocusMinutes,
@@ -286,7 +284,7 @@ export const Stage: React.FC<StageProps> = ({
     sessionIntentionRef.current = '';
     setIntention('');
     sessionIdRef.current = crypto.randomUUID();
-    void playCompletionCue().catch(() => undefined);
+    ringAlert(sessionType === 'focus' ? settings.focusEndSound : settings.breakEndSound, settings.alertVolume, settings.alertRepeats);
     toggleAudio(false);
     const completedLabel = sessionType === 'focus' ? 'Focus session complete.' : 'Break complete.';
     setCompletionMessage(
@@ -302,7 +300,10 @@ export const Stage: React.FC<StageProps> = ({
     activeTarget,
     addSession,
     durationFor,
-    playCompletionCue,
+    settings.focusEndSound,
+    settings.breakEndSound,
+    settings.alertVolume,
+    settings.alertRepeats,
     sessionType,
     settings.autoStartBreaks,
     settings.sessionsPerRound,

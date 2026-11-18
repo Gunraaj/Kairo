@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
+import { isAlertSoundId, playAlertSound } from '../utils/alertSounds';
 import type { AudioSettings } from '../types';
 import { displayRoom, listenForDisplay, secondsLeft, useDisplayState, type AmbientLayer, type DisplayState } from '../utils/castDisplay';
 
@@ -175,7 +176,7 @@ export const TvDisplay: React.FC = () => {
   const onChromecast = useRef(displayRoom() !== null).current;
   const [soundBlocked, setSoundBlocked] = useState(false);
 
-  useEffect(() => listenForDisplay(setState, () => window.close()), []);
+  useEffect(() => listenForDisplay(setState, () => window.close(), (id, volume, repeats) => { if (isAlertSoundId(id)) playAlertSound(id, { volume, repeats }); }), []);
   useEffect(() => {
     if (!state) return;
     const root = document.documentElement;

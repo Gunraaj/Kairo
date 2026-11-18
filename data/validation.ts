@@ -1,4 +1,5 @@
 import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream, TimeCapsule, Palette } from '../types';
+import { isAlertSoundId } from '../utils/alertSounds';
 
 const MAX_PROJECTS = 100;
 const MAX_TASKS_PER_PROJECT = 500;
@@ -148,6 +149,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
   focusSound: 'off',
   keepSoundOnPause: true,
   textScale: 1,
+  focusEndSound: 'bell',
+  breakEndSound: 'chime',
+  alertVolume: 0.8,
+  alertRepeats: 2,
 };
 
 export const normalizeSettings = (value: unknown): UserSettings => {
@@ -163,6 +168,10 @@ export const normalizeSettings = (value: unknown): UserSettings => {
     focusSound: source.focusSound === 'brown' || source.focusSound === 'alpha' || source.focusSound === 'beta' ? source.focusSound : 'off',
     keepSoundOnPause: source.keepSoundOnPause !== false,
     textScale: Math.round(boundedNumber(source.textScale, 1, 0.9, 1.3) * 100) / 100,
+    focusEndSound: isAlertSoundId(source.focusEndSound) ? source.focusEndSound : 'bell',
+    breakEndSound: isAlertSoundId(source.breakEndSound) ? source.breakEndSound : 'chime',
+    alertVolume: Math.round(boundedNumber(source.alertVolume, 0.8, 0, 1) * 100) / 100,
+    alertRepeats: Math.round(boundedNumber(source.alertRepeats, 2, 1, 3)),
   };
 };
 

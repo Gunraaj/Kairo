@@ -505,3 +505,8 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-channel-strip > .k-channel-fader-wrap { grid-area: fader; width: auto; }
 .k-channel-name { font-size: calc(15px * var(--text-scale, 1)); }
 .k-channel-actions button { min-width: 32px; min-height: 32px; }
+
+/* End-of-session alarm settings */
+.k-alert-pick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.k-alert-test { white-space: nowrap; }
+.k-alert-volume { min-width: 260px; flex: 1; max-width: 360px; }
