@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAudioEngine } from '../hooks/useAudioEngine';
+import { startKeepAwake } from '../utils/keepAwake';
 import { isAlertSoundId, playAlertSound } from '../utils/alertSounds';
 import type { AudioSettings } from '../types';
 import { displayRoom, listenForDisplay, secondsLeft, useDisplayState, type AmbientLayer, type DisplayState } from '../utils/castDisplay';
@@ -139,6 +140,7 @@ export const TvMode: React.FC<{ onExit: () => void; onToggleTimer: () => void }>
   const state = useDisplayState();
   const now = useNow();
   const [hint, setHint] = useState(true);
+  useEffect(() => startKeepAwake(), []);
   useEffect(() => { const id = window.setTimeout(() => setHint(false), 20000); return () => window.clearTimeout(id); }, []);
 
   useEffect(() => {
@@ -176,6 +178,7 @@ export const TvDisplay: React.FC = () => {
   const onChromecast = useRef(displayRoom() !== null).current;
   const [soundBlocked, setSoundBlocked] = useState(false);
 
+  useEffect(() => startKeepAwake(), []);
   useEffect(() => listenForDisplay(setState, () => window.close(), (id, volume, repeats) => { if (isAlertSoundId(id)) playAlertSound(id, { volume, repeats }); }), []);
   useEffect(() => {
     if (!state) return;

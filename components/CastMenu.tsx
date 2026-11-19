@@ -70,6 +70,7 @@ export const CastMenu: React.FC<Props> = ({ onTvMode, onMessage }) => {
                 {busy ? 'Connecting…' : 'Cast to Chromecast'}
               </button>
               <p className="k-settings-hint">Best quality. The Chromecast or Google TV shows the big timer itself, on the same Wi-Fi. Works in Chrome and Edge.</p>
+              <p className="k-settings-hint"><b>TV goes to sleep?</b> Kairo keeps its page awake, but a Google TV starts its screensaver after about 10 minutes on its own. Turn that off on the TV: Settings → System → Ambient mode → screensaver off (or the longest delay), and switch off your TV's auto power-off.</p>
             </>
           )}
           <label className="k-cast-check">
