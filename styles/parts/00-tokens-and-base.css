@@ -9,6 +9,7 @@
 :root {
   --text-scale: 1; /* set from Settings > Text size */
   --fill: 0%; /* volume slider fill, set per slider */
+  --progress: 0%; /* project progress bar, set per project */
   color-scheme: light;
 
   /* Ground and Ink (Light - Artisanal Washi default) */

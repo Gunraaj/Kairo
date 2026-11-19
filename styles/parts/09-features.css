@@ -635,3 +635,14 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
   .k-settings-nav { position: static; padding: 12px 0 0; }
   .k-settings-nav ul { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: 6px; }
 }
+
+/* ---- Sidebar: project progress bar and drag-to-reorder ---- */
+.k-tree-project-row { position: relative; }
+.k-tree-project-row.has-progress::after {
+  content: ""; position: absolute; left: 32px; right: 8px; bottom: 1px; height: 2px; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(to right, var(--shu) var(--progress, 0%), var(--stone-3) var(--progress, 0%));
+}
+.k-tree-project-row[draggable="true"], .k-tree-task[draggable="true"] { cursor: grab; }
+.is-dragging { opacity: 0.4; }
+.is-drop-before { box-shadow: 0 -2px 0 var(--shu); }
+.is-drop-after { box-shadow: 0 2px 0 var(--shu); }

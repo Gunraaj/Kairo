@@ -349,6 +349,50 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     );
   };
 
+  /* Reordering: drag a project or task onto another, or focus it and press Alt+Up / Alt+Down. */
+  type DragInfo = { kind: 'project' | 'task'; id: string; projectId?: string };
+  const [drag, setDrag] = useState<DragInfo | null>(null);
+  const [drop, setDrop] = useState<{ id: string; after: boolean } | null>(null);
+
+  const reorderById = <T extends { id: string }>(list: T[], fromId: string, toId: string, after: boolean): T[] => {
+    if (fromId === toId) return list;
+    const from = list.findIndex(item => item.id === fromId);
+    if (from < 0 || !list.some(item => item.id === toId)) return list;
+    const next = list.filter(item => item.id !== fromId);
+    const to = next.findIndex(item => item.id === toId);
+    next.splice(after ? to + 1 : to, 0, list[from]);
+    return next;
+  };
+  const moveProject = (fromId: string, toId: string, after: boolean) =>
+    setProjects(prev => reorderById(Array.isArray(prev) ? prev : [], fromId, toId, after));
+  const moveTask = (projectId: string, fromId: string, toId: string, after: boolean) =>
+    setProjects(prev => (Array.isArray(prev) ? prev : []).map(p => (p.id === projectId ? { ...p, tasks: reorderById(Array.isArray(p.tasks) ? p.tasks : [], fromId, toId, after) } : p)));
+  const nudge = <T extends { id: string }>(list: T[], id: string, direction: -1 | 1) => {
+    const i = list.findIndex(item => item.id === id);
+    const j = i + direction;
+    return i < 0 || j < 0 || j >= list.length ? null : { toId: list[j].id, after: direction === 1 };
+  };
+  const dragProps = (info: DragInfo, targetId: string, onDropHere: (fromId: string, after: boolean) => void) => ({
+    draggable: true,
+    onDragStart: (e: React.DragEvent) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', info.id); setDrag(info); },
+    onDragEnd: () => { setDrag(null); setDrop(null); },
+    onDragOver: (e: React.DragEvent) => {
+      if (!drag || drag.kind !== info.kind || drag.projectId !== info.projectId || drag.id === targetId) return;
+      e.preventDefault();
+      const box = e.currentTarget.getBoundingClientRect();
+      const after = e.clientY > box.top + box.height / 2;
+      setDrop(prev => (prev && prev.id === targetId && prev.after === after ? prev : { id: targetId, after }));
+    },
+    onDrop: (e: React.DragEvent) => {
+      if (!drag || drag.kind !== info.kind || drag.projectId !== info.projectId) return;
+      e.preventDefault();
+      onDropHere(drag.id, drop?.id === targetId ? drop.after : false);
+      setDrag(null);
+      setDrop(null);
+    },
+  });
+  const dropClass = (id: string) => (drop?.id === id ? (drop.after ? 'is-drop-after' : 'is-drop-before') : '') + (drag?.id === id ? ' is-dragging' : '');
+
   const toggleExpand = (id: string) => {
     setExpanded(prev => {
       const next = new Set(prev);
@@ -626,7 +670,11 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           const isDeleting = confirmDeleteProjectId === project.id;
           return (
             <div key={project.id} className="k-tree-project">
-              <div className={`k-tree-project-row ${isDeleting ? 'confirming-delete' : ''}`}>
+              <div
+                className={`k-tree-project-row ${isDeleting ? 'confirming-delete' : ''} ${tasks.length > 0 ? 'has-progress' : ''} ${dropClass(project.id)}`}
+                style={{ '--progress': `${tasks.length ? Math.round((done / tasks.length) * 100) : 0}%` } as React.CSSProperties}
+                {...dragProps({ kind: 'project', id: project.id }, project.id, (fromId, after) => moveProject(fromId, project.id, after))}
+              >
                 <button
                   className="k-tree-toggle"
                   onClick={() => toggleExpand(project.id)}
@@ -657,7 +705,13 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                       setEditingProjectId(project.id);
                       setEditProjectName(project.name);
                     }}
-                    title={`${project.name} (Double-click to rename)`}
+                    title={`${project.name} (Double-click to rename; drag or Alt+Up/Down to reorder)`}
+                    onKeyDown={e => {
+                      if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                      e.preventDefault();
+                      const to = nudge(safeProjects, project.id, e.key === 'ArrowUp' ? -1 : 1);
+                      if (to) moveProject(project.id, to.toId, to.after);
+                    }}
                   >
                     <NavIcon name={isOpen ? 'folder-open' : 'folder'} />
                     <span className="k-nav-label">{project.name}</span>
@@ -733,7 +787,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                         <div
                           className={`k-tree-task ${isTaskActive ? 'active' : ''} ${
                             task.completed ? 'done' : ''
-                          }`}
+                          } ${dropClass(task.id)}`}
+                          {...dragProps({ kind: 'task', id: task.id, projectId: project.id }, task.id, (fromId, after) => moveTask(project.id, fromId, task.id, after))}
                         >
                           <button
                             className={`k-task-check ${task.completed ? 'checked' : ''}`}
@@ -782,8 +837,14 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               title={
                                 task.timeSpent > 0
                                   ? `${task.name} — ${task.timeSpent} min focused (Click to focus, double-click to rename)`
-                                  : `${task.name} (Click to focus, double-click to rename)`
+                                  : `${task.name} (Click to focus, double-click to rename; drag or Alt+Up/Down to reorder)`
                               }
+                              onKeyDown={e => {
+                                if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                                e.preventDefault();
+                                const to = nudge(tasks, task.id, e.key === 'ArrowUp' ? -1 : 1);
+                                if (to) moveTask(project.id, task.id, to.toId, to.after);
+                              }}
                             >
                               <span className="k-tree-task-text">{task.name}</span>
                             </button>
