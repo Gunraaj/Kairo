@@ -31,11 +31,12 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 | 22 | P1 | Revamp the left sidebar | Claude | Done (round 1) | Drag or Alt+Up/Down to reorder projects and tasks, project progress bar. Later ideas: quick-add shortcut, collapse-all |
 | 23 | P1 | A proper FAQ / help page | Claude | Done | /help page with contents, search and answers rewritten for the current product; the in-app FAQ links to it |
 | 24 | P0 | Test the connector inside Claude itself (claude.ai) with the Google sign-in | Claude | Blocked | Brave's link to Claude dropped, so I could not open claude.ai. Reconnect the extension (or add the connector yourself with https://kairo-mcp.makekairo.workers.dev/mcp), then I run the test. The same flow already passed with my test client |
-| 25 | P1 | Merge or retire experimental extras (Time Capsule, Focus Guide, extra layouts) | Claude | To do | Fold what is useful into the main app, drop the rest; today they hide behind Settings, Extras |
+| 25 | P1 | Merge or retire experimental extras | Claude | Done (round 1) | Focus Guide folded into Help ("Why it works") and its modal, sidebar button and top-bar pill removed. Extras now only hold Time Capsule and the extra timer layouts |
 
 ## Done
 | Date | What |
 |------|------|
+| 2026-11-19 | Focus Guide merged into the Help page (Why it works); 343-line modal removed |
 | 2026-11-19 | Removed the Sample Starters (Calculus / Eng PRD / Japanese N4) and the canned-task fallback: AI split now says what to do instead of inventing generic tasks. Word wrap everywhere (no more cut-off names) |
 | 2026-11-19 | Half sessions; Enter adds next subtask; TV keep-awake; toasts with close + fade; steadier subtask rows; Help page; Settings revamp (menu, search, Alarms); sidebar drag/Alt-arrow reorder + project progress |
 | 2026-11-19 | Google sign-in live (app and connector), Brevo dropped, connector tested end to end |

@@ -24,7 +24,6 @@ import { buildTodayState } from './utils/todayPlan';
 import { applyImportedPlan, type ImportedPlan } from './utils/importPlan';
 import { SidebarNav } from './components/SidebarNav';
 import { TimeCapsuleModal } from './components/TimeCapsuleModal';
-import { PomodoroScienceModal } from './components/PomodoroScienceModal';
 import { BrandLogo, getLogoSvgDataUri, type LogoVariant } from './components/BrandLogo';
 import type { Project, Task, KairoSession, UserSettings, AudioSettings, FocusTarget, TimeCapsule, Palette } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -145,13 +144,6 @@ const App: React.FC = () => {
       tasks: remainingTasks(project.id),
     });
   }, [projects, remainingTasks, todayFinish.totalMinutes, todayState]);
-  const [showScience, setShowScience] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('guide') === '1' || params.get('science') === '1';
-    }
-    return false;
-  });
   const [showCapsuleModal, setShowCapsuleModal] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -806,10 +798,6 @@ const App: React.FC = () => {
             setShowCapsuleModal(true);
           } : undefined}
           capsuleCount={capsules.filter(c => !c.isUnlocked).length}
-          onScience={showExtras ? () => {
-            setMobileNavOpen(false);
-            setShowScience(true);
-          } : undefined}
           onHelp={() => {
             setMobileNavOpen(false);
             setShowFaq(true);
@@ -916,19 +904,6 @@ const App: React.FC = () => {
               </button>
               )}
 
-              {showExtras && (
-              <button
-                className="k-guide-pill-btn"
-                onClick={() => setShowScience(true)}
-                aria-label="Focus Guide & Pomodoro Science"
-                title="The Science of Focus & Pomodoro Technique"
-              >
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 3.5A1.5 1.5 0 013.5 2H7v12H3.5A1.5 1.5 0 012 12.5v-9zM14 3.5A1.5 1.5 0 0012.5 2H9v12h3.5a1.5 1.5 0 001.5-1.5v-9z" />
-                </svg>
-                <span className="k-pill-label">Guide</span>
-              </button>
-              )}
             </div>
           </header>
 
@@ -1226,9 +1201,6 @@ const App: React.FC = () => {
         />
       )}
 
-      {showScience && (
-        <PomodoroScienceModal onClose={() => setShowScience(false)} />
-      )}
     </div>
   );
 };

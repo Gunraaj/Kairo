@@ -360,99 +360,17 @@
 }
 
 /* --- Focus Guide & Pomodoro Science Modal --- */
-.k-science-dialog {
-  max-width: 760px;
-  width: 95vw;
-}
 
-.k-science-eyebrow {
-  display: block;
-  font-family: var(--mono);
-  font-size: calc(13px * var(--text-scale, 1));
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--shu);
-  margin-bottom: 2px;
-}
 
-.k-science-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 24px;
-  background: var(--washi-2);
-  border-bottom: 1px solid var(--stone-3);
-  overflow-x: auto;
-}
 
-.k-science-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--r-full);
-  font-size: calc(14px * var(--text-scale, 1));
-  font-weight: 500;
-  color: var(--sumi-3);
-  background: transparent;
-  border: 1px solid transparent;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 140ms ease;
-}
 
-.k-science-tab:hover {
-  color: var(--sumi);
-  background: var(--washi-card);
-}
 
-.k-science-tab.active {
-  color: var(--shu);
-  background: var(--washi-card);
-  border-color: var(--shu-line);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
 
-.k-science-body {
-  max-height: 60vh;
-  overflow-y: auto;
-  padding: 20px 24px;
-}
 
-.k-science-section {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
 
-.k-science-banner {
-  padding: 16px 20px;
-  border-radius: var(--r-md);
-  background: var(--washi-2);
-  border: 1px solid var(--stone-3);
-}
 
-.k-science-banner h3 {
-  font-size: calc(16px * var(--text-scale, 1));
-  font-weight: 600;
-  color: var(--sumi);
-  margin: 0 0 6px 0;
-}
 
-.k-science-banner p {
-  font-size: calc(15px * var(--text-scale, 1));
-  line-height: 1.6;
-  color: var(--sumi-2);
-  margin: 0;
-}
 
-.k-science-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
 
 @media (max-width: 600px) {
   .k-science-grid-2 {
@@ -460,54 +378,12 @@
   }
 }
 
-.k-science-feature-card {
-  padding: 16px;
-  border-radius: var(--r-md);
-  background: var(--washi-card);
-  border: 1px solid var(--stone-3);
-  box-shadow: var(--shadow-sm);
-}
 
-.k-science-card-icon {
-  font-size: calc(20px * var(--text-scale, 1));
-  margin-bottom: 8px;
-}
 
-.k-science-feature-card h4 {
-  font-size: calc(15px * var(--text-scale, 1));
-  font-weight: 600;
-  color: var(--sumi);
-  margin: 0 0 6px 0;
-}
 
-.k-science-feature-card p {
-  font-size: calc(14px * var(--text-scale, 1));
-  line-height: 1.55;
-  color: var(--sumi-3);
-  margin: 0;
-}
 
-.k-science-deep-card {
-  padding: 18px;
-  border-radius: var(--r-md);
-  background: var(--washi-card);
-  border: 1px solid var(--stone-3);
-  box-shadow: var(--shadow-sm);
-}
 
-.k-science-deep-card h4 {
-  font-size: calc(16px * var(--text-scale, 1));
-  font-weight: 600;
-  color: var(--sumi);
-  margin: 0 0 8px 0;
-}
 
-.k-science-deep-card p {
-  font-size: calc(15px * var(--text-scale, 1));
-  line-height: 1.6;
-  color: var(--sumi-2);
-  margin: 0;
-}
 
 .k-paper-list {
   display: flex;
@@ -650,10 +526,6 @@
   color: var(--sumi);
 }
 
-.k-science-footer-note {
-  font-size: calc(14px * var(--text-scale, 1));
-  color: var(--sumi-3);
-}
 
 /* --- Document & Syllabus Breakdown Modal -------------------------------- */
 .modal-card.k-doc-breakdown-modal,

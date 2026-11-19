@@ -1138,7 +1138,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="k-settings-section-title">Extras</div>
             <div className="k-settings-row">
               <div className="k-settings-row-label">
-                <b id="extras-label">Show extras: Time Capsule, Focus Guide, experimental layouts</b>
+                <b id="extras-label">Show extras: Time Capsule and extra timer layouts</b>
                 <small>Optional features that stay out of the way by default.</small>
               </div>
               <Toggle labelId="extras-label" enabled={showExtras} onChange={setShowExtras} />

@@ -210,10 +210,6 @@
 .k-zen-pill-btn,
 .k-sound-pill-btn,
 .k-capsule-pill-btn,
-.k-guide-pill-btn {
-  white-space: nowrap !important;
-  flex-shrink: 0;
-}
 
 /* When Sound Studio is open, collapse utility bar text to sleek icon pills */
 .app-shell[data-sound-open="true"] .k-top-utility-bar .k-pill-label,
@@ -366,29 +362,6 @@
   color: var(--shu);
 }
 
-.k-guide-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: var(--r-full);
-  background: var(--washi-card);
-  border: 1px solid var(--stone-3);
-  color: var(--sumi-2);
-  font-size: calc(15px * var(--text-scale, 1));
-  font-weight: 500;
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-}
-.k-guide-pill-btn:hover {
-  background: var(--washi-2);
-  border-color: var(--stone-2);
-  color: var(--sumi);
-  transform: translateY(-1px);
-}
 .k-sound-pill-btn.is-playing {
   border-color: var(--shu-line);
 }

@@ -86,6 +86,41 @@ const ALL_SECTIONS: FaqSection[] = [
     ],
   },
   {
+    id: 'why',
+    title: 'Why it works',
+    items: [
+      item('Why work in short timed sessions?', 'pomodoro technique timebox procrastination start focus cirillo', (
+        <p>
+          A fixed block with a clear end is easier to start than "study until it is done". The Pomodoro Technique, created by Francesco Cirillo in
+          the 1980s with a tomato-shaped kitchen timer, turns time into something you protect for the next 25 minutes instead of something you never have enough of.
+        </p>
+      )),
+      item('Why take breaks?', 'break rest attention fatigue ultradian long break', (
+        <p>
+          Attention fades over long unbroken stretches. A short break lets it recover, and a longer one after several sessions covers the slower rhythm of
+          alertness that many people feel across a few hours. Step away from the screen during breaks; that is what makes them work.
+        </p>
+      )),
+      item('What makes revision actually stick?', 'retrieval practice recall spacing interleaving testing effect study', (
+        <ul>
+          <li><b>Test yourself</b> with notes closed instead of rereading. Pulling an answer out of memory strengthens it.</li>
+          <li><b>Space it out</b>: several short visits over days beat one long cram.</li>
+          <li><b>Mix topics</b> (interleave) so you practise choosing the right method, not only using it.</li>
+          <li>Kairo's exam revision plan follows these: recall, then practice, then fixing mistakes.</li>
+        </ul>
+      )),
+      item('How long should a session be?', 'session length 25 minutes 15 50 shorter longer half', (
+        <p>
+          25 minutes is only a default. Pick a length you can repeat every day, from about 15 to 50 minutes. For small jobs plan a <b>half session</b>.
+          If you keep stopping early, shorten it; if you hit the end in flow, press <Code>E</Code> to add 5 minutes.
+        </p>
+      )),
+      item('Why does Kairo suggest stopping by 10 pm before an exam?', 'sleep memory consolidation exam night late', (
+        <p>Sleep is when memories are consolidated. A late night of cramming usually costs more than it gives, so the exam plan protects your sleep.</p>
+      )),
+    ],
+  },
+  {
     id: 'sound',
     title: 'Sounds and alarms',
     items: [
@@ -456,6 +491,6 @@ const ALL_SECTIONS: FaqSection[] = [
   },
 ];
 
-const ORDER = ['start', 'planning', 'sound', 'tv', 'cloud', 'assistants', 'ai', 'supabase', 'privacy', 'trouble'];
+const ORDER = ['start', 'planning', 'why', 'sound', 'tv', 'cloud', 'assistants', 'ai', 'supabase', 'privacy', 'trouble'];
 /** Sections in reading order: basics first, setup and troubleshooting last. */
 export const SECTIONS: FaqSection[] = ORDER.map(id => ALL_SECTIONS.find(section => section.id === id)).filter((section): section is FaqSection => Boolean(section));

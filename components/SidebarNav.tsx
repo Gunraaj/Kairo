@@ -30,7 +30,6 @@ export interface SidebarNavProps {
   soundStudioOpen?: boolean;
   onTimeCapsule?: () => void;
   capsuleCount?: number;
-  onScience?: () => void;
   onToday?: () => void;
   onFocus?: () => void;
   currentView?: 'today' | 'focus';
@@ -55,7 +54,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   soundStudioOpen,
   onTimeCapsule,
   capsuleCount,
-  onScience,
   onToday,
   onFocus,
   currentView,
@@ -1219,11 +1217,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           <button type="button" className="k-nav-tool" onClick={onTimeCapsule} title="Time Capsule and Future Treat" aria-label="Time Capsule and Future Treat">
             <NavIcon name="mail" />
             {Boolean(capsuleCount && capsuleCount > 0) && <span className="k-badge-dot" />}
-          </button>
-        )}
-        {onScience && (
-          <button type="button" className="k-nav-tool" onClick={onScience} title="Focus Guide" aria-label="Focus Guide">
-            <NavIcon name="book" />
           </button>
         )}
         {onHelp && (
