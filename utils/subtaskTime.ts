@@ -65,13 +65,23 @@ export const formatDurationCompact = (minutes: number): string => {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 };
 
+/** Sessions are planned in halves (0.5, 1, 1.5 ...), between half a session and 48. */
+export const snapSessions = (value: number): number => {
+  const n = Number.isFinite(value) ? value : 1;
+  return Math.min(48, Math.max(0.5, Math.round(n * 2) / 2));
+};
+
+/** "2", "0.5", "2.5": whole numbers stay whole, halves show one decimal. */
+export const formatSessions = (value: number): string => (Number.isInteger(value) ? String(value) : value.toFixed(1));
+
 /**
- * Calculates completed Pomodoros from minutes spent and Pomodoro length.
- * Always returns a clean integer (never fractional floats like 3.5).
+ * Completed sessions from minutes spent and session length. Whole numbers normally; when the
+ * task is planned in halves (`target` like 0.5 or 2.5) progress is counted in halves too.
  */
-export const calculateDonePomodoros = (timeSpent: number | undefined, pomodoroLength: number = 25): number => {
+export const calculateDonePomodoros = (timeSpent: number | undefined, pomodoroLength: number = 25, target?: number): number => {
   const safeSpent = Math.max(0, timeSpent || 0);
   const safeLength = Math.max(1, Math.round(pomodoroLength || 25));
+  if (typeof target === 'number' && !Number.isInteger(target)) return Math.floor((safeSpent * 2) / safeLength) / 2;
   return Math.floor(safeSpent / safeLength);
 };
 
@@ -80,18 +90,19 @@ export const calculateDonePomodoros = (timeSpent: number | undefined, pomodoroLe
  * Strictly integer whole numbers (never decimals like 3.5).
  */
 export const formatPomodoroRatio = (doneRounds: number, targetRounds: number = 4): string => {
-  const safeDone = Math.max(0, Math.floor(doneRounds || 0));
-  const safeTarget = Math.max(1, Math.floor(targetRounds || 4));
-  return `${safeDone}/${safeTarget}`;
+  const safeTarget = snapSessions(targetRounds || 4);
+  // Whole targets show whole progress (2/4); only a half-session target shows halves (0.5/0.5, 1/2.5).
+  const safeDone = Math.max(0, Number.isInteger(safeTarget) ? Math.floor(doneRounds || 0) : Math.floor((doneRounds || 0) * 2) / 2);
+  return `${formatSessions(safeDone)}/${formatSessions(safeTarget)}`;
 };
 
 /**
  * Calculates total planned minutes from target pomodoros and pomodoro duration.
  */
 export const calculatePlannedMinutes = (targetRounds: number = 4, pomodoroLength: number = 25): number => {
-  const safeTarget = Math.max(1, Math.round(targetRounds || 4));
+  const safeTarget = snapSessions(targetRounds || 4);
   const safeLength = Math.max(1, Math.round(pomodoroLength || 25));
-  return safeTarget * safeLength;
+  return Math.round(safeTarget * safeLength);
 };
 
 /**

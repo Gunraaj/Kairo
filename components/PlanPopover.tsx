@@ -1,6 +1,5 @@
 import React from 'react';
-import { formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
-import { formatDurationCompact } from '../utils/subtaskTime';
+import { formatClockFromNow, formatDurationCompact, formatMinutesLong, formatSessions, snapSessions } from '../utils/subtaskTime';
 import { NumberField } from './NumberField';
 
 interface PlanPopoverProps {
@@ -21,7 +20,7 @@ interface PlanPopoverProps {
   align?: { count: number; estimated: number; onAlign: () => void };
 }
 
-const SESSION_PRESETS = [1, 2, 3, 4, 5, 6, 8, 10];
+const SESSION_PRESETS = [0.5, 1, 2, 3, 4, 5, 6, 8, 10];
 const LENGTH_PRESETS = [15, 20, 25, 30, 45, 50, 60];
 
 const totalLabel = (mins: number) => (mins < 60 ? `${mins}m` : mins % 60 === 0 ? `${mins / 60}h` : `${mins / 60}h`);
@@ -29,7 +28,7 @@ const totalLabel = (mins: number) => (mins < 60 ? `${mins}m` : mins % 60 === 0 ?
 export const PlanPopover: React.FC<PlanPopoverProps> = ({
   kind, target, length, doneRounds, focusedMinutes, defaultLength, finish, totalChips, onTarget, onLength, onClose, align,
 }) => {
-  const planned = target * length;
+  const planned = Math.round(target * length);
   const percent = Math.min(100, Math.round((doneRounds / Math.max(1, target)) * 100));
   const noun = kind === 'task' ? 'task' : 'subtask';
 
@@ -45,7 +44,7 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
 
       <div className="k-plan-summary" aria-live="polite">
         <div className="k-plan-summary-main">
-          <b>{target}</b> session{target === 1 ? '' : 's'} × <b>{length} min</b> = <b>{formatDurationCompact(planned)}</b>
+          <b>{formatSessions(target)}</b> session{target === 1 ? '' : 's'} × <b>{length} min</b> = <b>{formatDurationCompact(planned)}</b>
         </div>
         <small title="Estimated from your session and break settings">
           Done by {formatClockFromNow(finish.totalMinutes)} · {formatMinutesLong(finish.totalMinutes)} including breaks
@@ -56,7 +55,7 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
         <div className="k-plan-progress-bar" role="img" aria-label={`${doneRounds} of ${target} sessions done`}>
           <span style={{ width: `${percent}%` }} />
         </div>
-        <small>{doneRounds} of {target} done{focusedMinutes > 0 ? ` · ${formatDurationCompact(focusedMinutes)} focused` : ''}</small>
+        <small>{formatSessions(doneRounds)} of {formatSessions(target)} done{focusedMinutes > 0 ? ` · ${formatDurationCompact(focusedMinutes)} focused` : ''}</small>
       </div>
 
       <div className="k-pomo-pop-section">
@@ -65,29 +64,29 @@ export const PlanPopover: React.FC<PlanPopoverProps> = ({
         </div>
         <div className="k-pomo-stepper-wrap">
           <div className="k-pomo-stepper">
-            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(Math.max(1, target - 1))} aria-label="Fewer sessions">−</button>
-            <span className="k-pomo-stepper-val" aria-live="polite">{target}</span>
-            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(Math.min(48, target + 1))} aria-label="More sessions">+</button>
+            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(snapSessions(target > 1 ? target - 1 : 0.5))} aria-label="Fewer sessions">−</button>
+            <span className="k-pomo-stepper-val" aria-live="polite">{formatSessions(target)}</span>
+            <button type="button" className="k-pomo-stepper-btn" onClick={() => onTarget(snapSessions(target < 1 ? 1 : target + 1))} aria-label="More sessions">+</button>
           </div>
           <label className="k-plan-type">
             <span>or type</span>
-            <NumberField value={target} min={1} max={48} width={40} ariaLabel="Number of sessions" onCommit={onTarget} />
+            <NumberField value={Math.round(target)} min={1} max={48} width={40} ariaLabel="Number of sessions" onCommit={onTarget} />
           </label>
           <div className="k-pomo-quick-chips">
             {SESSION_PRESETS.map(n => (
-              <button key={n} type="button" className={`k-pomo-chip ${target === n ? 'active' : ''}`} onClick={() => onTarget(n)}>{n}</button>
+              <button key={n} type="button" className={`k-pomo-chip ${target === n ? 'active' : ''}`} onClick={() => onTarget(n)} title={n === 0.5 ? 'Half a session' : undefined}>{n === 0.5 ? '½' : n}</button>
             ))}
           </div>
         </div>
         <div className="k-pomo-time-calc-chips">
-          <span className="k-pomo-sublabel">Or set a total time (rounded up to whole sessions)</span>
+          <span className="k-pomo-sublabel">Or set a total time (rounded up to the nearest half session)</span>
           <label className="k-plan-type">
             <span>type minutes</span>
-            <NumberField value={planned} min={1} max={999} unit="min" width={40} ariaLabel="Total time in minutes" onCommit={mins => onTarget(Math.min(48, Math.max(1, Math.ceil(mins / length))))} />
+            <NumberField value={planned} min={1} max={999} unit="min" width={40} ariaLabel="Total time in minutes" onCommit={mins => onTarget(snapSessions(Math.ceil((mins / length) * 2) / 2))} />
           </label>
           <div className="k-pomo-quick-chips">
             {totalChips.map(mins => {
-              const sessions = Math.max(1, Math.ceil(mins / length));
+              const sessions = snapSessions(Math.ceil((mins / length) * 2) / 2);
               return (
                 <button
                   key={mins}

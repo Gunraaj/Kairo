@@ -9,7 +9,7 @@ import { workerTimer } from '../utils/workerTimer';
 import { publishTimer, ringAlert } from '../utils/castDisplay';
 import { sharpenIntention } from '../utils/geminiAi';
 import { InfoTip } from './InfoTip';
-import { calculateFinishEstimate, formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
+import { calculateDonePomodoros, calculateFinishEstimate, formatClockFromNow, formatMinutesLong } from '../utils/subtaskTime';
 
 interface StageProps {
   showLayouts?: boolean;
@@ -621,7 +621,7 @@ export const Stage: React.FC<StageProps> = ({
 
   const activeTargetRounds = activeTarget?.kind === 'task' ? (activeTarget.targetRounds || 4) : null;
   const activePomoLen = activeTarget?.kind === 'task' ? (activeTarget.pomodoroLength || settings.focusDuration || 25) : settings.focusDuration;
-  const activeDoneRounds = activeTarget?.kind === 'task' ? Math.floor((activeTarget.timeSpent || 0) / activePomoLen) : null;
+  const activeDoneRounds = activeTarget?.kind === 'task' ? calculateDonePomodoros(activeTarget.timeSpent, activePomoLen, activeTarget.targetRounds || 4) : null;
 
   const activeTaskFinish = useMemo(() => {
     if (activeTarget?.kind !== 'task') return null;

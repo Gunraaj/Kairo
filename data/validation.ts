@@ -1,4 +1,5 @@
 import type { KairoSession, Project, SubTask, Task, TaskStatus, UserSettings, SavedFocusStream, TimeCapsule, Palette } from '../types';
+import { snapSessions } from '../utils/subtaskTime';
 import { isAlertSoundId } from '../utils/alertSounds';
 
 const MAX_PROJECTS = 100;
@@ -40,7 +41,7 @@ const normalizeSubTask = (value: unknown): SubTask | null => {
       ? Math.round(boundedNumber(source.estimatedMinutes, 25, 1, 10_000))
       : undefined,
     targetRounds: typeof source.targetRounds === 'number'
-      ? Math.round(boundedNumber(source.targetRounds, 1, 1, 24))
+      ? snapSessions(boundedNumber(source.targetRounds, 1, 0.5, 24))
       : undefined,
     pomodoroLength: typeof source.pomodoroLength === 'number'
       ? Math.round(boundedNumber(source.pomodoroLength, 25, 1, 180))
@@ -81,7 +82,7 @@ const normalizeTask = (value: unknown): Task | null => {
       ? Math.round(boundedNumber(source.directTimeSpent, 0, 0, 1_000_000))
       : undefined,
     targetRounds: typeof source.targetRounds === 'number'
-      ? Math.round(boundedNumber(source.targetRounds, 4, 1, 24))
+      ? snapSessions(boundedNumber(source.targetRounds, 4, 0.5, 24))
       : undefined,
     pomodoroLength: typeof source.pomodoroLength === 'number'
       ? Math.round(boundedNumber(source.pomodoroLength, 25, 1, 180))
@@ -238,7 +239,7 @@ export const normalizeTimeCapsules = (value: unknown): TimeCapsule[] => {
       : 'rounds';
 
     const targetRounds = typeof source.targetRounds === 'number' && Number.isFinite(source.targetRounds)
-      ? Math.max(1, Math.min(24, Math.floor(source.targetRounds)))
+      ? snapSessions(Math.min(24, source.targetRounds))
       : undefined;
 
     const targetTime = typeof source.targetTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(source.targetTime)

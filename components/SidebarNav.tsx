@@ -6,6 +6,7 @@ import type { Project, SubTask, Task, UserSettings } from '../types';
 import { breakdownProjectTasks, breakdownSubtasks } from '../utils/geminiAi';
 import {
   calculateDonePomodoros,
+  snapSessions,
   calculateEffectiveTaskTime,
   calculateFinishEstimate,
   calculatePlannedMinutes,
@@ -255,7 +256,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   };
 
   const updateTaskPomodoroTarget = (projectId: string, taskId: string, rounds: number) => {
-    const targetRounds = Math.max(1, Math.min(24, Math.round(rounds)));
+    const targetRounds = Math.min(24, snapSessions(rounds));
     setProjects(prev =>
       (Array.isArray(prev) ? prev : []).map(p => {
         if (p.id !== projectId) return p;
@@ -302,7 +303,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   };
 
   const updateSubTaskPomodoroTarget = (projectId: string, taskId: string, subTaskId: string, rounds: number) => {
-    const targetRounds = Math.max(1, Math.min(24, Math.round(rounds)));
+    const targetRounds = Math.min(24, snapSessions(rounds));
     setProjects(prev =>
       (Array.isArray(prev) ? prev : []).map(p => {
         if (p.id !== projectId) return p;
@@ -715,7 +716,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                   {tasks.map(task => {
                     const target = task.targetRounds || 4;
                     const pomodoroLength = task.pomodoroLength || settings?.focusDuration || 25;
-                    const doneRounds = calculateDonePomodoros(task.timeSpent, pomodoroLength);
+                    const doneRounds = calculateDonePomodoros(task.timeSpent, pomodoroLength, target);
                     const isTargetMet = doneRounds >= target;
                     const plannedMinutes = calculatePlannedMinutes(target, pomodoroLength);
                     const subTasks = Array.isArray(task.subTasks) ? task.subTasks : [];
@@ -916,7 +917,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                               const taskPomodoroLength = task.pomodoroLength || settings?.focusDuration || 25;
                               const isDifferentPace = subPomodoroLength !== taskPomodoroLength;
                               const subTarget = st.targetRounds || Math.max(1, Math.ceil((st.estimatedMinutes || subPomodoroLength) / subPomodoroLength));
-                              const subDoneRounds = calculateDonePomodoros(st.timeSpent || 0, subPomodoroLength);
+                              const subDoneRounds = calculateDonePomodoros(st.timeSpent || 0, subPomodoroLength, subTarget);
                               const isSubTargetMet = subDoneRounds >= subTarget;
                               const subPlannedMinutes = calculatePlannedMinutes(subTarget, subPomodoroLength);
                               const isSubPopoverOpen = targetPopoverTaskId === st.id;

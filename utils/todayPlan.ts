@@ -1,4 +1,5 @@
 import type { KairoSession, Project, Task } from '../types';
+import { calculateDonePomodoros, snapSessions } from './subtaskTime';
 import { applyMultiplier, daysBetween, estimateMultiplier, paceStatus, spreadRounds, toDayKey, type Pace } from './planMath';
 import { examPhase, type ExamPhase } from './examMode';
 
@@ -46,7 +47,8 @@ export type TodayState = {
 
 export const taskRounds = (task: Task, defaultLength = 25): { target: number; done: number } => {
   const length = task.pomodoroLength || defaultLength;
-  return { target: Math.max(1, task.targetRounds ?? 1), done: Math.floor((task.timeSpent || 0) / length) };
+  const target = snapSessions(task.targetRounds ?? 1);
+  return { target, done: calculateDonePomodoros(task.timeSpent, length, target) };
 };
 
 /** Completed focus time per day (in rounds of `roundMinutes`), oldest first, ending today. */
