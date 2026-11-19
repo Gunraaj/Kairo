@@ -614,3 +614,24 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
   .k-help-toc ul { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; gap: 6px; padding-bottom: 6px; }
   .k-help-toc-foot { display: none; }
 }
+
+/* ---- Settings revamp: left menu, search, wider dialog ---- */
+.settings-dialog { max-width: min(940px, calc(100vw - 24px)); width: 100%; }
+.k-settings-body { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 28px; padding: 0 28px; overflow-y: auto; }
+.k-settings-nav { position: sticky; top: 0; align-self: start; padding: 20px 0; max-height: 100%; }
+.k-settings-nav ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 2px; }
+.k-settings-nav a { display: block; padding: 8px 12px; border-radius: var(--r-sm); color: var(--sumi-2); text-decoration: none; font-size: calc(15px * var(--text-scale, 1)); }
+.k-settings-nav a:hover { background: var(--washi-2); color: var(--sumi); }
+.k-settings-nav a.is-current { background: var(--washi-card); color: var(--sumi); font-weight: 600; box-shadow: inset 3px 0 0 var(--shu); }
+.k-settings-search {
+  width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: var(--r-sm); border: 1px solid var(--stone-2);
+  background: var(--washi-card); color: var(--sumi); font: inherit; font-size: calc(15px * var(--text-scale, 1));
+}
+.k-settings-content { padding: 4px 0 20px; min-width: 0; }
+.k-settings-section[hidden], .k-settings-row[hidden] { display: none; }
+.k-settings-section { scroll-margin-top: 8px; }
+@media (max-width: 760px) {
+  .k-settings-body { grid-template-columns: 1fr; gap: 0; padding: 0 16px; }
+  .k-settings-nav { position: static; padding: 12px 0 0; }
+  .k-settings-nav ul { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: 6px; }
+}

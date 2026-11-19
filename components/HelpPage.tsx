@@ -30,16 +30,16 @@ export const HelpPage: React.FC = () => {
 
   // Highlight the section being read in the contents.
   useEffect(() => {
-    if (needle || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(
-      entries => {
-        const top = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (top) setCurrent(top.target.id.replace('help-', ''));
-      },
-      { rootMargin: '-10% 0px -75% 0px' },
-    );
-    document.querySelectorAll('.k-help-section').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
+    if (needle) return;
+    const update = () => {
+      const sections = Array.from(document.querySelectorAll<HTMLElement>('.k-help-section'));
+      let found = sections[0]?.id;
+      for (const el of sections) { if (el.getBoundingClientRect().top <= 120) found = el.id; else break; }
+      if (found) setCurrent(found.replace('help-', ''));
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
   }, [needle, visible.length]);
 
   return (

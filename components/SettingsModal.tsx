@@ -95,6 +95,19 @@ const Toggle: React.FC<{
   </button>
 );
 
+const SETTINGS_NAV = [
+  { id: 'timer', label: 'Timer' },
+  { id: 'sessions', label: 'Sessions' },
+  { id: 'alarms', label: 'Alarms' },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'ai', label: 'AI' },
+  { id: 'appearance', label: 'Appearance' },
+  { id: 'data', label: 'Your data' },
+  { id: 'cloud', label: 'Kairo Cloud' },
+  { id: 'supabase', label: 'Own Supabase' },
+  { id: 'extras', label: 'Extras' },
+];
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   setSettings,
@@ -289,6 +302,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onClose();
   };
 
+  const bodyRef = React.useRef<HTMLDivElement | null>(null);
+  const [settingsQuery, setSettingsQuery] = useState('');
+  const [activeSection, setActiveSection] = useState('timer');
+  const [noMatches, setNoMatches] = useState(false);
+
+  // Search: hide rows and sections that do not contain the words typed.
+  useEffect(() => {
+    const root = bodyRef.current;
+    if (!root) return;
+    const needle = settingsQuery.trim().toLowerCase();
+    let shown = 0;
+    root.querySelectorAll<HTMLElement>('.k-settings-section').forEach(section => {
+      const rows = Array.from(section.querySelectorAll<HTMLElement>('.k-settings-row'));
+      const titleHit = !needle || (section.querySelector('.k-settings-section-title')?.textContent ?? '').toLowerCase().includes(needle);
+      let any = false;
+      rows.forEach(row => {
+        const hit = !needle || titleHit || (row.textContent ?? '').toLowerCase().includes(needle);
+        row.hidden = !hit;
+        if (hit) any = true;
+      });
+      const visible = !needle || titleHit || any || rows.length === 0 && (section.textContent ?? '').toLowerCase().includes(needle);
+      section.hidden = !visible;
+      if (visible) shown += 1;
+    });
+    setNoMatches(Boolean(needle) && shown === 0);
+  }, [settingsQuery]);
+
+  // Highlight the section being read in the left menu: the last section whose top has scrolled past the top edge.
+  useEffect(() => {
+    const root = bodyRef.current;
+    if (!root) return;
+    const update = () => {
+      const sections = Array.from(root.querySelectorAll<HTMLElement>('.k-settings-section[id]')).filter(el => !el.hidden);
+      const line = root.getBoundingClientRect().top + 48;
+      let current = sections[0]?.id;
+      for (const el of sections) { if (el.getBoundingClientRect().top <= line) current = el.id; else break; }
+      if (current) setActiveSection(current.replace('set-', ''));
+    };
+    update();
+    root.addEventListener('scroll', update, { passive: true });
+    return () => root.removeEventListener('scroll', update);
+  }, []);
+
   return (
     <Modal titleId="settings-title" onClose={onClose} className="settings-dialog">
       <header className="k-modal-header">
@@ -303,9 +359,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </button>
       </header>
 
-      <div className="k-modal-body">
+      <div className="k-modal-body k-settings-body" ref={bodyRef}>
+        <aside className="k-settings-nav" aria-label="Settings sections">
+          <input
+            type="search"
+            className="k-settings-search"
+            value={settingsQuery}
+            onChange={e => setSettingsQuery(e.target.value)}
+            placeholder="Search settings"
+            aria-label="Search settings"
+          />
+          <ul>
+            {SETTINGS_NAV.filter(item => item.id !== 'extras' || setShowExtras).map(item => (
+              <li key={item.id}>
+                <a
+                  href={`#set-${item.id}`}
+                  className={activeSection === item.id && !settingsQuery ? 'is-current' : ''}
+                  onClick={e => { e.preventDefault(); setSettingsQuery(''); document.getElementById(`set-${item.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+        <div className="k-settings-content">
+          {noMatches && <p className="k-settings-hint">No settings match “{settingsQuery}”.</p>}
         {/* Atmosphere & Theme Selector */}
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-timer">
           <div className="k-settings-section-title">Timer lengths</div>
           <p className="k-settings-section-help">Choose a pace you can repeat. Changes apply after the current timer is reset.</p>
           <div className="k-settings-grid">
@@ -329,7 +410,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-sessions">
           <div className="k-settings-section-title">How sessions run</div>
           <p className="k-settings-section-help">Sound, breaks and what happens when you leave the tab.</p>
 
@@ -368,22 +449,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="k-settings-row">
             <div className="k-settings-row-label">
-              <b id="text-size-label">Text size</b>
-              <small>Make all text in Kairo bigger or smaller.</small>
+              <b id="keep-sound-label">Keep sound playing when paused</b>
+              <small>Pausing the timer leaves your sound on or off as it is. Turn it on or off yourself in Sound Studio.</small>
             </div>
-            <select
-              className="k-settings-select"
-              aria-labelledby="text-size-label"
-              value={String(local.textScale)}
-              onChange={e => setLocal(prev => ({ ...prev, textScale: Number(e.target.value) }))}
-            >
-              <option value="0.9">Small</option>
-              <option value="1">Default</option>
-              <option value="1.12">Large</option>
-              <option value="1.25">Extra large</option>
-            </select>
+            <Toggle
+              labelId="keep-sound-label"
+              enabled={local.keepSoundOnPause}
+              onChange={enabled => setLocal(prev => ({ ...prev, keepSoundOnPause: enabled }))}
+            />
           </div>
 
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="deep-focus-label">Pause when I switch tabs</b>
+              <small>Pause the timer when this tab becomes hidden.</small>
+            </div>
+            <Toggle
+              labelId="deep-focus-label"
+              enabled={local.deepFocusMode}
+              onChange={enabled => setLocal(prev => ({ ...prev, deepFocusMode: enabled }))}
+            />
+          </div>
+
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="auto-start-label">Auto-start breaks</b>
+              <small>Start the break timer automatically after focus.</small>
+            </div>
+            <Toggle
+              labelId="auto-start-label"
+              enabled={local.autoStartBreaks}
+              onChange={enabled => setLocal(prev => ({ ...prev, autoStartBreaks: enabled }))}
+            />
+          </div>
+        </section>
+
+        <section className="k-settings-section" id="set-alarms">
+          <div className="k-settings-section-title">Alarms</div>
+          <p className="k-settings-section-help">What you hear when a focus session or a break ends.</p>
           <div className="k-settings-row">
             <div className="k-settings-row-label">
               <b id="focusEndSound-label">Sound when focus ends</b>
@@ -446,45 +549,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <option value="3">Three times</option>
             </select>
           </div>
-
-          <div className="k-settings-row">
-            <div className="k-settings-row-label">
-              <b id="keep-sound-label">Keep sound playing when paused</b>
-              <small>Pausing the timer leaves your sound on or off as it is. Turn it on or off yourself in Sound Studio.</small>
-            </div>
-            <Toggle
-              labelId="keep-sound-label"
-              enabled={local.keepSoundOnPause}
-              onChange={enabled => setLocal(prev => ({ ...prev, keepSoundOnPause: enabled }))}
-            />
-          </div>
-
-          <div className="k-settings-row">
-            <div className="k-settings-row-label">
-              <b id="deep-focus-label">Pause when I switch tabs</b>
-              <small>Pause the timer when this tab becomes hidden.</small>
-            </div>
-            <Toggle
-              labelId="deep-focus-label"
-              enabled={local.deepFocusMode}
-              onChange={enabled => setLocal(prev => ({ ...prev, deepFocusMode: enabled }))}
-            />
-          </div>
-
-          <div className="k-settings-row">
-            <div className="k-settings-row-label">
-              <b id="auto-start-label">Auto-start breaks</b>
-              <small>Start the break timer automatically after focus.</small>
-            </div>
-            <Toggle
-              labelId="auto-start-label"
-              enabled={local.autoStartBreaks}
-              onChange={enabled => setLocal(prev => ({ ...prev, autoStartBreaks: enabled }))}
-            />
-          </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-notifications">
           <div className="k-settings-section-title">Notifications</div>
           <div className="k-settings-row">
             <div className="k-settings-row-label">
@@ -502,7 +569,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-ai">
           <div className="k-settings-section-title">AI</div>
           <p className="k-settings-section-help">
             Choose your AI engine: Google Gemini (Free tier), OpenRouter (Free & Any open-source model), Local AI via Ollama / LM Studio, Custom OpenAI-compatible endpoints, or 100% Offline Heuristics.
@@ -835,9 +902,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-appearance">
           <div className="k-settings-section-title">Appearance</div>
           <p className="k-settings-section-help">Choose your light/dark mode and atmospheric visual world.</p>
+          <div className="k-settings-row">
+            <div className="k-settings-row-label">
+              <b id="text-size-label">Text size</b>
+              <small>Make all text in Kairo bigger or smaller.</small>
+            </div>
+            <select
+              className="k-settings-select"
+              aria-labelledby="text-size-label"
+              value={String(local.textScale)}
+              onChange={e => setLocal(prev => ({ ...prev, textScale: Number(e.target.value) }))}
+            >
+              <option value="0.9">Small</option>
+              <option value="1">Default</option>
+              <option value="1.12">Large</option>
+              <option value="1.25">Extra large</option>
+            </select>
+          </div>
 
           <div className="k-theme-mode-row">
             <button
@@ -880,7 +964,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-data">
           <div className="k-settings-section-title">Your data</div>
           <p className="k-settings-section-help">
             Everything stays in this browser. Export a snapshot to move Kairo to another device or browser, or as a personal backup before clearing site data.
@@ -923,12 +1007,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-cloud">
           <div className="k-settings-section-title">Kairo Cloud sync (optional)</div>
           <CloudSyncCard onRestore={importSnapshot} onBeforeRestore={() => downloadSnapshot('kairo-pre-restore')} />
         </section>
 
-        <section className="k-settings-section">
+        <section className="k-settings-section" id="set-supabase">
           <div className="k-settings-section-title">Your own Supabase (advanced)</div>
           <p className="k-settings-section-help">
             Kairo is 100% offline-first. To optionally back up or sync across browsers, provide your Supabase project credentials. Your keys stay in this browser.
@@ -1050,7 +1134,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </section>
 
         {setShowExtras && (
-          <section className="k-settings-section">
+          <section className="k-settings-section" id="set-extras">
             <div className="k-settings-section-title">Extras</div>
             <div className="k-settings-row">
               <div className="k-settings-row-label">
@@ -1061,6 +1145,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </section>
         )}
+        </div>
       </div>
 
       <footer className="k-modal-footer">
