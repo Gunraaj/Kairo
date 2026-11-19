@@ -129,9 +129,13 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     });
   };
 
+  /** Adds a subtask and keeps the box open and focused, so Enter, Enter, Enter builds a checklist. */
   const addSubTask = (projectId: string, taskId: string) => {
     const name = newSubTaskName.trim().slice(0, 160);
-    if (!name) return;
+    if (!name) {
+      setAddingSubTaskFor(null);
+      return;
+    }
     const subTask: SubTask = { id: crypto.randomUUID(), name, completed: false };
     setProjects(prev =>
       (Array.isArray(prev) ? prev : []).map(p =>
@@ -152,11 +156,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           : p,
       ),
     );
-    setActiveTaskId(subTask.id);
     setNewSubTaskName('');
-    setAddingSubTaskFor(null);
     setExpandedTasks(prev => new Set(prev).add(taskId));
-    (document.activeElement as HTMLElement)?.blur?.();
   };
 
   const toggleSubTaskDone = (projectId: string, taskId: string, subTaskId: string) => {
@@ -1062,7 +1063,9 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                                       setNewSubTaskName('');
                                     }
                                   }}
-                                  placeholder="Subtask name (Enter to save, Esc)..."
+                                  onBlur={() => { if (!newSubTaskName.trim()) setAddingSubTaskFor(null); }}
+                                  placeholder="Next subtask (Enter to add another, Esc to finish)"
+                                  aria-label="New subtask name"
                                   maxLength={160}
                                 />
                               </div>
