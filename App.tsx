@@ -214,13 +214,30 @@ const App: React.FC = () => {
     return false;
   });
   const [toast, setToast] = useState<string | null>(null);
+  const [toastLeaving, setToastLeaving] = useState(false);
   const toastTimerRef = useRef<number | null>(null);
+  const toastFadeRef = useRef<number | null>(null);
+
+  const clearToastTimers = useCallback(() => {
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    if (toastFadeRef.current) window.clearTimeout(toastFadeRef.current);
+  }, []);
+  /** Fades out, then removes. Called by the timer and by the close button. */
+  const hideToast = useCallback(() => {
+    clearToastTimers();
+    setToastLeaving(true);
+    toastFadeRef.current = window.setTimeout(() => { setToast(null); setToastLeaving(false); }, 220);
+  }, [clearToastTimers]);
+  const startToastTimer = useCallback((ms: number) => {
+    clearToastTimers();
+    toastTimerRef.current = window.setTimeout(hideToast, ms);
+  }, [clearToastTimers, hideToast]);
 
   const announceToast = useCallback((msg: string) => {
     setToast(msg);
-    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => setToast(null), 2600);
-  }, []);
+    setToastLeaving(false);
+    startToastTimer(4500);
+  }, [startToastTimer]);
 
   const [zenMode, setZenMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -410,9 +427,15 @@ const App: React.FC = () => {
     const removed = count(previous) - count(projects);
     if (removed <= 0) return;
     setUndo({ snapshot: previous, label: projects.length < previous.length ? 'Project deleted' : removed === 1 ? 'Deleted' : `${removed} items removed` });
+  }, [projects]);
+
+  // The undo bar fades after 10 seconds; hovering or focusing it pauses the countdown.
+  const [undoPaused, setUndoPaused] = useState(false);
+  useEffect(() => {
+    if (!undo || undoPaused) return;
     const timer = window.setTimeout(() => setUndo(null), 10000);
     return () => window.clearTimeout(timer);
-  }, [projects]);
+  }, [undo, undoPaused]);
 
   useEffect(() => {
     if (soundStudioOpen && !localFlags.triedSound) setFlag('kairo_tried_sound', 'triedSound', '1');
@@ -1046,18 +1069,33 @@ const App: React.FC = () => {
       })()}
 
       {undo && (
-        <div className="k-undo-bar" role="status">
+        <div
+          className="k-undo-bar"
+          role="status"
+          onMouseEnter={() => setUndoPaused(true)}
+          onMouseLeave={() => setUndoPaused(false)}
+          onFocus={() => setUndoPaused(true)}
+          onBlur={() => setUndoPaused(false)}
+        >
           <span>{undo.label}</span>
           <button type="button" className="k-btn" onClick={() => { skipUndo.current = true; setProjects(undo.snapshot); setUndo(null); }}>Undo</button>
+          <button type="button" className="k-toast-close" onClick={() => setUndo(null)} aria-label="Dismiss">×</button>
         </div>
       )}
 
       {toast && (
-        <div className="k-toast" role="status" aria-live="polite">
+        <div
+          className={`k-toast ${toastLeaving ? 'is-leaving' : ''} ${undo || afterSession ? 'is-raised' : ''}`}
+          role="status"
+          aria-live="polite"
+          onMouseEnter={clearToastTimers}
+          onMouseLeave={() => startToastTimer(2000)}
+        >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 8l3.5 3.5L13 5" />
           </svg>
           <span>{toast}</span>
+          <button type="button" className="k-toast-close" onClick={hideToast} aria-label="Dismiss message">×</button>
         </div>
       )}
 

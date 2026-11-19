@@ -558,3 +558,16 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
   background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 600;
 }
 .k-google-btn:hover:not(:disabled) { background: #f2f2f2; }
+
+/* Toasts and the undo bar: a close button, a gentle fade-out, never stacked on top of each other */
+.k-toast { pointer-events: auto; transition: opacity 200ms ease, transform 200ms ease; max-width: min(560px, calc(100vw - 24px)); }
+.k-toast.is-leaving { opacity: 0; transform: translate(-50%, 8px); }
+.k-toast.is-raised { bottom: 150px; }
+.k-toast-close {
+  flex-shrink: 0; width: 28px; height: 28px; margin: -4px -8px -4px 2px; border: 0; border-radius: 50%; background: transparent;
+  color: inherit; opacity: 0.7; font-size: calc(20px * var(--text-scale, 1)); line-height: 1; cursor: pointer;
+}
+.k-toast-close:hover, .k-toast-close:focus-visible { opacity: 1; background: rgb(255 255 255 / 0.14); }
+.k-undo-bar .k-toast-close { color: var(--sumi-2); margin: 0 -6px 0 0; }
+.k-undo-bar .k-toast-close:hover, .k-undo-bar .k-toast-close:focus-visible { background: var(--washi-2); }
+@media (prefers-reduced-motion: reduce) { .k-toast, .k-toast.is-leaving { transition: none; animation: none; } }
