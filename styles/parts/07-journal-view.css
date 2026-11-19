@@ -1002,36 +1002,9 @@
   color: var(--sumi-3);
 }
 
-.k-doc-templates-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
-.k-templates-caption {
-  font-size: calc(13px * var(--text-scale, 1));
-  color: var(--sumi-3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-}
 
-.k-template-btn {
-  background: var(--washi-2);
-  border: 1px solid var(--stone-3);
-  border-radius: var(--r-full);
-  font-size: calc(13px * var(--text-scale, 1));
-  color: var(--sumi-2);
-  padding: 3px 9px;
-  cursor: pointer;
-  transition: all 140ms ease;
-}
 
-.k-template-btn:hover {
-  background: var(--washi-card);
-  color: var(--shu);
-  border-color: var(--shu-soft);
-}
 
 .k-doc-archetype-pills {
   display: grid;

@@ -703,12 +703,7 @@ test('Tier 1: Feature 21 - Washi/Sumi SVG Iconography Infrastructure', () => {
 });
 
 test('Tier 1: Feature 22 - Sidebar AI Task/Project Slicing', async () => {
-  // Test offline breakdown integration for project tasks and subtasks
-  const tasks = await breakdownProjectTasks('Compilers and Interpreters');
-  assert.ok(Array.isArray(tasks) && tasks.length > 0);
-  assert.ok(tasks.every(t => typeof t.name === 'string' && typeof t.targetRounds === 'number'));
-
-  const subtasks = await breakdownSubtasks('Write Abstract Syntax Tree Lowering');
-  assert.ok(Array.isArray(subtasks) && subtasks.length > 0);
-  assert.ok(subtasks.every(st => typeof st === 'string'));
+  // No AI is configured in tests: Kairo must say so instead of inventing generic boilerplate tasks.
+  await assert.rejects(() => breakdownProjectTasks('Compilers and Interpreters'), /AI/);
+  await assert.rejects(() => breakdownSubtasks('Write Abstract Syntax Tree Lowering'), /AI/);
 });

@@ -40,16 +40,7 @@ test('PRESET_LIST includes all 4 primary study/learning/work archetypes', () => 
   }
 });
 
-test('breakdownProjectTasks and breakdownSubtasks produce tailored presets offline', async () => {
-  const studyTasks = await breakdownProjectTasks('Organic Chemistry Midterm Exam');
-  assert.ok(studyTasks.length >= 3);
-  assert.ok(studyTasks.some(t => t.name.toLowerCase().includes('recall') || t.name.toLowerCase().includes('practice')));
-
-  const codingTasks = await breakdownProjectTasks('Build Auth Service');
-  assert.ok(codingTasks.length >= 3);
-  assert.ok(codingTasks.some(t => t.name.toLowerCase().includes('architecture') || t.name.toLowerCase().includes('sprint') || t.name.toLowerCase().includes('test')));
-
-  const subtasks = await breakdownSubtasks('Review Linear Algebra Formulas');
-  assert.ok(subtasks.length >= 3);
-  assert.ok(subtasks.some(st => st.toLowerCase().includes('recall') || st.toLowerCase().includes('concept') || st.toLowerCase().includes('drill')));
+test('splitting without an AI explains what to do instead of inventing template tasks', async () => {
+  await assert.rejects(() => breakdownProjectTasks('Organic Chemistry Midterm Exam'), /Splitting needs AI/);
+  await assert.rejects(() => breakdownSubtasks('Review Linear Algebra Formulas'), /Splitting needs AI/);
 });

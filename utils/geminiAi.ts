@@ -11,7 +11,6 @@
  */
 
 import { generateStructured } from './structuredAi';
-import { detectPresetCategory } from './slicePresets';
 
 
 /** Chrome's built-in on-device model (window.ai), typed for the two calls Kairo makes. */
@@ -748,15 +747,18 @@ export const breakdownProjectTasks = async (
       },
     });
     return result.tasks;
-  } catch {
-    // Fall back to the offline preset below
+  } catch (error) {
+    throw new Error(sliceUnavailable(error));
   }
+};
 
-  const preset = detectPresetCategory(projectName);
-  return preset.projectTasks.map(t => ({
-    name: t.name,
-    targetRounds: t.targetRounds,
-  }));
+/**
+ * Splitting needs an AI. Kairo no longer fills in generic template tasks when there is none:
+ * it says what to do instead.
+ */
+const sliceUnavailable = (error: unknown): string => {
+  const detail = error instanceof Error && error.message && !/not configured|no key|api key/i.test(error.message) ? ` (${error.message.slice(0, 80)})` : '';
+  return `Splitting needs AI. Add a free key or a local model in Settings, AI, or add the steps yourself${detail}.`;
 };
 
 /**
@@ -779,12 +781,9 @@ export const breakdownSubtasks = async (
       },
     });
     return result.subtasks;
-  } catch {
-    // Fall back to the offline preset below
+  } catch (error) {
+    throw new Error(sliceUnavailable(error));
   }
-
-  const preset = detectPresetCategory(taskName);
-  return [...preset.subtaskSteps];
 };
 
 /**

@@ -5,7 +5,6 @@ import {
   inferCognitiveLoad,
   calculatePacing,
   checkInputSufficiency,
-  SAMPLE_TEMPLATES,
 } from '../utils/documentBreakdown.ts';
 
 test('inferCognitiveLoad classifies text based on cognitive keywords', () => {
@@ -95,21 +94,6 @@ test('parseOutlineOffline parses markdown syllabus into modules, tasks, and subt
   // Total rounds
   assert.equal(plan.totalRounds, 1 + 2 + 3 + 2); // 8 rounds
   assert.equal(plan.totalMinutes, 8 * 25); // 200 minutes
-});
-
-test('SAMPLE_TEMPLATES parse cleanly with zero errors', () => {
-  for (const template of SAMPLE_TEMPLATES) {
-    const plan = parseOutlineOffline(template.content, { archetype: template.archetype });
-    assert.ok(plan.projectName.length > 0);
-    assert.ok(plan.modules.length >= 2, `${template.id} has at least 2 modules`);
-    assert.ok(plan.totalRounds > 0);
-    for (const m of plan.modules) {
-      assert.ok(m.tasks.length > 0);
-      for (const t of m.tasks) {
-        assert.ok(t.subTasks.length > 0);
-      }
-    }
-  }
 });
 
 test('checkInputSufficiency catches sparse or ambiguous input to prevent boilerplate BS', () => {

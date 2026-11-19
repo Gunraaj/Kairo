@@ -759,6 +759,7 @@ const App: React.FC = () => {
         </div>
 
         <SidebarNav
+          onNotify={announceToast}
           projects={projects}
           setProjects={setProjects}
           settings={userSettings}

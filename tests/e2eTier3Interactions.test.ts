@@ -266,50 +266,9 @@ test('Tier 3: C5 - Palette Normalization Alignment and WCAG AA Contrast Verifica
   );
 });
 
-test('Tier 3: C6 - Breakdown Slicing Triggers Populating Sidebar Project & Task Hierarchy', async () => {
-  // Project in SidebarNav
-  const project: Project = {
-    id: 'proj-os-midterm',
-    name: 'Operating Systems Kernels',
-    tasks: [],
-    subProjects: [],
-    isExpanded: true,
-  };
-
-  // 1. AI Task Slicing trigger (breakdownProjectTasks)
-  const slicedTasks = await breakdownProjectTasks(project.name);
-  assert.ok(Array.isArray(slicedTasks) && slicedTasks.length > 0);
-
-  // Populate tasks into project
-  const populatedTasks: Task[] = slicedTasks.map((t, idx) => ({
-    id: `task-os-${idx + 1}`,
-    name: t.name,
-    targetRounds: t.targetRounds,
-    completed: false,
-    status: 'todo',
-    timeSpent: 0,
-    subTasks: [],
-  }));
-
-  const updatedProject: Project = {
-    ...project,
-    tasks: populatedTasks,
-  };
-
-  assert.equal(updatedProject.tasks.length, slicedTasks.length);
-  assert.ok(updatedProject.tasks.every(t => t.completed === false && t.status === 'todo'));
-
-  // 2. AI Subtask Slicing trigger (breakdownSubtasks) on task 1
-  const firstTask = updatedProject.tasks[0];
-  const slicedSubtasks = await breakdownSubtasks(firstTask.name);
-  assert.ok(Array.isArray(slicedSubtasks) && slicedSubtasks.length > 0);
-
-  firstTask.subTasks = slicedSubtasks.map((stName, idx) => ({
-    id: `sub-${idx + 1}`,
-    name: stName,
-    completed: false,
-  }));
-
-  assert.ok(firstTask.subTasks.length > 0);
-  assert.equal(firstTask.completed, false);
+test('Tier 3: C6 - Breakdown Slicing needs an AI and never fills in generic template tasks', async () => {
+  const project: Project = { id: 'proj-os-midterm', name: 'Operating Systems Kernels', tasks: [], subProjects: [], isExpanded: true };
+  await assert.rejects(() => breakdownProjectTasks(project.name), /Splitting needs AI/);
+  await assert.rejects(() => breakdownSubtasks('Process scheduling'), /Splitting needs AI/);
+  assert.equal(project.tasks.length, 0);
 });

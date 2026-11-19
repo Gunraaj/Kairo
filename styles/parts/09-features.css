@@ -646,3 +646,44 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .is-dragging { opacity: 0.4; }
 .is-drop-before { box-shadow: 0 -2px 0 var(--shu); }
 .is-drop-after { box-shadow: 0 2px 0 var(--shu); }
+
+/* ---- Word wrap everywhere (2026-11-19): long names wrap onto more lines instead of being cut off with "…" ---- */
+body { overflow-wrap: break-word; }
+.k-tree-project-name .k-nav-label,
+.k-tree-task-name > span:first-child,
+.k-tree-task-name > span.k-tree-task-text,
+.k-tree-subtask-name > span:first-child,
+.k-popover-text span,
+.k-target-text,
+.k-recovery-text,
+.k-sl-status-pill,
+.k-zen-target-title,
+.k-cockpit-subtask-text,
+.k-sound-title,
+.k-channel-name,
+.k-day-session-name,
+.k-top-task-name,
+.k-station-title,
+.k-station-subtitle,
+.k-ai-provider-info b,
+.k-tv-target {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+  max-width: 100%;
+}
+.k-tree-project-name .k-nav-label, .k-tree-task-name > span.k-tree-task-text, .k-tree-subtask-name > span:first-child { display: block; }
+.k-tree-task-name > .k-tree-task-text { display: block; }
+.k-channel-info, .k-sound-card-header, .k-popover-text { overflow: visible; min-width: 0; }
+.k-channel-info { align-items: flex-start; }
+.k-sl-status-pill { display: inline-flex; flex-wrap: wrap; }
+.k-tv-target { overflow-wrap: anywhere; text-align: center; padding: 0 2vw; }
+/* Buttons and chips may use several lines too, never overflow their box. */
+.k-btn, .k-chip-compact, .k-pomo-chip, .k-mode-pill { max-width: 100%; }
+@media (max-width: 480px) { .k-btn { white-space: normal; text-align: center; } }
+

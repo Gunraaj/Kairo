@@ -22,6 +22,8 @@ export interface SidebarNavProps {
   activeTaskId: string | null;
   setActiveTaskId: (id: string | null) => void;
   onProgress: () => void;
+  /** Short messages for the user (for example when AI splitting is not available). */
+  onNotify?: (message: string) => void;
   onSettings: () => void;
   onShortcuts?: () => void;
   onToggleSoundStudio?: () => void;
@@ -40,6 +42,7 @@ export interface SidebarNavProps {
 }
 
 export const SidebarNav: React.FC<SidebarNavProps> = ({
+  onNotify,
   projects,
   setProjects,
   settings,
@@ -442,7 +445,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         setExpanded(prev => new Set(prev).add(projectId));
       }
     } catch (err) {
-      console.error('Failed to AI slice project:', err);
+      onNotify?.(err instanceof Error ? err.message : 'Could not split this project.');
     } finally {
       setSlicingProjectId(null);
     }
@@ -478,7 +481,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         setExpandedTasks(prev => new Set(prev).add(taskId));
       }
     } catch (err) {
-      console.error('Failed to AI slice task:', err);
+      onNotify?.(err instanceof Error ? err.message : 'Could not split this task.');
     } finally {
       setSlicingTaskId(null);
     }

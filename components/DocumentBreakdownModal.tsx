@@ -6,7 +6,6 @@ import {
   ProposedModule,
   DocumentAnalysisInput,
   analyzeDocumentWithAi,
-  SAMPLE_TEMPLATES,
   calculatePacing,
 } from '../utils/documentBreakdown';
 import { PresetCategory, SLICE_PRESETS } from '../utils/slicePresets';
@@ -170,15 +169,6 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
     } finally {
       setIsAnalyzing(false);
     }
-  };
-
-  // Load a starter sample template
-  const loadSample = (sampleId: string) => {
-    const sample = SAMPLE_TEMPLATES.find(s => s.id === sampleId);
-    if (!sample) return;
-    setRawText(sample.content);
-    setArchetype(sample.archetype);
-    setInputMode('text');
   };
 
   // Toggle module expansion
@@ -473,21 +463,6 @@ export const DocumentBreakdownModal: React.FC<DocumentBreakdownModalProps> = ({
               <div className="k-doc-field-group">
                 <div className="k-doc-label-row">
                   <label className="k-doc-label">Syllabus Outline or Topic List</label>
-                  <div className="k-doc-templates-row">
-                    <span className="k-templates-caption">Sample Starters:</span>
-                    <button type="button" onClick={() => loadSample('calculus')} className="k-template-btn">
-                      <Icon name="school" />
-                      <span>Calculus</span>
-                    </button>
-                    <button type="button" onClick={() => loadSample('prd')} className="k-template-btn">
-                      <Icon name="briefcase" />
-                      <span>Eng PRD</span>
-                    </button>
-                    <button type="button" onClick={() => loadSample('language')} className="k-template-btn">
-                      <Icon name="book" />
-                      <span>Japanese N4</span>
-                    </button>
-                  </div>
                 </div>
                 <textarea
                   className="k-doc-textarea"
