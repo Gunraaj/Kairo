@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TvDisplay } from './components/TvDisplay';
+import { HelpPage, isHelpPage } from './components/HelpPage';
 import { isDisplayPage } from './utils/castDisplay';
 import { primeAlertAudio } from './utils/alertSounds';
 import { installOfflineGuard } from './utils/offlineMode';
@@ -20,7 +21,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      {isDisplayPage() ? <TvDisplay /> : <App />}
+      {isDisplayPage() ? <TvDisplay /> : isHelpPage() ? <HelpPage /> : <App />}
     </ErrorBoundary>
   </React.StrictMode>
 );
