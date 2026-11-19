@@ -14,18 +14,27 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 | 5 | P1 | Consistent wording: "session" everywhere; no typewriter font on counts | Claude | Done | |
 | 6 | P1 | Whole-app intuition pass: labels, what each button does | Claude | Done (round 1) | Plain labels + tooltips (Count it, Schedule my day, Plan exam revision, Not linked to a task). Next: watch you use it and fix what confuses |
 | 7 | P1 | Netlify: makekairo.netlify.app is stuck on an old build (credits used up) | You | Waiting | Credits likely reset around the 20th. Then `npm run deploy:netlify`. Or turn it into a redirect to Cloudflare |
-| 8 | P0 | Sign in with Google instead of emailed links (Brevo dropped) | Claude | In progress | Supabase Google provider + free Google Cloud OAuth client on the alias account; app and connector both use it. Emails no longer needed |
-| 9 | P1 | Connector end-to-end test, then add it in Claude and ChatGPT | Claude | Blocked by #8 | Sign in with Google, list projects, add a plan, forged token refused |
+| 8 | P0 | Sign in with Google instead of emailed links (Brevo dropped) | Claude | Done | Google Cloud project "Kairo" (alias account), OAuth client, Supabase Google provider, consent screen published. Tested on the live site: sign-in works. Credentials live in .supabase-secrets |
+| 9 | P1 | Connector end-to-end test, then add it in Claude and ChatGPT | Claude | Test done; you add it | Tested with Google sign-in: token issued, tools work, forged token refused. Add `https://kairo-mcp.makekairo.workers.dev/mcp` as a custom connector in Claude / ChatGPT, then turn on Share with AI assistants in Kairo |
 | 10 | P2 | "Make all offline things an option in Settings" | Claude | Done (my reading) | Settings → Your data → Offline mode: no internet connections; timer, plans, focus tones, cached sounds and local Ollama keep working. Tell me if you meant something else |
 | 11 | P2 | "Simplify how tasks and subtasks are divided" | Claude | Done (my reading) | Subtasks read as a plain checklist; their session counters show only once used or on hover. Tell me if you meant something else |
 | 12 | P2 | Zen and Cockpit layouts | Claude | Done | Kept both; the "Zen" layout is renamed "Minimal" so it is not confused with the Zen button |
 | 13 | P2 | Split the biggest components (`ControlPanel`, `SidebarNav`, `Stage`) | Claude | Done (round 1) | Sidebar icons and the Sounds tab moved out; dead code removed. Further splits as features touch those files |
 | 14 | P2 | TypeScript 7 upgrade | Claude | Waiting | typescript-eslint does not support TS 7 yet |
 | 15 | P2 | picomatch security advisory (build tools only, not shipped) | Claude | Waiting | No fixed release yet; recheck `npm audit` |
+| 16 | P0 | Allow less than 1 session per task (0.5 session, e.g. a 12-minute half session) | Claude | To do | Today a task or subtask can't be set below 1 session, though the user asked for 0.5. Touches the plan popover, sidebar badge, plan math and today's schedule |
+| 17 | P0 | Subtask entry flow: pressing Enter in the subtask box should move to the subtask's checkbox/next field, not create a new empty subtask | Claude | To do | Fix the keyboard flow in the sidebar's Add subtask input; likely Enter adds then keeps focus in a way that creates blanks |
+| 18 | P0 | TV must not go to sleep while casting: send a periodic keep-alive command to the Chromecast | Claude | To do | Needs research: DashCast page vs a keep-awake (Screen Wake Lock on the TV page, a muted looping video, or a periodic Cast message). Test on your TV |
+| 19 | P1 | Subtasks and the "this session" plan feel janky: make their layout steady and consistent | Claude | To do | Rows jump when counters appear, popovers shift the layout. Design pass on subtask rows and the per-session plan popover |
+| 20 | P1 | Bottom toasts ("Deleted…", "Saved…", undo bar) need a close (×) button and must fade out automatically | Claude | To do | One shared toast component with a cross, auto-dismiss after a few seconds, pause on hover, stack neatly |
+| 21 | P1 | Revamp Settings: clearer structure, search, grouping, less scrolling | Claude | To do | Today one long modal. Consider a left menu with sections (Timer, Sounds, AI, Appearance, Data, Cloud) |
+| 22 | P1 | Revamp the left sidebar | Claude | To do | Clearer hierarchy for projects/tasks, quick add, drag to reorder, collapse states, better empty state |
+| 23 | P1 | A proper FAQ / help page | Claude | To do | A real page (not a modal): how Kairo works, planning, sounds, casting, cloud sync, privacy, troubleshooting; linked from the sidebar and Settings |
 
 ## Done
 | Date | What |
 |------|------|
+| 2026-11-19 | Google sign-in live (app and connector), Brevo dropped, connector tested end to end |
 | 2026-11-18 | Linter fully clean (real types instead of `any`, correct hook deps); fixed stale default session length; welcome guide skippable from step 1; no vibrate errors |
 | 2026-11-18 | Offline mode; subtasks as a checklist; security: script policy narrowed to Google's cast paths; dead code removed; sidebar icons and Sounds tab split out |
 | 2026-11-18 | End-of-session alarm catalog; Sound Studio tile grid + single mixer; "session" wording everywhere; plain-language labels; Minimal layout name |

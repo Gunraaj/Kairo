@@ -21,7 +21,7 @@ secret = "env(TURNSTILE_SECRET)"
 # project on the alias account; its id and secret come from .supabase-secrets, never this file.
 # Authorized redirect URI in Google Cloud: https://xxfsmnxppdqwnakjijlk.supabase.co/auth/v1/callback
 [auth.external.google]
-enabled = false
+enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_SECRET)"
 skip_nonce_check = false
