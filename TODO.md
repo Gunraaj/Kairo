@@ -9,7 +9,7 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 |---|-----|------|-----|--------|-------|
 | 1 | P0 | End-of-session sounds: a clear, loud sound when a focus session ends and a different one when a break ends | Claude | Done | Settings → 9 sounds with Test buttons, separate focus/break picks, alarm volume, ring 1–3×, also rings on Chromecast |
 | 2 | P0 | Sound Studio revamp ("10x better") | Claude | Done (round 1) | Tile grid, one "Now playing" mixer with precise sliders, wider panel, plain labels. Tell me what still feels off |
-| 3 | P0 | Try Chromecast casting on your TV | You | To do | Chrome or Edge, TV → Cast to Chromecast. Check centring and that Sound Studio sounds play. If stuck on the DashCast logo, use "Try full-page mode" |
+| 3 | P0 | Try Chromecast casting on your TV | You | To do | Chrome or Edge, TV → Cast to Chromecast. Check: timer centred, Sound Studio and alarm sounds play, and whether the TV still falls asleep (then turn off Ambient mode on the TV) |
 | 4 | P1 | Push and deploy the 2026-11-18 evening work (offline mode, checklist subtasks, security fix, lint clean-up, bug fixes) | Claude | Done | Pushed and live on Cloudflare 2026-11-18 |
 | 5 | P1 | Consistent wording: "session" everywhere; no typewriter font on counts | Claude | Done | |
 | 6 | P1 | Whole-app intuition pass: labels, what each button does | Claude | Done (round 1) | Plain labels + tooltips (Count it, Schedule my day, Plan exam revision, Not linked to a task). Next: watch you use it and fix what confuses |
@@ -22,18 +22,19 @@ Updated 2026-11-18 (evening). New requests are added here with a priority first,
 | 13 | P2 | Split the biggest components (`ControlPanel`, `SidebarNav`, `Stage`) | Claude | Done (round 1) | Sidebar icons and the Sounds tab moved out; dead code removed. Further splits as features touch those files |
 | 14 | P2 | TypeScript 7 upgrade | Claude | Waiting | typescript-eslint does not support TS 7 yet |
 | 15 | P2 | picomatch security advisory (build tools only, not shipped) | Claude | Waiting | No fixed release yet; recheck `npm audit` |
-| 16 | P0 | Allow less than 1 session per task (0.5 session, e.g. a 12-minute half session) | Claude | To do | Today a task or subtask can't be set below 1 session, though the user asked for 0.5. Touches the plan popover, sidebar badge, plan math and today's schedule |
-| 17 | P0 | Subtask entry flow: pressing Enter in the subtask box should move to the subtask's checkbox/next field, not create a new empty subtask | Claude | To do | Fix the keyboard flow in the sidebar's Add subtask input; likely Enter adds then keeps focus in a way that creates blanks |
-| 18 | P0 | TV must not go to sleep while casting: send a periodic keep-alive command to the Chromecast | Claude | To do | Needs research: DashCast page vs a keep-awake (Screen Wake Lock on the TV page, a muted looping video, or a periodic Cast message). Test on your TV |
-| 19 | P1 | Subtasks and the "this session" plan feel janky: make their layout steady and consistent | Claude | To do | Rows jump when counters appear, popovers shift the layout. Design pass on subtask rows and the per-session plan popover |
-| 20 | P1 | Bottom toasts ("Deleted…", "Saved…", undo bar) need a close (×) button and must fade out automatically | Claude | To do | One shared toast component with a cross, auto-dismiss after a few seconds, pause on hover, stack neatly |
-| 21 | P1 | Revamp Settings: clearer structure, search, grouping, less scrolling | Claude | To do | Today one long modal. Consider a left menu with sections (Timer, Sounds, AI, Appearance, Data, Cloud) |
-| 22 | P1 | Revamp the left sidebar | Claude | To do | Clearer hierarchy for projects/tasks, quick add, drag to reorder, collapse states, better empty state |
-| 23 | P1 | A proper FAQ / help page | Claude | To do | A real page (not a modal): how Kairo works, planning, sounds, casting, cloud sync, privacy, troubleshooting; linked from the sidebar and Settings |
+| 16 | P0 | Allow less than 1 session per task (0.5 session) | Claude | Done | Plan popover: ½ chip, − from 1 goes to 0.5, typed minutes round up to halves; progress counts in halves for half targets |
+| 17 | P0 | Subtask entry flow | Claude | Done (my reading) | Enter now adds the next subtask and keeps the box open (Esc / Enter on empty finishes); no jump to the checkbox. Tell me if you wanted the opposite |
+| 18 | P0 | TV must not go to sleep while casting | Claude | Done (best effort) | TV page now holds a screen wake lock plus a silent video loop. Google TV still starts its own screensaver after ~10 min, so the TV menu tells you to turn off Ambient mode on the TV. Needs your real-TV test |
+| 19 | P1 | Steadier subtask and per-session plan layout | Claude | Done (round 1) | Subtask rows: name and buttons on one line, badge below only when shown; plan popovers same width/alignment for tasks and subtasks |
+| 20 | P1 | Toasts and the undo bar: close button, auto-fade | Claude | Done | × on both, fade-out, pause on hover, never overlap |
+| 21 | P1 | Revamp Settings | Claude | Done (round 1) | Left menu that follows scrolling, search, new Alarms section, Text size moved to Appearance, wider dialog, tabs on phones |
+| 22 | P1 | Revamp the left sidebar | Claude | Done (round 1) | Drag or Alt+Up/Down to reorder projects and tasks, project progress bar. Later ideas: quick-add shortcut, collapse-all |
+| 23 | P1 | A proper FAQ / help page | Claude | Done | /help page with contents, search and answers rewritten for the current product; the in-app FAQ links to it |
 
 ## Done
 | Date | What |
 |------|------|
+| 2026-11-19 | Half sessions; Enter adds next subtask; TV keep-awake; toasts with close + fade; steadier subtask rows; Help page; Settings revamp (menu, search, Alarms); sidebar drag/Alt-arrow reorder + project progress |
 | 2026-11-19 | Google sign-in live (app and connector), Brevo dropped, connector tested end to end |
 | 2026-11-18 | Linter fully clean (real types instead of `any`, correct hook deps); fixed stale default session length; welcome guide skippable from step 1; no vibrate errors |
 | 2026-11-18 | Offline mode; subtasks as a checklist; security: script policy narrowed to Google's cast paths; dead code removed; sidebar icons and Sounds tab split out |
