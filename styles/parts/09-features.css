@@ -571,3 +571,18 @@ a.k-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .k-undo-bar .k-toast-close { color: var(--sumi-2); margin: 0 -6px 0 0; }
 .k-undo-bar .k-toast-close:hover, .k-undo-bar .k-toast-close:focus-visible { background: var(--washi-2); }
 @media (prefers-reduced-motion: reduce) { .k-toast, .k-toast.is-leaving { transition: none; animation: none; } }
+
+/* ---- Steadier subtask rows and plan popovers ----
+   Name and buttons share the first line (check | name | actions); the session badge only takes a
+   second line when it is shown, so rows no longer jump between one empty-looking line and two. */
+.k-tree-subtask {
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  grid-template-areas: "check name actions" ". badge badge";
+  row-gap: 2px;
+}
+.k-tree-subtask > .k-subtask-actions { grid-area: actions; margin-left: 0; align-self: start; }
+.k-tree-subtask > .k-task-pomo-badge { grid-area: badge; justify-self: start; margin-left: 0; }
+
+/* Plan popovers: same width, alignment and padding for tasks and subtasks, no sideways overflow. */
+.k-pomo-popover, .k-subtask-popover { box-sizing: border-box; max-width: 100%; padding: 12px 14px; margin: 6px 0 8px 22px; width: calc(100% - 22px); }
+@media (prefers-reduced-motion: reduce) { .k-pomo-popover { animation: none; } }
